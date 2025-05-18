@@ -12,10 +12,9 @@
         </h2>
       </div>
     </div>
-  
-    <!-- Cards Entradas e Saídas (lado a lado abaixo do Resultado) -->
+
     <div class="row justify-content-center">
-      <div class="col-md-6 mb-3">
+      <div class="col-md-6 mb-3" (click)="exibirDetalhes('Entrada')">
         <div class="p-4 border rounded-4 shadow-sm bg-white h-100 text-center">
           <h6 class="text-muted mb-1">
             <i class="bi bi-arrow-down-circle-fill text-success me-1"></i>Entradas
@@ -24,7 +23,7 @@
         </div>
       </div>
   
-      <div class="col-md-6 mb-3">
+      <div class="col-md-6 mb-3" (click)="exibirDetalhes('Saida')">
         <div class="p-4 border rounded-4 shadow-sm bg-white h-100 text-center">
           <h6 class="text-muted mb-1">
             <i class="bi bi-arrow-up-circle-fill text-danger me-1"></i>Saídas
@@ -33,5 +32,43 @@
         </div>
       </div>
     </div>
+
+
+    <div *ngIf="mostrarDetalhes" class="container my-5">
+      <div class="card shadow rounded-4">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold text-primary m-0">Detalhes de {{ tipoDetalhe }}s</h5>
+            <button class="btn btn-sm btn-outline-secondary" (click)="fecharDetalhes()">Fechar</button>
+          </div>
+    
+          <div *ngIf="transacoesFiltradas.length === 0" class="alert alert-light text-center shadow-sm rounded p-4">
+            <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
+            <span class="fs-6 text-muted">Nenhuma transação encontrada</span>
+          </div>
+    
+          <div class="table-responsive" *ngIf="transacoesFiltradas.length > 0">
+            <table class="table table-hover align-middle">
+              <thead class="table-light text-center">
+                <tr>
+                  <th>Descrição</th>
+                  <th>Valor</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let t of transacoesFiltradas" class="text-center">
+                  <td class="text-start">{{ t.descricao }}</td>
+                  <td>{{ t.valor | moeda }}</td>
+                  <td>{{ t.data | date:'dd/MM/yyyy' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
   </div>
   
