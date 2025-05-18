@@ -1,0 +1,36 @@
+<div class="container">
+    <h3>Tabela de Produtos</h3>
+    <div class="mb-3">
+        <label for="nomePesquisa" class="form-label">PESQUISA:</label>
+        <input type="text" [(ngModel)]="nomePesquisa" id="nomePesquisa"
+            class="form-control" placeholder="digite nome para pesquisar ..">
+    </div>
+
+    <h4 *ngIf="(lista | buscador:nomePesquisa).length ==0">
+        Não há produtos cadastrados!
+    </h4>
+
+    <table class="table table-striped" *ngIf="(lista | buscador:nomePesquisa).length  > 0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>NOME</th>
+                <th>VALOR</th>
+                <th>TIPO</th>
+                <th>DATA</th>
+                <th>AÇÃO</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let transacao of (lista | buscador:nomePesquisa)">
+                <td>{{transacao.id}}</td>
+                <td>{{transacao.descricao}}</td>
+                <td>{{transacao.valor | moeda}}</td>
+                <td>{{transacao.tipo}}</td>
+                <td>{{transacao.data | date:"dd/MM/yyyy"}}</td>
+                <td><a class="btn btn-primary" routerLink="/edit/{{transacao.id}}">Editar</a></td>
+                <td><a class="btn btn-primary" routerLink="/tabela" (click)="deletar(transacao.id)">Deletar</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

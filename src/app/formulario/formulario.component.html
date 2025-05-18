@@ -1,0 +1,40 @@
+<div class="container">
+    <h3>Formulário de Produtos</h3>
+
+    <div>        
+        <div class="mb-3">
+            <label for="descricao" class="form-label">Descrição:</label>
+            <input type="text" [(ngModel)]="transacao.descricao" id="descricao"
+                class="form-control" placeholder="Descrição">
+        </div>
+
+        <div class="mb-3">
+            <label for="valor" class="form-label">Valor:</label>
+            <input type="number" [(ngModel)]="transacao.valor" id="valor"
+                class="form-control" placeholder="valor..">
+        </div>
+
+        <div class="mb-3">
+            <label for="tipo" class="form-label tipo">Tipo:</label>
+            
+            
+            
+            
+            
+            <select name="tipo" id="tipo" [(ngModel)]="transacao.tipo">
+                <option value="Entrada" selected>Entrada</option>
+                <option value="Saida">Saida</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="data" class="form-label">Data:</label>
+            <input type="date" [(ngModel)]="transacao.data" id="data"
+                class="form-control">
+        </div>
+
+        <button class="btn btn-primary me-3" (click)="salvar()">{{botao}}</button>
+        <button class="btn btn-primary" (click)="voltar()">Voltar</button>
+
+    </div>
+</div>
