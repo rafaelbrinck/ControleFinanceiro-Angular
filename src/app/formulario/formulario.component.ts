@@ -29,6 +29,11 @@ export class FormularioComponent {
   }
 
   salvar() {
+    if (this.transacao.valor != undefined) {
+      if (!this.validaValor(this.transacao.valor)) {
+        return alert('Valor tem que ser maior do que zero');
+      }
+    }
     if (this.id) {
       this.transacaoService.editar(this.id, this.transacao);
       alert('Transação editada com sucesso!');
@@ -38,7 +43,12 @@ export class FormularioComponent {
       this.transacao = new Transacao();
     }
   }
-
+  validaValor(valor: number) {
+    if (valor < 0) {
+      return false;
+    }
+    return true;
+  }
   voltar() {
     this.router.navigate(['/tabela']);
   }

@@ -8,7 +8,7 @@
       <div class="col text-center">
         <h5 class="fw-semibold text-uppercase text-muted mb-2">Resultado</h5>
         <h2 class="fw-bold" [ngClass]="relatorio.resultado >= 0 ? 'text-success' : 'text-danger'">
-          R$ {{ relatorio.resultado | number:'1.2-2' }}
+          {{ relatorio.resultado | moeda}}
         </h2>
       </div>
     </div>
@@ -20,7 +20,7 @@
           <h6 class="text-muted mb-1">
             <i class="bi bi-arrow-down-circle-fill text-success me-1"></i>Entradas
           </h6>
-          <h4 class="fw-semibold text-success">R$ {{ relatorio.entradas | number:'1.2-2' }}</h4>
+          <h4 class="fw-semibold text-success">{{ relatorio.entradas | moeda}}</h4>
         </div>
       </div>
   
@@ -29,7 +29,7 @@
           <h6 class="text-muted mb-1">
             <i class="bi bi-arrow-up-circle-fill text-danger me-1"></i>Saídas
           </h6>
-          <h4 class="fw-semibold text-danger">R$ {{ relatorio.saidas | number:'1.2-2' }}</h4>
+          <h4 class="fw-semibold text-danger">{{ relatorio.saidas | moeda}}</h4>
         </div>
       </div>
     </div>

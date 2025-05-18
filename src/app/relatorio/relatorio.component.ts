@@ -3,11 +3,12 @@ import { Relatorio } from '../relatorio';
 import { TransacaoService } from '../transacao.service';
 import { Transacao } from '../trasacao';
 import { CommonModule, NgClass } from '@angular/common';
+import { MoedaPipe } from '../moeda.pipe';
 
 @Component({
   selector: 'app-relatorio',
   standalone: true,
-  imports: [NgClass, CommonModule],
+  imports: [NgClass, CommonModule, MoedaPipe],
   templateUrl: './relatorio.component.html',
   styleUrls: ['./relatorio.component.css'],
 })
@@ -37,7 +38,7 @@ export class RelatorioComponent implements OnInit {
 
     this.relatorio.entradas = entradas;
     this.relatorio.saidas = saidas;
-    this.relatorio.resultado = entradas - saidas; // corrigido: subtração
+    this.relatorio.resultado = entradas - saidas;
   }
 
   mostrar() {

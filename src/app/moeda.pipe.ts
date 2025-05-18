@@ -8,9 +8,11 @@ export class MoedaPipe implements PipeTransform {
     if (!valor) {
       return '';
     }
-    const valorDecimal = valor.toFixed(2);
-    const valorBr = valorDecimal.replace('.', ',');
-    const valorMoeda = `R$ ${valorBr}`;
-    return valorMoeda;
+
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+    }).format(valor);
   }
 }
