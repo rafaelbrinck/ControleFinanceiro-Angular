@@ -1,40 +1,44 @@
-<div class="container">
-    <h3>Formulário de Produtos</h3>
-
-    <div>        
-        <div class="mb-3">
-            <label for="descricao" class="form-label">Descrição:</label>
-            <input type="text" [(ngModel)]="transacao.descricao" id="descricao"
-                class="form-control" placeholder="Descrição">
-        </div>
-
-        <div class="mb-3">
-            <label for="valor" class="form-label">Valor:</label>
-            <input type="number" [(ngModel)]="transacao.valor" id="valor"
-                class="form-control" placeholder="valor..">
-        </div>
-
-        <div class="mb-3">
-            <label for="tipo" class="form-label tipo">Tipo:</label>
-            
-            
-            
-            
-            
-            <select name="tipo" id="tipo" [(ngModel)]="transacao.tipo">
-                <option value="Entrada" selected>Entrada</option>
-                <option value="Saida">Saida</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="data" class="form-label">Data:</label>
-            <input type="date" [(ngModel)]="transacao.data" id="data"
-                class="form-control">
-        </div>
-
-        <button class="btn btn-primary me-3" (click)="salvar()">{{botao}}</button>
-        <button class="btn btn-primary" (click)="voltar()">Voltar</button>
-
+<div class="container my-5">
+    <div class="card shadow rounded-4">
+      <div class="card-body p-5">
+        <h2 class="mb-4 fw-bold text-primary text-center">Formulário de Produtos</h2>
+        <form>
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label for="descricao" class="form-label">Descrição:</label>
+              <input type="text" [(ngModel)]="transacao.descricao" name="descricao" id="descricao" class="form-control form-control-lg" placeholder="Ex: Salário, Mercado...">
+            </div>
+  
+            <div class="col-md-6">
+              <label for="valor" class="form-label">Valor:</label>
+              <input type="number" [(ngModel)]="transacao.valor" name="valor" id="valor" class="form-control form-control-lg" placeholder="Ex: 250.00">
+            </div>
+  
+            <div class="col-md-6">
+              <label for="tipo" class="form-label">Tipo de Operação:</label>
+              <select name="tipo" id="tipo" [(ngModel)]="transacao.tipo" class="form-select form-select-lg">
+                <option disabled selected>Selecione...</option>
+                <option value="Entrada">Entrada</option>
+                <option value="Saida">Saída</option>
+              </select>
+            </div>
+  
+            <div class="col-md-6">
+              <label for="data" class="form-label">Data:</label>
+              <input type="date" [(ngModel)]="transacao.data" name="data" id="data" class="form-control form-control-lg">
+            </div>
+  
+            <div class="col-12 text-end mt-4">
+              <button class="btn btn-success btn-lg me-3 px-4" (click)="salvar()">
+                <i class="bi bi-check-circle me-2"></i>{{botao}}
+              </button>
+              <button class="btn btn-secondary btn-lg px-4" (click)="voltar()">
+                <i class="bi bi-arrow-left me-2"></i>Voltar
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
-</div>
+  </div>
+  

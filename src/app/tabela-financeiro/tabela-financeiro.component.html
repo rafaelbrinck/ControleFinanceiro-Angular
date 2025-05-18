@@ -1,36 +1,55 @@
-<div class="container">
-    <h3>Tabela de Produtos</h3>
-    <div class="mb-3">
-        <label for="nomePesquisa" class="form-label">PESQUISA:</label>
-        <input type="text" [(ngModel)]="nomePesquisa" id="nomePesquisa"
-            class="form-control" placeholder="digite nome para pesquisar ..">
-    </div>
+<div class="container my-5">
+  <div class="card shadow rounded-4">
+    <div class="card-body p-4">
+      <h2 class="mb-4 fw-bold text-primary text-center">Tabela de Produtos</h2>
 
-    <h4 *ngIf="(lista | buscador:nomePesquisa).length ==0">
+      <div class="mb-4">
+        <label for="nomePesquisa" class="form-label">Pesquisa:</label>
+        <input type="text" [(ngModel)]="nomePesquisa" id="nomePesquisa" class="form-control form-control-lg" placeholder="Digite nome para pesquisar...">
+      </div>
+
+      <h5 class="text-danger text-center" *ngIf="(lista | buscador:nomePesquisa).length == 0">
         Não há produtos cadastrados!
-    </h4>
+      </h5>
 
-    <table class="table table-striped" *ngIf="(lista | buscador:nomePesquisa).length  > 0">
-        <thead>
+      <div class="table-responsive" *ngIf="(lista | buscador:nomePesquisa).length > 0">
+        <table class="table table-hover align-middle">
+          <thead class="table-light text-center">
             <tr>
-                <th>ID</th>
-                <th>NOME</th>
-                <th>VALOR</th>
-                <th>TIPO</th>
-                <th>DATA</th>
-                <th>AÇÃO</th>
+              <th>ID</th>
+              <th>DESCRIÇÃO</th>
+              <th>VALOR</th>
+              <th>TIPO</th>
+              <th>DATA</th>
+              <th class="text-center">AÇÃO</th>
             </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let transacao of (lista | buscador:nomePesquisa)">
-                <td>{{transacao.id}}</td>
-                <td>{{transacao.descricao}}</td>
-                <td>{{transacao.valor | moeda}}</td>
-                <td>{{transacao.tipo}}</td>
-                <td>{{transacao.data | date:"dd/MM/yyyy"}}</td>
-                <td><a class="btn btn-primary" routerLink="/edit/{{transacao.id}}">Editar</a></td>
-                <td><a class="btn btn-primary" routerLink="/tabela" (click)="deletar(transacao.id)">Deletar</a></td>
+          </thead>
+          <tbody>
+            <tr *ngFor="let transacao of (lista | buscador:nomePesquisa)" class="text-center">
+              <td>{{ transacao.id }}</td>
+              <td>{{ transacao.descricao }}</td>
+              <td>{{ transacao.valor | moeda }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'bg-success': transacao.tipo === 'Entrada',
+                  'bg-danger': transacao.tipo === 'Saida'
+                }">
+                  {{ transacao.tipo }}
+                </span>
+              </td>
+              <td>{{ transacao.data | date: 'dd/MM/yyyy' }}</td>
+              <td class="text-center">
+                <a class="btn btn-sm btn-outline-primary me-2" routerLink="/edit/{{ transacao.id }}">
+                  <i class="bi bi-pencil-fill"></i> Editar
+                </a>
+                <a class="btn btn-sm btn-outline-danger" (click)="deletar(transacao.id)">
+                  <i class="bi bi-trash-fill"></i> Deletar
+                </a>
+              </td>
             </tr>
-        </tbody>
-    </table>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
