@@ -1,0 +1,37 @@
+<div class="container mt-5">
+    <!-- Card Resultado (ocupa toda a largura) -->
+    <div 
+      class="row mb-4 justify-content-center"
+      [ngClass]="relatorio.resultado >= 0 ? 'bg-success-subtle' : 'bg-danger-subtle'"
+      style="border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.05); padding: 25px;"
+    >
+      <div class="col text-center">
+        <h5 class="fw-semibold text-uppercase text-muted mb-2">Resultado</h5>
+        <h2 class="fw-bold" [ngClass]="relatorio.resultado >= 0 ? 'text-success' : 'text-danger'">
+          R$ {{ relatorio.resultado | number:'1.2-2' }}
+        </h2>
+      </div>
+    </div>
+  
+    <!-- Cards Entradas e Saídas (lado a lado abaixo do Resultado) -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 mb-3">
+        <div class="p-4 border rounded-4 shadow-sm bg-white h-100 text-center">
+          <h6 class="text-muted mb-1">
+            <i class="bi bi-arrow-down-circle-fill text-success me-1"></i>Entradas
+          </h6>
+          <h4 class="fw-semibold text-success">R$ {{ relatorio.entradas | number:'1.2-2' }}</h4>
+        </div>
+      </div>
+  
+      <div class="col-md-6 mb-3">
+        <div class="p-4 border rounded-4 shadow-sm bg-white h-100 text-center">
+          <h6 class="text-muted mb-1">
+            <i class="bi bi-arrow-up-circle-fill text-danger me-1"></i>Saídas
+          </h6>
+          <h4 class="fw-semibold text-danger">R$ {{ relatorio.saidas | number:'1.2-2' }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+  

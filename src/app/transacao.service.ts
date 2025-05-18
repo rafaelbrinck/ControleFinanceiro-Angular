@@ -1,10 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Transacao } from './trasacao';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TransacaoService {
+  private transacoesSubject = new BehaviorSubject<Transacao[]>([]);
+  public transacoes$: Observable<Transacao[]> =
+    this.transacoesSubject.asObservable();
+
   private nextId = 5;
   private listaTransacao: Transacao[] = [
     {
@@ -37,7 +42,13 @@ export class TransacaoService {
     },
   ];
 
-  constructor() {}
+  constructor() {
+    this.atualizarStream();
+  }
+
+  private atualizarStream() {
+    this.transacoesSubject.next([...this.listaTransacao]);
+  }
 
   inserir(transacao: Transacao) {
     transacao.id = this.listaTransacao.length + 1;
@@ -45,6 +56,7 @@ export class TransacaoService {
       transacao.data = new Date();
     }
     this.listaTransacao.push(transacao);
+    this.atualizarStream();
   }
 
   listar() {
@@ -62,6 +74,7 @@ export class TransacaoService {
     const index = this.buscarIndice(id);
     if (index >= 0) {
       this.listaTransacao[index] = transacao;
+      this.atualizarStream();
     }
   }
 
@@ -69,6 +82,7 @@ export class TransacaoService {
     const index = this.buscarIndice(id);
     if (index >= 0) {
       this.listaTransacao.splice(index, 1);
+      this.atualizarStream();
     }
   }
 
