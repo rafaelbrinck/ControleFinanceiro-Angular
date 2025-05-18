@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './formulario.component.css',
 })
 export class FormularioComponent {
+  valorFormatado: string = '';
   transacao = new Transacao();
   id?: number;
   botao = 'Cadastrar';
@@ -25,6 +26,12 @@ export class FormularioComponent {
     if (this.id) {
       this.botao = 'Editar';
       this.transacao = this.transacaoService.buscarId(this.id);
+      if (this.transacao.valor != null) {
+        this.valorFormatado = this.transacao.valor.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      }
     }
   }
 
@@ -48,6 +55,18 @@ export class FormularioComponent {
       return false;
     }
     return true;
+  }
+  mascaraValor(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const valor = input.value;
+
+    const numeros = valor.replace(/\D/g, '');
+    const somenteNumeros = parseFloat(numeros) / 100;
+    this.transacao.valor = somenteNumeros;
+    this.valorFormatado = somenteNumeros.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
   voltar() {
     this.router.navigate(['/tabela']);

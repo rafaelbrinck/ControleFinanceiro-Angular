@@ -11,8 +11,15 @@
   
             <div class="col-md-6">
               <label for="valor" class="form-label">Valor:</label>
-              <input type="number" [(ngModel)]="transacao.valor" name="valor" id="valor" class="form-control form-control-lg" placeholder="Ex: 250.00">
+              <input
+                type="text"
+                [value]="valorFormatado"
+                (input)="mascaraValor($event)"
+                class="form-control form-control-lg"
+                placeholder="Ex: 0,00"
+              >
             </div>
+            
   
             <div class="col-md-6">
               <label for="tipo" class="form-label">Tipo de Operação:</label>
