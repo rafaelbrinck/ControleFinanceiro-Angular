@@ -41,7 +41,9 @@ export class FormularioComponent {
   }
 
   salvar() {
-    console.log(this.transacao.valor);
+    if (this.transacao.descricao == undefined) {
+      return alert('Descrição obrigatória!');
+    }
     if (
       this.transacao.valor == undefined ||
       this.transacao.valor == null ||
@@ -52,6 +54,11 @@ export class FormularioComponent {
     if (this.transacao.valor != undefined) {
       if (!this.validaValor(this.transacao.valor)) {
         return alert('Valor tem que ser maior do que zero');
+      }
+    }
+    if (this.transacao.data != undefined) {
+      if (!this.validaData(this.transacao.data.toString()!)) {
+        return alert('Ano da data deve ser superior a 2000 e inferior a 3100!');
       }
     }
     if (this.id) {
@@ -93,5 +100,19 @@ export class FormularioComponent {
         this.router.navigate(['/form-categoria']);
       }
     }
+  }
+
+  validaData(data: string): boolean {
+    const partes = data.split('-');
+    const dia = parseInt(partes[0], 10);
+    // Organiza o mês para os que começam com 0
+    const mes = parseInt(partes[1], 10) - 1;
+    const ano = parseInt(partes[2], 10);
+
+    const dataCadastrada = new Date(ano, mes, dia);
+    const dataMinima = new Date('2000-01-01');
+    const dataMaxima = new Date('3000-01-01');
+
+    return dataCadastrada >= dataMinima && dataCadastrada <= dataMaxima;
   }
 }

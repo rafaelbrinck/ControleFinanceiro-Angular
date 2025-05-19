@@ -1,60 +1,59 @@
 <div class="container my-5">
-    <div class="card shadow rounded-4">
-      <div class="card-body p-5">
-        <h2 class="mb-4 fw-bold text-primary text-center">Adicionar Transação</h2>
-        <form>
-          <div class="row g-4">
-            <div class="col-md-6">
-              <label for="descricao" class="form-label">Descrição:</label>
-              <input type="text" [(ngModel)]="transacao.descricao" name="descricao" id="descricao" class="form-control form-control-lg" placeholder="Ex: Salário, Mercado...">
-            </div>
-  
-            <div class="col-md-6">
-              <label for="valor" class="form-label">Valor:</label>
-              <input
-                type="text"
-                [value]="valorFormatado"
-                (input)="mascaraValor($event)"
-                class="form-control form-control-lg"
-                placeholder="Ex: 0,00"
-              >
-            </div> 
-            
-  
-            <div class="col-md-6">
-              <label for="tipo" class="form-label">Tipo de Operação:</label>
-              <select name="tipo" id="tipo" [(ngModel)]="transacao.tipo" class="form-select form-select-lg">
-                <option disabled selected>Selecione...</option>
-                <option value="Entrada">Entrada</option>
-                <option value="Saida">Saída</option>
-              </select>
-            </div>
+  <div class="card shadow rounded-4">
+    <div class="card-body p-5">
+      <h2 class="mb-4 fw-bold text-primary text-center">Adicionar Transação</h2>
+      <form>
+        <div class="row g-4">
+          <div class="col-12 col-sm-12 col-md-6">
+            <label for="descricao" class="form-label">Descrição:</label>
+            <input type="text" [(ngModel)]="transacao.descricao" name="descricao" id="descricao" class="form-control form-control-lg" placeholder="Ex: Salário, Mercado...">
+          </div>
 
-            <div class="col-md-6">
-              <label for="categoria" class="form-label" >Categorias:</label>
-              <select name="categoria" id="categoria" class="form-select form-select-lg" [(ngModel)]="transacao.categoria" (ngModelChange)="conferirCategoria($event)">
-                <option  *ngFor="let categoria of(listaCategorias)"  [ngValue]="categoria.nome">{{categoria.nome}}</option>
-                <option [ngValue]="'nova'">Adicionar nova categoria</option>
-              </select>
-            </div>
-  
-            <div class="col-md-6">
-              <label for="data" class="form-label">Data:</label>
-              <input type="date" [(ngModel)]="transacao.data" name="data" id="data" class="form-control form-control-lg">
-            </div>
-  
-            <div class="col-12 text-end mt-4">
-              <button class="btn btn-success btn-lg me-3 px-4" (click)="salvar()">
-                <i class="bi bi-check-circle me-2"></i>{{botao}}
+          <div class="col-12 col-sm-12 col-md-6">
+            <label for="valor" class="form-label">Valor:</label>
+            <input
+              type="text"
+              [value]="valorFormatado"
+              (input)="mascaraValor($event)"
+              class="form-control form-control-lg"
+              placeholder="Ex: 0,00"
+            >
+          </div> 
+
+          <div class="col-12 col-sm-12 col-md-6">
+            <label for="tipo" class="form-label">Tipo de Operação:</label>
+            <select name="tipo" id="tipo" [(ngModel)]="transacao.tipo" class="form-select form-select-lg">
+              <option disabled selected>Selecione...</option>
+              <option value="Entrada">Entrada</option>
+              <option value="Saida">Saída</option>
+            </select>
+          </div>
+
+          <div class="col-12 col-sm-12 col-md-6">
+            <label for="categoria" class="form-label">Categorias:</label>
+            <select name="categoria" id="categoria" class="form-select form-select-lg" [(ngModel)]="transacao.categoria" (ngModelChange)="conferirCategoria($event)">
+              <option *ngFor="let categoria of(listaCategorias)" [ngValue]="categoria.nome">{{categoria.nome}}</option>
+              <option [ngValue]="'nova'">Adicionar nova categoria</option>
+            </select>
+          </div>
+
+          <div class="col-12 col-sm-12 col-md-6">
+            <label for="data" class="form-label">Data:</label>
+            <input type="date" [(ngModel)]="transacao.data" name="data" id="data" class="form-control form-control-lg">
+          </div>
+
+          <div class="col-12">
+            <div class="d-flex flex-column flex-md-row justify-content-center justify-content-md-end gap-3 mt-4">
+              <button class="btn btn-success btn-lg px-4 w-100 w-md-auto" (click)="salvar()">
+                <i class="bi bi-check-circle me-2"></i>{{ botao }}
               </button>
-              <button class="btn btn-secondary btn-lg px-4" (click)="voltar()">
+              <button class="btn btn-secondary btn-lg px-4 w-100 w-md-auto" (click)="voltar()">
                 <i class="bi bi-arrow-left me-2"></i>Voltar
               </button>
-
             </div>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   </div>
-  
+</div>
