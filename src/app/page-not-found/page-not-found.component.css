@@ -1,0 +1,15 @@
+:host {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  color: #212529;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}
+div {
+  margin-top: -20px;
+  min-height: 93vh;
+}

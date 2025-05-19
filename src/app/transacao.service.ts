@@ -14,9 +14,10 @@ export class TransacaoService {
   private listaTransacao: Transacao[] = [
     {
       id: 1,
-      descricao: 'Mercado',
+      descricao: 'Zaffari',
       valor: 25,
       tipo: 'Saida',
+      categoria: 'Mercado',
       data: new Date('2025-01-20'),
     },
     {
@@ -24,19 +25,22 @@ export class TransacaoService {
       descricao: 'Salario',
       valor: 1000,
       tipo: 'Entrada',
+      categoria: 'Salário',
       data: new Date('2025-02-05'),
     },
     {
       id: 3,
       descricao: 'Comida para pet',
       valor: 350,
+      categoria: 'Pet',
       tipo: 'Saida',
       data: new Date('2025-02-15'),
     },
     {
       id: 4,
-      descricao: 'Mercado',
+      descricao: 'Tudo pelo social',
       valor: 250,
+      categoria: 'Restaurante',
       tipo: 'Saida',
       data: new Date('2025-03-20'),
     },

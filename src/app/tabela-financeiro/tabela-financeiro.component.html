@@ -1,7 +1,7 @@
 <div class="container my-5">
   <div class="card shadow rounded-4">
     <div class="card-body p-4">
-      <h2 class="mb-4 fw-bold text-primary text-center">Tabela de Produtos</h2>
+      <h2 class="mb-4 fw-bold text-primary text-center">Tabela de Transações</h2>
 
       <div class="input-group mb-4 shadow-sm">
         <span class="input-group-text bg-white border-end-0">
@@ -30,6 +30,7 @@
               <th>DESCRIÇÃO</th>
               <th>VALOR</th>
               <th>TIPO</th>
+              <th>CATEGORIA</th>
               <th>DATA</th>
               <th class="text-center">AÇÃO</th>
             </tr>
@@ -47,6 +48,7 @@
                   {{ transacao.tipo }}
                 </span>
               </td>
+              <td>{{transacao.categoria}}</td>
               <td>{{ transacao.data | date: 'dd/MM/yyyy' }}</td>
               <td class="text-center">
                 <a class="btn btn-sm btn-outline-primary me-2" routerLink="/edit/{{ transacao.id }}">

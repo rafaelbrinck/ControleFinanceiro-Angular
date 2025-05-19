@@ -4,6 +4,9 @@ import { TransacaoService } from '../transacao.service';
 import { Transacao } from '../trasacao';
 import { CommonModule, NgClass } from '@angular/common';
 import { MoedaPipe } from '../moeda.pipe';
+import { CategoriaService } from '../categoria.service';
+import { Router } from '@angular/router';
+import { Categoria } from '../categoria';
 
 @Component({
   selector: 'app-relatorio',
@@ -16,10 +19,19 @@ export class RelatorioComponent implements OnInit {
   relatorio = new Relatorio(0, 0, 0);
   listaTransacoes: Transacao[] = [];
 
+  mostrarCategorias: boolean = false;
+  categorias: Categoria[] = [];
+
   mostrarDetalhes: boolean = false;
   tipoDetalhe: 'Entrada' | 'Saida' | undefined;
 
-  constructor(private transacaoService: TransacaoService) {}
+  constructor(
+    private transacaoService: TransacaoService,
+    private categoriaService: CategoriaService,
+    private router: Router
+  ) {
+    this.categorias = this.categoriaService.listar();
+  }
 
   exibirDetalhes(tipo: 'Entrada' | 'Saida') {
     this.tipoDetalhe = tipo;
@@ -29,6 +41,7 @@ export class RelatorioComponent implements OnInit {
   fecharDetalhes() {
     this.tipoDetalhe = undefined;
     this.mostrarDetalhes = false;
+    this.mostrarCategorias = false;
   }
 
   get transacoesFiltradas(): Transacao[] {
@@ -48,10 +61,10 @@ export class RelatorioComponent implements OnInit {
     let entradas = 0;
     let saidas = 0;
 
-    transacoes.forEach((t) => {
-      if (t.valor !== undefined) {
-        if (t.tipo === 'Entrada') entradas += t.valor;
-        else if (t.tipo === 'Saida') saidas += t.valor;
+    transacoes.forEach((transacao) => {
+      if (transacao.valor !== undefined) {
+        if (transacao.tipo === 'Entrada') entradas += transacao.valor;
+        else if (transacao.tipo === 'Saida') saidas += transacao.valor;
       }
     });
 
@@ -59,7 +72,9 @@ export class RelatorioComponent implements OnInit {
     this.relatorio.saidas = saidas;
     this.relatorio.resultado = entradas - saidas;
   }
-
+  navegarParaCategorias() {
+    this.router.navigate(['/form-categoria']);
+  }
   mostrar() {
     return this.relatorio;
   }

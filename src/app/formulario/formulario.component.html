@@ -1,7 +1,7 @@
 <div class="container my-5">
     <div class="card shadow rounded-4">
       <div class="card-body p-5">
-        <h2 class="mb-4 fw-bold text-primary text-center">Receita | Despesa</h2>
+        <h2 class="mb-4 fw-bold text-primary text-center">Adicionar Transação</h2>
         <form>
           <div class="row g-4">
             <div class="col-md-6">
@@ -29,6 +29,14 @@
                 <option value="Saida">Saída</option>
               </select>
             </div>
+
+            <div class="col-md-6">
+              <label for="categoria" class="form-label" >Categorias:</label>
+              <select name="categoria" id="categoria" class="form-select form-select-lg" [(ngModel)]="transacao.categoria" (ngModelChange)="conferirCategoria($event)">
+                <option  *ngFor="let categoria of(listaCategorias)"  [ngValue]="categoria.nome">{{categoria.nome}}</option>
+                <option [ngValue]="'nova'">Adicionar nova categoria</option>
+              </select>
+            </div>
   
             <div class="col-md-6">
               <label for="data" class="form-label">Data:</label>
@@ -42,6 +50,7 @@
               <button class="btn btn-secondary btn-lg px-4" (click)="voltar()">
                 <i class="bi bi-arrow-left me-2"></i>Voltar
               </button>
+
             </div>
           </div>
         </form>

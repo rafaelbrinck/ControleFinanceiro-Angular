@@ -4,6 +4,8 @@ import { Transacao } from '../trasacao';
 import { TransacaoService } from '../transacao.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Categoria } from '../categoria';
+import { CategoriaService } from '../categoria.service';
 
 @Component({
   selector: 'app-formulario',
@@ -16,12 +18,15 @@ export class FormularioComponent {
   transacao = new Transacao();
   id?: number;
   botao = 'Cadastrar';
+  listaCategorias: Categoria[] = [];
 
   constructor(
     private transacaoService: TransacaoService,
+    private categoriaService: CategoriaService,
     private route: ActivatedRoute,
     private router: Router
   ) {
+    this.listaCategorias = this.categoriaService.listar();
     this.id = +this.route.snapshot.params['id'];
     if (this.id) {
       this.botao = 'Editar';
@@ -36,6 +41,14 @@ export class FormularioComponent {
   }
 
   salvar() {
+    console.log(this.transacao.valor);
+    if (
+      this.transacao.valor == undefined ||
+      this.transacao.valor == null ||
+      Number.isNaN(this.transacao.valor)
+    ) {
+      return alert('Valor é obrigatório preencher!');
+    }
     if (this.transacao.valor != undefined) {
       if (!this.validaValor(this.transacao.valor)) {
         return alert('Valor tem que ser maior do que zero');
@@ -44,10 +57,12 @@ export class FormularioComponent {
     if (this.id) {
       this.transacaoService.editar(this.id, this.transacao);
       alert('Transação editada com sucesso!');
+      this.voltar();
     } else {
       this.transacaoService.inserir(this.transacao);
       alert('Transação cadastrada com sucesso!');
       this.transacao = new Transacao();
+      this.voltar();
     }
   }
   validaValor(valor: number) {
@@ -70,5 +85,13 @@ export class FormularioComponent {
   }
   voltar() {
     this.router.navigate(['/tabela']);
+  }
+
+  conferirCategoria(valor: string) {
+    if (valor === 'nova') {
+      if (confirm('Gostaria de adicionar uma nova categoria?')) {
+        this.router.navigate(['/form-categoria']);
+      }
+    }
   }
 }

@@ -3,5 +3,6 @@ export class Transacao {
   descricao?: string;
   valor?: number;
   tipo?: string;
+  categoria?: string;
   data?: Date;
 }
