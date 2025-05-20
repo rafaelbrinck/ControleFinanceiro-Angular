@@ -1,0 +1,161 @@
+<div class="container my-5" *ngIf="registrar == false">
+  <div class="card shadow rounded-4">
+    <div class="card-body p-4 p-md-5">
+      <h2 class="mb-4 fw-bold text-primary text-center">Login</h2>
+
+      <form>
+        <div class="row g-3">
+          <div class="col-12">
+            <label for="nome" class="form-label">Username:</label>
+            <input
+              type="text"
+              [(ngModel)]="usuario.username"
+              name="nome"
+              id="nome"
+              class="form-control form-control-lg"
+              placeholder="Username"
+              required
+            >
+          </div>
+          <div class="col-12">
+            <label for="password" class="form-label">Senha:</label>
+            <input
+              type="password"
+              [(ngModel)]="usuario.password"
+              name="password"
+              id="password"
+              class="form-control form-control-lg"
+              placeholder="***********"
+              required
+            >
+          </div>
+
+          <div class="col-12 d-flex flex-column flex-sm-row justify-content-sm-end gap-2 mt-4">
+            <button
+              type="button"
+              class="btn btn-success btn-lg px-4"
+              (click)="logar()"
+            >
+              <i class="bi bi-check-circle me-2"></i>Logar
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary btn-lg px-4"
+              (click)="registrar = true"
+            >
+              <i class="bi bi-house-door-fill me-2"></i>Registrar
+            </button>
+          </div> 
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ÁREA DE REGISTRO DE USUÁRIOS -->
+<div class="container my-5" *ngIf="registrar == true">
+  <div class="card shadow rounded-4">
+    <div class="card-body p-4 p-md-5">
+      <h2 class="mb-4 fw-bold text-primary text-center">Registrar</h2>
+
+      <form>
+        <div class="row g-3">
+          <div class="col-12">
+            <label for="nome" class="form-label">Username:</label>
+            <input
+              type="text"
+              [(ngModel)]="usuario.username"
+              name="nome"
+              id="nome"
+              class="form-control form-control-lg"
+              placeholder="Username"
+              required
+            >
+          </div>
+          <div class="col-12">
+            <label for="password" class="form-label">Senha:</label>
+            <input
+              type="password"
+              [(ngModel)]="usuario.password"
+              name="password"
+              id="password"
+              class="form-control form-control-lg"
+              placeholder="***********"
+              required
+            >
+          </div>
+          <div class="col-12">
+            <label for="password" class="form-label">Repetir Senha:</label>
+            <input
+              type="password"
+              [(ngModel)]="usuario.validaPassword"
+              name="password"
+              id="password"
+              class="form-control form-control-lg"
+              placeholder="***********"
+              required
+            >
+          </div>
+
+          <div class="col-12 d-flex flex-column flex-sm-row justify-content-sm-end gap-2 mt-4">
+            <button
+              type="button"
+              class="btn btn-success btn-lg px-4"
+              (click)="inserir()"
+            >
+              <i class="bi bi-check-circle me-2"></i>Salvar
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary btn-lg px-4"
+              (click)="registrar = false"
+            >
+              <i class="bi bi-house-door-fill me-2"></i>Voltar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+ <!-- Categorias -->
+    <div class="container my-5">
+      <div class="card shadow rounded-4">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold text-primary m-0">Detalhes de Usuarios</h5>
+          </div>
+    
+          <div *ngIf="listaUsuarios.length === 0" class="alert alert-light text-center shadow-sm rounded p-4">
+            <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
+            <span class="fs-6 text-muted">Nenhuma usuario encontrado</span>
+          </div>
+    
+          <div class="table-responsive" *ngIf="listaUsuarios.length > 0">
+            <table class="table table-hover align-middle">
+              <thead class="table-light text-center">
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Password</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let usuario of listaUsuarios" class="text-center">
+                  <td>{{ usuario.id }}</td>
+                  <td>{{ usuario.username }}</td>
+                  <td>{{usuario.password}}</td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+        </div>
+      </div>
+    </div>

@@ -1,6 +1,7 @@
-<nav class="navbar navbar-expand-lg bg-white shadow-sm rounded mb-4">
+<!-- Navbar só aparece quando showNavbar for true -->
+<nav *ngIf="validaNavBar && validacaoLogin()" class="navbar navbar-expand-lg bg-white shadow-sm rounded mb-4">
   <div class="container">
-    <a class="navbar-brand fw-bold text-primary" routerLink="/inicio">💼 {{title}}</a>
+    <a class="navbar-brand fw-bold text-primary" routerLink="/inicio">💼 {{ title }}</a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
       <span class="navbar-toggler-icon"></span>
@@ -9,13 +10,20 @@
     <div class="collapse navbar-collapse" id="mainNavbar">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active fw-semibold" aria-current="page" routerLink="/inicio">Início</a>
+          <a class="nav-link active fw-semibold" routerLink="/inicio">Início</a>
         </li>
         <li class="nav-item">
           <a class="nav-link fw-semibold" routerLink="/tabela">Tabela</a>
         </li>
         <li class="nav-item">
           <a class="nav-link fw-semibold" routerLink="/novo">Cadastrar</a>
+        </li>
+      </ul>
+
+      <!-- Botão de logout alinhado à direita -->
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link fw-bold text-danger" style="cursor: pointer" (click)="logout()">Sair</a>
         </li>
       </ul>
     </div>
