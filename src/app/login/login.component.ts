@@ -22,10 +22,11 @@ export class LoginComponent {
 
   inserir() {
     if (this.validaCampos()) {
-      this.loginService.inserir(this.usuario);
-      alert('User inserido com sucesso!');
-      this.usuario = new User();
-      this.registrar = false;
+      if (this.loginService.inserir(this.usuario)) {
+        alert('User inserido com sucesso!');
+        this.usuario = new User();
+        this.registrar = false;
+      }
     }
   }
 

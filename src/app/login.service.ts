@@ -16,11 +16,18 @@ export class LoginService {
     return this.listaUsuarios;
   }
   inserir(user: User) {
+    const usuario = this.listaUsuarios.find(
+      (userExistente) => user.username == userExistente.username
+    );
+    if (usuario) {
+      return alert('Username já existe!');
+    }
     user.id = this.listaUsuarios.length + 1;
     if (!user.username || !user.password) {
       return alert('Username e senha são obrigatórios.');
     }
     this.listaUsuarios.push(user);
+    return true;
   }
 
   logar(user: User) {
@@ -32,10 +39,6 @@ export class LoginService {
     }
     const token =
       Math.random().toString(25).substring(2) + Date.now().toString(25);
-
-    /* REMOVER */
-    console.log(token);
-
     this.validacao.login(token);
     return true;
   }
@@ -43,6 +46,7 @@ export class LoginService {
   logout() {
     this.validacao.logout();
   }
+
   buscarUsername(username: string) {
     const user = this.listaUsuarios.find(
       (usuario) => usuario.username === username

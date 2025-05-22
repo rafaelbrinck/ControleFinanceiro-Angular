@@ -56,10 +56,8 @@ export class FormularioComponent {
         return alert('Valor tem que ser maior do que zero');
       }
     }
-    if (this.transacao.data != undefined) {
-      if (!this.validaData(this.transacao.data.toString()!)) {
-        return alert('Ano da data deve ser superior a 2000 e inferior a 3100!');
-      }
+    if (this.transacao.tipo == undefined) {
+      return alert('Tipo de transação obrigatório ser preenchido!');
     }
     if (this.id) {
       this.transacaoService.editar(this.id, this.transacao);
@@ -73,7 +71,7 @@ export class FormularioComponent {
     }
   }
   validaValor(valor: number) {
-    if (valor < 0) {
+    if (valor <= 0) {
       return false;
     }
     return true;
@@ -100,19 +98,5 @@ export class FormularioComponent {
         this.router.navigate(['/form-categoria']);
       }
     }
-  }
-
-  validaData(data: string): boolean {
-    const partes = data.split('-');
-    const dia = parseInt(partes[0], 10);
-    // Organiza o mês para os que começam com 0
-    const mes = parseInt(partes[1], 10) - 1;
-    const ano = parseInt(partes[2], 10);
-
-    const dataCadastrada = new Date(ano, mes, dia);
-    const dataMinima = new Date('2000-01-01');
-    const dataMaxima = new Date('3000-01-01');
-
-    return dataCadastrada >= dataMinima && dataCadastrada <= dataMaxima;
   }
 }
