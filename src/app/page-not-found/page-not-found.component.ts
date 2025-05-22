@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { Location } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { ValidacaoService } from '../validacao.service';
 
 @Component({
   selector: 'app-page-not-found',
@@ -9,9 +9,13 @@ import { Location } from '@angular/common';
   styleUrl: './page-not-found.component.css',
 })
 export class PageNotFoundComponent {
-  constructor(private location: Location) {}
+  constructor(private router: Router, private validacao: ValidacaoService) {}
 
   voltar() {
-    this.location.back();
+    if (this.validacao.confirmaAutenticacao()) {
+      this.router.navigate(['/inicio']);
+    } else {
+      this.router.navigate(['']);
+    }
   }
 }
