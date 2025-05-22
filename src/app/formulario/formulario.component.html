@@ -6,7 +6,7 @@
         <div class="row g-4">
           <div class="col-12 col-sm-12 col-md-6">
             <label for="descricao" class="form-label">Descrição:</label>
-            <input type="text" [(ngModel)]="transacao.descricao" name="descricao" id="descricao" class="form-control form-control-lg" placeholder="Ex: Salário, Mercado...">
+            <input type="text" [(ngModel)]="transacao.descricao" name="descricao" id="descricao" class="form-control form-control-lg" placeholder="Descrição">
           </div>
 
           <div class="col-12 col-sm-12 col-md-6">
@@ -16,7 +16,7 @@
               [value]="valorFormatado"
               (input)="mascaraValor($event)"
               class="form-control form-control-lg"
-              placeholder="Ex: 0,00"
+              placeholder="0,00"
             >
           </div> 
 
