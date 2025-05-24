@@ -25,9 +25,7 @@ export class AppComponent implements OnInit {
     private loginService: LoginService
   ) {
     this.loginService.logout();
-    if (!this.validacao.confirmaAutenticacao()) {
-      router.navigate(['']);
-    }
+    router.navigate(['']);
   }
 
   ngOnInit(): void {
