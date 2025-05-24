@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Categoria } from '../categoria';
 import { CategoriaService } from '../categoria.service';
+import { LoginService } from '../login.service';
 
 @Component({
   selector: 'app-form-categoria',
@@ -17,9 +18,10 @@ export class FormCategoriaComponent {
   lista: Categoria[] = [];
   constructor(
     private categoriaService: CategoriaService,
-    private router: Router
+    private router: Router,
+    private loginService: LoginService
   ) {
-    this.lista = categoriaService.listar();
+    this.lista = categoriaService.listar(loginService.getUserLogado());
   }
 
   salvar() {
@@ -45,7 +47,9 @@ export class FormCategoriaComponent {
     const categoria = this.categoriaService.buscarId(id);
     if (confirm(`Tem certeza que deseja deletar ${categoria.nome}?`)) {
       this.categoriaService.deletar(id);
-      this.lista = this.categoriaService.listar(); // atualiza a lista
+      this.lista = this.categoriaService.listar(
+        this.loginService.getUserLogado()
+      ); // atualiza a lista
     }
   }
   voltar() {

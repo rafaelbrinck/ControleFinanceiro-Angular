@@ -7,6 +7,9 @@
     >
       <div class="col text-center">
         <h5 class="fw-semibold text-uppercase text-muted mb-2">Resultado</h5>
+        <h2 class="fw-bold" *ngIf="relatorio.resultado === 0" [ngClass]="relatorio.resultado >= 0 ? 'text-success' : 'text-danger'">
+          R$ 0,00
+        </h2>
         <h2 class="fw-bold" [ngClass]="relatorio.resultado >= 0 ? 'text-success' : 'text-danger'">
           {{ relatorio.resultado | moeda}}
         </h2>
@@ -19,6 +22,7 @@
           <h6 class="text-muted mb-1">
             <i class="bi bi-arrow-down-circle-fill text-success me-1"></i>Entradas
           </h6>
+          <h4 *ngIf="relatorio.entradas == 0" class="fw-semibold text-success">R$ 0,00</h4>
           <h4 class="fw-semibold text-success">{{ relatorio.entradas | moeda}}</h4>
         </div>
       </div>
@@ -28,6 +32,7 @@
           <h6 class="text-muted mb-1">
             <i class="bi bi-arrow-up-circle-fill text-danger me-1"></i>Saídas
           </h6>
+          <h4 *ngIf="relatorio.saidas == 0" class="fw-semibold text-success">R$ 0,00</h4>
           <h4 class="fw-semibold text-danger">{{ relatorio.saidas | moeda}}</h4>
         </div>
       </div>
@@ -68,7 +73,7 @@
               </thead>
               <tbody>
                 <tr *ngFor="let transacao of transacoesFiltradas" class="text-center">
-                  <td class="text-start">{{ transacao.descricao }}</td>
+                  <td>{{ transacao.descricao }}</td>
                   <td>{{ transacao.valor | moeda }}</td>
                   <td>{{ transacao.categoria}}</td>
                   <td>{{ transacao.data | date:'dd/MM/yyyy' }}</td>
@@ -98,13 +103,11 @@
             <table class="table table-hover align-middle">
               <thead class="table-light text-center">
                 <tr>
-                  <th>ID</th>
                   <th>Nome</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let categoria of categorias" class="text-center">
-                  <td>{{ categoria.id }}</td>
                   <td>{{ categoria.nome }}</td>
                 </tr>
               </tbody>

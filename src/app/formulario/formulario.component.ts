@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Categoria } from '../categoria';
 import { CategoriaService } from '../categoria.service';
+import { LoginService } from '../login.service';
 
 @Component({
   selector: 'app-formulario',
@@ -24,9 +25,12 @@ export class FormularioComponent {
     private transacaoService: TransacaoService,
     private categoriaService: CategoriaService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private loginService: LoginService
   ) {
-    this.listaCategorias = this.categoriaService.listar();
+    this.listaCategorias = this.categoriaService.listar(
+      loginService.getUserLogado()
+    );
     this.id = +this.route.snapshot.params['id'];
     if (this.id) {
       this.botao = 'Editar';
@@ -64,6 +68,7 @@ export class FormularioComponent {
       alert('Transação editada com sucesso!');
       this.voltar();
     } else {
+      this.transacao.idUser = this.loginService.getUserLogado();
       this.transacaoService.inserir(this.transacao);
       alert('Transação cadastrada com sucesso!');
       this.transacao = new Transacao();

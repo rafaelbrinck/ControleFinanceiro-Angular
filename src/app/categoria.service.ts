@@ -1,24 +1,31 @@
 import { Injectable } from '@angular/core';
 import { Categoria } from './categoria';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
+import { LoginService } from './login.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CategoriaService {
   private categoriaSubject = new BehaviorSubject<Categoria[]>([]);
-  public categorias$: Observable<Categoria[]> =
-    this.categoriaSubject.asObservable();
+  public categorias$: Observable<Categoria[]> = this.categoriaSubject
+    .asObservable()
+    .pipe(
+      map((transacoes) => {
+        const userId = this.loginService.getUserLogado();
+        return transacoes.filter((transacao) => transacao.userId === userId);
+      })
+    );
 
   private listaCategorias: Categoria[] = [
-    { id: 1, nome: 'Salário' },
-    { id: 2, nome: 'Mercado' },
-    { id: 3, nome: 'Pet' },
-    { id: 4, nome: 'Restaurante' },
-    { id: 5, nome: 'Bonificação' },
+    { id: 1, nome: 'Salário', userId: 1 },
+    { id: 2, nome: 'Mercado', userId: 1 },
+    { id: 3, nome: 'Pet', userId: 1 },
+    { id: 4, nome: 'Restaurante', userId: 2 },
+    { id: 5, nome: 'Bonificação', userId: 2 },
   ];
 
-  constructor() {
+  constructor(private loginService: LoginService) {
     this.atualizarStream();
   }
 
@@ -34,8 +41,8 @@ export class CategoriaService {
     this, this.atualizarStream();
   }
 
-  listar() {
-    return this.listaCategorias;
+  listar(id: number) {
+    return this.listaCategorias.filter((transacao) => transacao.userId === id);
   }
   buscarNome(nome?: string) {
     const categoria = this.listaCategorias.find((cat) => cat.nome === nome);

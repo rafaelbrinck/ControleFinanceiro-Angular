@@ -13,6 +13,6 @@ export class MoedaPipe implements PipeTransform {
       style: 'currency',
       currency: 'BRL',
       minimumFractionDigits: 2,
-    }).format(valor);
+    }).format(valor | 0);
   }
 }

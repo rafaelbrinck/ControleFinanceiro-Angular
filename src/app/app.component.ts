@@ -7,6 +7,7 @@ import {
 } from '@angular/router';
 import { ValidacaoService } from './validacao.service';
 import { CommonModule } from '@angular/common';
+import { LoginService } from './login.service';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +19,16 @@ export class AppComponent implements OnInit {
   title = 'Controle Financeiro';
 
   validaNavBar = true;
-  constructor(private validacao: ValidacaoService, private router: Router) {}
+  constructor(
+    private validacao: ValidacaoService,
+    private router: Router,
+    private loginService: LoginService
+  ) {
+    this.loginService.logout();
+    if (!this.validacao.confirmaAutenticacao()) {
+      router.navigate(['']);
+    }
+  }
 
   ngOnInit(): void {
     this.router.events.subscribe((event) => {

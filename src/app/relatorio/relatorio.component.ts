@@ -7,6 +7,7 @@ import { MoedaPipe } from '../moeda.pipe';
 import { CategoriaService } from '../categoria.service';
 import { Router } from '@angular/router';
 import { Categoria } from '../categoria';
+import { LoginService } from '../login.service';
 
 @Component({
   selector: 'app-relatorio',
@@ -28,9 +29,12 @@ export class RelatorioComponent implements OnInit {
   constructor(
     private transacaoService: TransacaoService,
     private categoriaService: CategoriaService,
-    private router: Router
+    private router: Router,
+    private loginService: LoginService
   ) {
-    this.categorias = this.categoriaService.listar();
+    this.categorias = this.categoriaService.listar(
+      loginService.getUserLogado()
+    );
   }
 
   exibirDetalhes(tipo: 'Entrada' | 'Saida') {

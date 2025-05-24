@@ -6,6 +6,7 @@ import { BuscadorPipe } from '../buscador.pipe';
 import { MoedaPipe } from '../moeda.pipe';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { LoginService } from '../login.service';
 
 @Component({
   selector: 'app-tabela-financeiro',
@@ -17,8 +18,11 @@ export class TabelaFinanceiroComponent {
   nomePesquisa?: string;
   lista: Transacao[] = [];
 
-  constructor(private transacaoService: TransacaoService) {
-    this.lista = this.transacaoService.listar();
+  constructor(
+    private transacaoService: TransacaoService,
+    private loginService: LoginService
+  ) {
+    this.lista = this.transacaoService.listar(loginService.getUserLogado());
   }
   deletar(id?: number) {
     alert(`Produto com id ${id} removido com sucesso!`);

@@ -5,4 +5,5 @@ export class Transacao {
   tipo?: string;
   categoria?: string;
   data?: Date;
+  idUser?: number;
 }
