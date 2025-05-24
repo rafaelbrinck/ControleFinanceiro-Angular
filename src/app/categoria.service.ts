@@ -37,8 +37,9 @@ export class CategoriaService {
     if (!categoria.nome) {
       return alert('Obrigatório preencher o nome.');
     }
+    categoria.userId = this.loginService.getUserLogado();
     this.listaCategorias.push(categoria);
-    this, this.atualizarStream();
+    this.atualizarStream();
   }
 
   listar(id: number) {

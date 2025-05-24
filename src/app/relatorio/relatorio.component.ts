@@ -31,11 +31,7 @@ export class RelatorioComponent implements OnInit {
     private categoriaService: CategoriaService,
     private router: Router,
     private loginService: LoginService
-  ) {
-    this.categorias = this.categoriaService.listar(
-      loginService.getUserLogado()
-    );
-  }
+  ) {}
 
   exibirDetalhes(tipo: 'Entrada' | 'Saida') {
     this.tipoDetalhe = tipo;
@@ -59,6 +55,9 @@ export class RelatorioComponent implements OnInit {
       this.listaTransacoes = transacoes;
       this.atualizarRelatorio(transacoes);
     });
+    this.categoriaService.categorias$.subscribe(
+      (cats) => (this.categorias = cats)
+    );
   }
 
   atualizarRelatorio(transacoes: Transacao[]): void {
