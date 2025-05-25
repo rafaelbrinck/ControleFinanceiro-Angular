@@ -74,7 +74,13 @@ export class FormProdutoComponent {
     });
   }
 
-  conferirCategoria(event: Event) {}
+  conferirCategoria(valor: string) {
+    if (valor === 'nova') {
+      if (confirm('Gostaria de adicionar uma nova categoria?')) {
+        this.router.navigate(['/form-categoria']);
+      }
+    }
+  }
 
   private validarCampos() {
     if (this.produto.nome == undefined || this.produto.nome == '') {

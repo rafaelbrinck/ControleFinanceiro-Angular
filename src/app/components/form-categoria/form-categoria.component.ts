@@ -20,8 +20,12 @@ export class FormCategoriaComponent {
     private categoriaService: CategoriaService,
     private router: Router,
     private loginService: LoginService
-  ) {
-    this.lista = categoriaService.listarTudo(loginService.getUserLogado());
+  ) {}
+
+  ngOnInit() {
+    this.categoriaService.categorias$.subscribe(
+      (categorias) => (this.lista = categorias)
+    );
   }
 
   salvar() {
@@ -53,7 +57,7 @@ export class FormCategoriaComponent {
     }
   }
   voltar() {
-    this.router.navigate(['/novo']);
+    this.router.navigate(['/form-categoria']);
   }
   voltarInicio() {
     this.router.navigate(['/inicio']);

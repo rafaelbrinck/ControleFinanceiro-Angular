@@ -17,6 +17,13 @@
               required
             >
           </div>
+          <div class="col-12 col-sm-12 col-md-6">
+            <label for="categoria" class="form-label">Tipo:</label>
+            <select name="categoria" id="categoria" class="form-select form-select-lg" [(ngModel)]="categoria.tipo" >
+              <option value="Transacao">Transação</option>
+              <option value="Produto">Produto</option>
+            </select>
+          </div>
 
           <div class="col-12 d-flex flex-column flex-sm-row justify-content-sm-end gap-2 mt-4">
             <button
@@ -25,13 +32,6 @@
               (click)="salvar()"
             >
               <i class="bi bi-check-circle me-2"></i>Salvar
-            </button>
-            <button
-              type="button"
-              class="btn btn-secondary btn-lg px-4"
-              (click)="voltar()"
-            >
-              <i class="bi bi-arrow-left me-2"></i>Voltar
             </button>
             <button
               type="button"
@@ -62,12 +62,20 @@
           <thead class="table-light text-center">
             <tr>
               <th>NOME</th>
+              <th>TIPO</th>
               <th class="text-center">AÇÃO</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let categoria of lista" class="text-center">
               <td class="text-center">{{ categoria.nome }}</td>
+              <td class="text-center">
+                <span class="badge" [ngClass]="{
+                  'bg-success': categoria.tipo === 'Transacao',
+                  'bg-danger': categoria.tipo === 'Produto'
+                }">
+                  {{ categoria.tipo }}</span>
+                </td>
               <td class="text-center">
                 <button class="btn btn-sm btn-outline-danger" (click)="deletar(categoria.id!)">
                   <i class="bi bi-trash-fill"></i> Deletar
