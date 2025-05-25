@@ -7,6 +7,7 @@ import { FormCategoriaComponent } from './form-categoria/form-categoria.componen
 import { LoginComponent } from './login/login.component';
 import { ValidacaoGuard } from './validacao.guard';
 import { LoginGuard } from './login.guard';
+import { ProdutosComponent } from './produtos/produtos.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
@@ -35,6 +36,11 @@ export const routes: Routes = [
   {
     path: 'form-categoria',
     component: FormCategoriaComponent,
+    canActivate: [ValidacaoGuard],
+  },
+  {
+    path: 'produtos',
+    component: ProdutosComponent,
     canActivate: [ValidacaoGuard],
   },
   { path: '**', component: PageNotFoundComponent },

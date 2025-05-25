@@ -1,22 +1,28 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Transacao } from './trasacao';
 
 @Pipe({
   name: 'buscador',
 })
 export class BuscadorPipe implements PipeTransform {
-  transform(
-    listaTransacao: Transacao[],
-    nomePesquisa: string | undefined
-  ): Transacao[] {
+  transform<T>(
+    lista: T[],
+    nomePesquisa: string | undefined,
+    chaves: (keyof T)[] = ['descricao'] as (keyof T)[]
+  ): T[] {
     if (!nomePesquisa || nomePesquisa.length < 2) {
-      return listaTransacao;
+      return lista;
     }
 
-    return listaTransacao.filter((transacao) => {
-      return transacao.descricao
-        ?.toLocaleLowerCase()
-        .includes(nomePesquisa.toLocaleLowerCase());
+    return lista.filter((item) => {
+      return chaves.some((chave) => {
+        const valor = item[chave];
+        if (typeof valor === 'string') {
+          return valor
+            .toLocaleLowerCase()
+            .includes(nomePesquisa.toLocaleLowerCase());
+        }
+        return false;
+      });
     });
   }
 }

@@ -21,8 +21,11 @@ export class TabelaFinanceiroComponent {
   constructor(
     private transacaoService: TransacaoService,
     private loginService: LoginService
-  ) {
-    this.lista = this.transacaoService.listar(loginService.getUserLogado());
+  ) {}
+  ngOnInit(): void {
+    this.transacaoService.transacoes$.subscribe(
+      (transacoes) => (this.lista = transacoes)
+    );
   }
   deletar(id?: number) {
     alert(`Produto com id ${id} removido com sucesso!`);
