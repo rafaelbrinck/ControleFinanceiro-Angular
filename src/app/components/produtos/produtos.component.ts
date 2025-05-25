@@ -23,9 +23,9 @@ export class ProdutosComponent {
     private produtoService: ProdutosService
   ) {}
   ngOnInit(): void {
-    this.produtoService.produtos$.subscribe((produtos) => {
-      this.listaProdutos = produtos;
-    });
+    this.produtoService.produtos$.subscribe(
+      (produtos) => (this.listaProdutos = produtos)
+    );
   }
   deletar(id?: number) {
     const produto = this.produtoService.buscarId(id!);

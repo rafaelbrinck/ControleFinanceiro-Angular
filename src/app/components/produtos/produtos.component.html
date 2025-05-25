@@ -15,7 +15,7 @@
           placeholder="Digite para pesquisar..."
           aria-label="Pesquisar transações"
         >
-        <button type="submit" class="btn btn-success btn-lg px-4 w-md-auto"><i class="bi bi-check-circle me-2"></i>Inserir</button>
+        <button type="submit" class="btn btn-success btn-lg px-4 w-md-auto" routerLink="/form-produto/"><i class="bi bi-check-circle me-2"></i>Inserir</button>
       </div>
 
       <div *ngIf="(listaProdutos | buscador:nomePesquisa:['nome']).length === 0" class="alert alert-light text-center shadow-sm rounded p-4">
@@ -39,7 +39,7 @@
               <td>{{ produto.valor | moeda }}</td>
               <td>{{ produto.categoria }}</td>
               <td class="text-center">
-                <a class="btn btn-sm btn-outline-primary me-2 mb-1 mb-sm-0" routerLink="/edit/{{ produto.id }}">
+                <a class="btn btn-sm btn-outline-primary me-2 mb-1 mb-sm-0" routerLink="/form-produto/{{ produto.id }}">
                   <i class="bi bi-pencil-fill"></i> Editar
                 </a>
                 <button

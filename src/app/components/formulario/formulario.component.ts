@@ -29,7 +29,8 @@ export class FormularioComponent {
     private loginService: LoginService
   ) {
     this.listaCategorias = this.categoriaService.listar(
-      loginService.getUserLogado()
+      loginService.getUserLogado(),
+      'Transacao'
     );
     this.id = +this.route.snapshot.params['id'];
     if (this.id) {
@@ -94,7 +95,7 @@ export class FormularioComponent {
     });
   }
   voltar() {
-    this.router.navigate(['/tabela']);
+    this.router.navigate(['/transacoes']);
   }
 
   conferirCategoria(valor: string) {

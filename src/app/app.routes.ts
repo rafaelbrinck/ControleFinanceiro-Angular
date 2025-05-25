@@ -8,13 +8,14 @@ import { LoginComponent } from './components/login/login.component';
 import { ValidacaoGuard } from './guard/validacao.guard';
 import { LoginGuard } from './guard/login.guard';
 import { ProdutosComponent } from './components/produtos/produtos.component';
+import { FormProdutoComponent } from './components/form-produto/form-produto.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
   { path: '', component: LoginComponent, canActivate: [LoginGuard] },
 
   {
-    path: 'tabela',
+    path: 'transacoes',
     component: TabelaFinanceiroComponent,
     canActivate: [ValidacaoGuard],
   },
@@ -36,6 +37,16 @@ export const routes: Routes = [
   {
     path: 'form-categoria',
     component: FormCategoriaComponent,
+    canActivate: [ValidacaoGuard],
+  },
+  {
+    path: 'form-produto',
+    component: FormProdutoComponent,
+    canActivate: [ValidacaoGuard],
+  },
+  {
+    path: 'form-produto/:id',
+    component: FormProdutoComponent,
     canActivate: [ValidacaoGuard],
   },
   {

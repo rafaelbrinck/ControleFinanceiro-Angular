@@ -15,6 +15,7 @@
           placeholder="Digite para pesquisar..."
           aria-label="Pesquisar transações"
         >
+        <button type="submit" class="btn btn-success btn-lg px-4 w-md-auto" routerLink="/novo"><i class="bi bi-check-circle me-2"></i>Inserir</button>
       </div>
 
       <div *ngIf="(lista | buscador:nomePesquisa).length === 0" class="alert alert-light text-center shadow-sm rounded p-4">

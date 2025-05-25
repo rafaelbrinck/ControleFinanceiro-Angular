@@ -21,7 +21,7 @@ export class FormCategoriaComponent {
     private router: Router,
     private loginService: LoginService
   ) {
-    this.lista = categoriaService.listar(loginService.getUserLogado());
+    this.lista = categoriaService.listarTudo(loginService.getUserLogado());
   }
 
   salvar() {
@@ -47,7 +47,7 @@ export class FormCategoriaComponent {
     const categoria = this.categoriaService.buscarId(id);
     if (confirm(`Tem certeza que deseja deletar ${categoria.nome}?`)) {
       this.categoriaService.deletar(id);
-      this.lista = this.categoriaService.listar(
+      this.lista = this.categoriaService.listarTudo(
         this.loginService.getUserLogado()
       ); // atualiza a lista
     }

@@ -18,11 +18,13 @@ export class CategoriaService {
     );
 
   private listaCategorias: Categoria[] = [
-    { id: 1, nome: 'Salário', userId: 1 },
-    { id: 2, nome: 'Mercado', userId: 1 },
-    { id: 3, nome: 'Pet', userId: 1 },
-    { id: 4, nome: 'Restaurante', userId: 2 },
-    { id: 5, nome: 'Bonificação', userId: 2 },
+    { id: 1, nome: 'Salário', userId: 1, tipo: 'Transacao' },
+    { id: 2, nome: 'Mercado', userId: 1, tipo: 'Transacao' },
+    { id: 3, nome: 'Pet', userId: 1, tipo: 'Transacao' },
+    { id: 4, nome: 'Restaurante', userId: 2, tipo: 'Transacao' },
+    { id: 5, nome: 'Bonificação', userId: 2, tipo: 'Transacao' },
+    { id: 6, nome: 'Redes', userId: 1, tipo: 'Produto' },
+    { id: 7, nome: 'Tocas', userId: 1, tipo: 'Produto' },
   ];
 
   constructor(private loginService: LoginService) {
@@ -42,7 +44,12 @@ export class CategoriaService {
     this.atualizarStream();
   }
 
-  listar(id: number) {
+  listar(id: number, tipo: string) {
+    return this.listaCategorias.filter(
+      (transacao) => transacao.userId === id && transacao.tipo == tipo
+    );
+  }
+  listarTudo(id: number) {
     return this.listaCategorias.filter((transacao) => transacao.userId === id);
   }
   buscarNome(nome?: string) {

@@ -52,6 +52,7 @@ export class ProdutosService {
     if (this.validarCampos(produto)) {
       this.listaProdutos.push(produto);
       this.atualizarStream();
+      return true;
     }
     return alert('Problema em inserir um produto.');
   }
@@ -71,9 +72,9 @@ export class ProdutosService {
 
   editar(id: number, produto: Produto) {
     const index = this.buscarIndice(id);
-    if (index >= 0 || this.validarCampos(produto)) {
+    if (index >= 0) {
       this.listaProdutos[index] = produto;
-      this.atualizarStream;
+      this.atualizarStream();
     }
   }
 
