@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
-import { Transacao } from '../trasacao';
-import { TransacaoService } from '../transacao.service';
+import { Transacao } from '../../models/trasacao';
+import { TransacaoService } from '../../service/transacao.service';
 import { CommonModule } from '@angular/common';
-import { BuscadorPipe } from '../buscador.pipe';
-import { MoedaPipe } from '../moeda.pipe';
+import { BuscadorPipe } from '../../pipes/buscador.pipe';
+import { MoedaPipe } from '../../pipes/moeda.pipe';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LoginService } from '../login.service';
+import { LoginService } from '../../service/login.service';
 
 @Component({
   selector: 'app-tabela-financeiro',

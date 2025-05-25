@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { LoginService } from '../login.service';
-import { ProdutosService } from '../produtos.service';
-import { Produto } from '../produto';
+import { Produto } from '../../models/produto';
 import { CommonModule } from '@angular/common';
-import { BuscadorPipe } from '../buscador.pipe';
-import { MoedaPipe } from '../moeda.pipe';
+import { BuscadorPipe } from '../../pipes/buscador.pipe';
+import { MoedaPipe } from '../../pipes/moeda.pipe';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { LoginService } from '../../service/login.service';
+import { ProdutosService } from '../../service/produtos.service';
 
 @Component({
   selector: 'app-produtos',

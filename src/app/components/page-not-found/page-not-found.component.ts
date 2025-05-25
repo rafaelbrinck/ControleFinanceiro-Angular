@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { ValidacaoService } from '../validacao.service';
+import { ValidacaoService } from '../../service/validacao.service';
 
 @Component({
   selector: 'app-page-not-found',

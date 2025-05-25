@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Transacao } from './trasacao';
+import { Transacao } from '../models/trasacao';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { LoginService } from './login.service';
 import { map } from 'rxjs';

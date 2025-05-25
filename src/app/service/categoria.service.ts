@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Categoria } from './categoria';
+import { Categoria } from '../models/categoria';
 import { BehaviorSubject, map, Observable } from 'rxjs';
 import { LoginService } from './login.service';
 

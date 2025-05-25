@@ -2,9 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Categoria } from '../categoria';
-import { CategoriaService } from '../categoria.service';
-import { LoginService } from '../login.service';
+import { Categoria } from '../../models/categoria';
+import { CategoriaService } from '../../service/categoria.service';
+import { LoginService } from '../../service/login.service';
 
 @Component({
   selector: 'app-form-categoria',

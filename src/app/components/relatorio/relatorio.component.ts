@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Relatorio } from '../relatorio';
-import { TransacaoService } from '../transacao.service';
-import { Transacao } from '../trasacao';
+import { Relatorio } from '../../models/relatorio';
+import { TransacaoService } from '../../service/transacao.service';
+import { Transacao } from '../../models/trasacao';
 import { CommonModule, NgClass } from '@angular/common';
-import { MoedaPipe } from '../moeda.pipe';
-import { CategoriaService } from '../categoria.service';
+import { MoedaPipe } from '../../pipes/moeda.pipe';
+import { CategoriaService } from '../../service/categoria.service';
 import { Router } from '@angular/router';
-import { Categoria } from '../categoria';
-import { LoginService } from '../login.service';
+import { Categoria } from '../../models/categoria';
+import { LoginService } from '../../service/login.service';
 
 @Component({
   selector: 'app-relatorio',

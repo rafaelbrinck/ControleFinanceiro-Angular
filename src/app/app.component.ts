@@ -5,9 +5,9 @@ import {
   RouterLink,
   RouterOutlet,
 } from '@angular/router';
-import { ValidacaoService } from './validacao.service';
+import { ValidacaoService } from './service/validacao.service';
 import { CommonModule } from '@angular/common';
-import { LoginService } from './login.service';
+import { LoginService } from './service/login.service';
 
 @Component({
   selector: 'app-root',

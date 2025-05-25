@@ -1,13 +1,13 @@
 import { Routes } from '@angular/router';
-import { TabelaFinanceiroComponent } from './tabela-financeiro/tabela-financeiro.component';
-import { FormularioComponent } from './formulario/formulario.component';
-import { RelatorioComponent } from './relatorio/relatorio.component';
-import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { FormCategoriaComponent } from './form-categoria/form-categoria.component';
-import { LoginComponent } from './login/login.component';
-import { ValidacaoGuard } from './validacao.guard';
-import { LoginGuard } from './login.guard';
-import { ProdutosComponent } from './produtos/produtos.component';
+import { TabelaFinanceiroComponent } from './components/tabela-financeiro/tabela-financeiro.component';
+import { FormularioComponent } from './components/formulario/formulario.component';
+import { RelatorioComponent } from './components/relatorio/relatorio.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { FormCategoriaComponent } from './components/form-categoria/form-categoria.component';
+import { LoginComponent } from './components/login/login.component';
+import { ValidacaoGuard } from './guard/validacao.guard';
+import { LoginGuard } from './guard/login.guard';
+import { ProdutosComponent } from './components/produtos/produtos.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
