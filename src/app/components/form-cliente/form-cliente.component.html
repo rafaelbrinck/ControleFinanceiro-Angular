@@ -1,0 +1,73 @@
+<div class="container my-5">
+  <div class="card shadow rounded-4">
+    <div class="card-body p-5">
+      <h2 class="mb-4 fw-bold text-primary text-center">Adicionar Cliente</h2>
+      <form>
+        <div class="mb-4 border-bottom pb-2">
+          <h5 class="fw-semibold text-secondary">Dados Pessoais</h5>
+        </div>
+        <div class="row g-4 mb-5">
+          <div class="col-md-3">
+            <label for="cpf" class="form-label">CPF:</label>
+            <input type="text" [(ngModel)]="cliente.cpf" name="cpf" id="cpf" class="form-control form-control-lg" placeholder="CPF" (input)="mascaraCpf($event)" [value]="cpfFormatado" maxlength="14">
+          </div>
+          <div class="col-md-9">
+            <label for="nome" class="form-label">Nome:</label>
+            <input type="text" [(ngModel)]="cliente.nome" name="nome" id="nome" class="form-control form-control-lg" placeholder="Nome">
+          </div>
+          <div class="col-md-6">
+            <label for="telefone" class="form-label">Telefone:</label>
+            <input type="text" [(ngModel)]="cliente.telefone" name="telefone" id="telefone" class="form-control form-control-lg"  (input)="mascaraTelefone($event)" [value]="telefoneFormatado" placeholder="(00) 00000-0000" maxlength="15">
+          </div>
+          <div class="col-md-6">
+            <label for="insta" class="form-label">Insta:</label>
+            <input type="text" [(ngModel)]="cliente.instaUser" name="insta" id="insta" class="form-control form-control-lg" placeholder="@" maxlength="30"  (input)="mascaraInstagram($event)" [value]="instagramFormatado" >
+          </div>
+        </div>
+
+        <div class="mt-5 mb-3 border-bottom pb-2">
+          <h5 class="fw-semibold text-secondary">Endereço</h5>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <label for="cep" class="form-label">CEP:</label>
+            <input type="text" [(ngModel)]="cliente.cep" name="cep" id="cep" class="form-control form-control-lg" placeholder="CEP"  (input)="mascaraCep($event)" [value]="cepFormatado" >
+          </div>
+          <div class="col-md-8">
+            <label for="endereco" class="form-label">Endereço:</label>
+            <input type="text" [(ngModel)]="cliente.endereco" name="endereco" id="endereco" class="form-control form-control-lg" placeholder="Endereço">
+          </div>
+          <div class="col-md-4">
+            <label for="endNumero" class="form-label">Número:</label>
+            <input type="text" [(ngModel)]="cliente.endNumero" name="endNumero" id="endNumero" class="form-control form-control-lg" placeholder="Número">
+          </div>
+          <div class="col-md-8">
+            <label for="endComplemento" class="form-label">Complemento:</label>
+            <input type="text" [(ngModel)]="cliente.endComplemento" name="endComplemento" id="endComplemento" class="form-control form-control-lg" placeholder="Complemento">
+          </div>
+          <div class="col-md-4">
+            <label for="bairro" class="form-label">Bairro:</label>
+            <input type="text" [(ngModel)]="cliente.bairro" name="bairro" id="bairro" class="form-control form-control-lg" placeholder="Bairro">
+          </div>
+          <div class="col-md-4">
+            <label for="cidade" class="form-label">Cidade:</label>
+            <input type="text" [(ngModel)]="cliente.cidade" name="cidade" id="cidade" class="form-control form-control-lg" placeholder="Cidade">
+          </div>
+          <div class="col-md-2">
+            <label for="uf" class="form-label">UF:</label>
+            <input type="text" [(ngModel)]="cliente.uf" name="uf" id="uf" class="form-control form-control-lg" placeholder="UF">
+          </div>
+        </div>
+
+        <div class="d-flex flex-column flex-md-row justify-content-center justify-content-md-end gap-3 mt-5">
+          <button type="submit" class="btn btn-success btn-lg px-4 w-100 w-md-auto" (click)="salvar()">
+            <i class="bi bi-check-circle me-2"></i>{{botao}}
+          </button>
+          <button type="button" class="btn btn-secondary btn-lg px-4 w-100 w-md-auto" (click)="voltar()">
+            <i class="bi bi-arrow-left me-2"></i>Voltar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

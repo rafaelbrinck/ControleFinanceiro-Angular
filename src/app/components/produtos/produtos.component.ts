@@ -30,11 +30,7 @@ export class ProdutosComponent {
   deletar(id?: number) {
     const produto = this.produtoService.buscarId(id!);
     if (produto) {
-      if (
-        confirm(
-          `Deseja deletar ${produto.nome} ${produto.id}${produto.categoria}?`
-        )
-      ) {
+      if (confirm(`Deseja deletar ${produto.nome}?`)) {
         alert(`Produto ${produto.nome} removido com sucesso!`);
         this.produtoService.deletar(id);
       }

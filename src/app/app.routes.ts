@@ -9,6 +9,8 @@ import { ValidacaoGuard } from './guard/validacao.guard';
 import { LoginGuard } from './guard/login.guard';
 import { ProdutosComponent } from './components/produtos/produtos.component';
 import { FormProdutoComponent } from './components/form-produto/form-produto.component';
+import { ClientesComponent } from './components/clientes/clientes.component';
+import { FormClienteComponent } from './components/form-cliente/form-cliente.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
@@ -52,6 +54,21 @@ export const routes: Routes = [
   {
     path: 'produtos',
     component: ProdutosComponent,
+    canActivate: [ValidacaoGuard],
+  },
+  {
+    path: 'clientes',
+    component: ClientesComponent,
+    canActivate: [ValidacaoGuard],
+  },
+  {
+    path: 'form-cliente',
+    component: FormClienteComponent,
+    canActivate: [ValidacaoGuard],
+  },
+  {
+    path: 'form-cliente/:id',
+    component: FormClienteComponent,
     canActivate: [ValidacaoGuard],
   },
   { path: '**', component: PageNotFoundComponent },
