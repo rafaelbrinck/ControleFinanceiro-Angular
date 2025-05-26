@@ -47,6 +47,7 @@ export class ClientesService {
   insert(cliente: Cliente) {
     cliente.id = this.listaCliente.length + 1;
     cliente.idUser = this.loginService.getUserLogado();
+    cliente.instaUser = cliente.instaUser?.toLocaleLowerCase();
     if (this.validarCampos(cliente)) {
       this.listaCliente.push(cliente);
       this.atualizarStream();
