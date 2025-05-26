@@ -17,6 +17,7 @@ export class FormClienteComponent {
   id?: number;
   botao = 'Cadastrar';
 
+  enderecoDesativado: boolean = false;
   cpfFormatado: string = '';
   telefoneFormatado: string = '';
   instagramFormatado: string = '';
@@ -48,9 +49,37 @@ export class FormClienteComponent {
       this.voltar();
     }
   }
-  formatarInstagram() {
-    if (!this.cliente.instaUser!.startsWith('@')) {
-      this.cliente.instaUser = '@' + this.cliente.instaUser;
+
+  buscarCep() {
+    this.enderecoDesativado = false;
+    this.cliente.endereco = '';
+    this.cliente.bairro = '';
+    this.cliente.cidade = '';
+    this.cliente.uf = '';
+
+    const cep = this.cliente.cep?.replace(/\D/g, '');
+    if (cep == '') {
+      return false;
+    }
+    if (cep && cep.length === 8) {
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then((response) => response.json())
+        .then((dados) => {
+          if (!dados.erro) {
+            this.cliente.endereco = dados.logradouro;
+            this.cliente.bairro = dados.bairro;
+            this.cliente.cidade = dados.localidade;
+            this.cliente.uf = dados.uf;
+            this.enderecoDesativado = true;
+          } else {
+            return alert('CEP não encontrado!');
+          }
+        })
+        .catch(() => {
+          return alert('Erro ao buscar o CEP!');
+        });
+    } else {
+      return alert('CEP inválido!');
     }
   }
 

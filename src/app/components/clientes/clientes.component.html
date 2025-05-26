@@ -1,7 +1,7 @@
 <div class="container my-5">
   <div class="card shadow rounded-4">
     <div class="card-body p-4">
-      <h2 class="mb-4 fw-bold text-primary text-center">Tabela de Produtos</h2>
+      <h2 class="mb-4 fw-bold text-primary text-center">Tabela de Clientes</h2>
 
       <div class="input-group mb-4 shadow-sm">
         <span class="input-group-text bg-white border-end-0">
@@ -15,42 +15,38 @@
           placeholder="Digite para pesquisar..."
           aria-label="Pesquisar transações"
         >
-        <button type="submit" class="btn btn-success btn-lg px-4 w-md-auto" routerLink="/form-cliente/"><i class="bi bi-check-circle me-2"></i>Inserir</button>
+        <a class="btn btn-success btn-lg px-4 w-md-auto" routerLink="/form-cliente/">
+          <i class="bi bi-check-circle me-2"></i>Inserir
+        </a>
       </div>
 
-      <div *ngIf="(listaClientes | buscador:nomePesquisa:['nome']).length === 0" class="alert alert-light text-center shadow-sm rounded p-4">
+      <div *ngIf="(listaClientes | buscador:nomePesquisa:['nome']).length === 0" 
+           class="alert alert-light text-center shadow-sm rounded p-4">
         <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
-        <span class="fs-5 text-muted">Nenhum produto encontrado</span>
+        <span class="fs-5 text-muted">Nenhum cliente encontrado</span>
       </div>
 
-      <div class="table-responsive" *ngIf="(listaClientes | buscador:nomePesquisa:['nome']).length > 0">
+      <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light text-center">
             <tr>
-              <th scope="col" class="text-center">NOME</th>
-              <th scope="col" class="text-center col-4">AÇÃO</th>
+              <th scope="col">NOME</th>
+              <th scope="col" class="col-4">AÇÃO</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let cliente of (listaClientes | buscador:nomePesquisa:['nome'])" class="text-center">
-              <td class="text-center">{{ cliente.nome }}</td>
-              
-              <td class="text-center">
-                <button
-                class="btn btn-sm btn-outline-info me-2 mb-1 mb-sm-0"
-                (click)="abrirModal(cliente)"
-                >
-                   <i class="bi bi-info-circle-fill"></i> Descrição
+              <td>{{ cliente.nome }}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-info me-2 mb-1" (click)="abrirModal(cliente)">
+                  <i class="bi bi-info-circle-fill"></i> Descrição
                 </button>
 
-                <a class="btn btn-sm btn-outline-primary me-2 mb-1 mb-sm-0" routerLink="/form-cliente/{{ cliente.id }}">
+                <a class="btn btn-sm btn-outline-primary me-2 mb-1" routerLink="/form-cliente/{{ cliente.id }}">
                   <i class="bi bi-pencil-fill"></i> Editar
                 </a>
-                <button
-                  class="btn btn-sm btn-outline-danger"
-                  (click)="deletar(cliente.id)"
-                  type="button"
-                >
+
+                <button class="btn btn-sm btn-outline-danger mb-1" (click)="deletar(cliente.id)" type="button">
                   <i class="bi bi-trash-fill"></i> Deletar
                 </button>
               </td>
@@ -62,41 +58,73 @@
   </div>
 </div>
 
-<div
-  class="modal fade show d-block"
-  tabindex="-1"
-  *ngIf="clienteSelecionado"
-  style="background-color: rgba(0,0,0,0.5);"
->
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content rounded-4 shadow">
-      <div class="modal-header">
-        <h5 class="modal-title text-primary">Descrição do Cliente</h5>
-        <button type="button" class="btn-close" (click)="fecharModal()"></button>
+<!-- Modal -->
+<div class="modal fade show d-block" *ngIf="clienteSelecionado" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4 shadow border-0">
+      <div class="modal-header bg-primary text-white rounded-top-4">
+        <h5 class="modal-title">Descrição do Cliente</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="fecharModal()"></button>
       </div>
       <div class="modal-body">
-        <p><strong>CPF:</strong> {{ clienteSelecionado.cpf! | cpf}}</p>
-        <p><strong>Nome:</strong> {{ clienteSelecionado.nome }}</p>
-        <p><strong>CEP:</strong> {{ clienteSelecionado.cep! | cep}}</p>
-        <p><strong>Endereço:</strong> {{ clienteSelecionado.endereco }}</p>
-        <p><strong>Número:</strong> {{ clienteSelecionado.endNumero }}</p>
-        <p><strong>Complemento:</strong> {{ clienteSelecionado.endComplemento }}</p>
-        <p><strong>Bairro:</strong> {{ clienteSelecionado.bairro }}</p>
-        <p><strong>Cidade:</strong> {{ clienteSelecionado.cidade }}</p>
-        <p><strong>UF:</strong> {{ clienteSelecionado.uf }}</p>
-        <p><strong>Telefone:</strong> {{ clienteSelecionado.telefone! | telefone}}</p>
-        <p><strong>Insta:</strong> {{ clienteSelecionado.instaUser! | instagram }}</p>
+        
+        <div class="mb-4">
+          <h6 class="text-secondary fw-bold border-bottom pb-2">Documentos</h6>
+          <div class="row">
+            <div class="col-12 col-md-6 mb-2">
+              <strong>CPF:</strong> {{ clienteSelecionado.cpf! | cpf }}
+            </div>
+            <div class="col-12 col-md-6 mb-2">
+              <strong>Nome:</strong> {{ clienteSelecionado.nome }}
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <h6 class="text-secondary fw-bold border-bottom pb-2">Endereço</h6>
+          <div class="row">
+            <div class="col-12 col-md-6 mb-2">
+              <strong>CEP:</strong> {{ clienteSelecionado.cep! | cep }}
+            </div>
+            <div class="col-12 col-md-8 mb-2">
+              <strong>Endereço:</strong> {{ clienteSelecionado.endereco }}
+            </div>
+            <div class="col-12 col-md-6 mb-2">
+              <strong>Número:</strong> {{ clienteSelecionado.endNumero }}
+            </div>
+            <div class="col-12 col-md-6 mb-2">
+              <strong>Complemento:</strong> {{ clienteSelecionado.endComplemento }}
+            </div>
+            <div class="col-12 col-md-6 mb-2">
+              <strong>Bairro:</strong> {{ clienteSelecionado.bairro }}
+            </div>
+            <div class="col-12 col-md-6 mb-2">
+              <strong>Cidade:</strong> {{ clienteSelecionado.cidade }}
+            </div>
+            <div class="col-12 col-md-6 mb-2">
+              <strong>UF:</strong> {{ clienteSelecionado.uf }}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h6 class="text-secondary fw-bold border-bottom pb-2">Contato</h6>
+          <div class="row">
+            <div class="col-12 mb-2">
+              <strong>Telefone:</strong> {{ clienteSelecionado.telefone! | telefone }}
+            </div>
+            <div class="col-12 col-md-6 mb-2">
+              <strong>Instagram:</strong> {{ clienteSelecionado.instaUser! | instagram }}
+            </div>
+          </div>
+        </div>
+
       </div>
       <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary btn-lg"
-          (click)="fecharModal()"
-        >
+        <button type="button" class="btn btn-secondary btn-lg w-100" (click)="fecharModal()">
           <i class="bi bi-arrow-left"></i> Voltar
         </button>
       </div>
     </div>
   </div>
 </div>
-

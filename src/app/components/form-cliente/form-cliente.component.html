@@ -31,11 +31,11 @@
         <div class="row g-4">
           <div class="col-md-4">
             <label for="cep" class="form-label">CEP:</label>
-            <input type="text" [(ngModel)]="cliente.cep" name="cep" id="cep" class="form-control form-control-lg" placeholder="CEP"  (input)="mascaraCep($event)" [value]="cepFormatado" >
+            <input type="text" [(ngModel)]="cliente.cep" name="cep" id="cep" class="form-control form-control-lg" placeholder="CEP"  (input)="mascaraCep($event)" [value]="cepFormatado" (blur)="buscarCep()" maxlength="8">
           </div>
           <div class="col-md-8">
             <label for="endereco" class="form-label">Endereço:</label>
-            <input type="text" [(ngModel)]="cliente.endereco" name="endereco" id="endereco" class="form-control form-control-lg" placeholder="Endereço">
+            <input type="text" [(ngModel)]="cliente.endereco" name="endereco" id="endereco" class="form-control form-control-lg" placeholder="Endereço" [disabled]="enderecoDesativado">
           </div>
           <div class="col-md-4">
             <label for="endNumero" class="form-label">Número:</label>
@@ -47,15 +47,15 @@
           </div>
           <div class="col-md-4">
             <label for="bairro" class="form-label">Bairro:</label>
-            <input type="text" [(ngModel)]="cliente.bairro" name="bairro" id="bairro" class="form-control form-control-lg" placeholder="Bairro">
+            <input type="text" [(ngModel)]="cliente.bairro" name="bairro" id="bairro" class="form-control form-control-lg" placeholder="Bairro" [disabled]="enderecoDesativado">
           </div>
           <div class="col-md-4">
             <label for="cidade" class="form-label">Cidade:</label>
-            <input type="text" [(ngModel)]="cliente.cidade" name="cidade" id="cidade" class="form-control form-control-lg" placeholder="Cidade">
+            <input type="text" [(ngModel)]="cliente.cidade" name="cidade" id="cidade" class="form-control form-control-lg" placeholder="Cidade" [disabled]="enderecoDesativado">
           </div>
           <div class="col-md-2">
             <label for="uf" class="form-label">UF:</label>
-            <input type="text" [(ngModel)]="cliente.uf" name="uf" id="uf" class="form-control form-control-lg" placeholder="UF">
+            <input type="text" [(ngModel)]="cliente.uf" name="uf" id="uf" class="form-control form-control-lg" placeholder="UF" [disabled]="enderecoDesativado">
           </div>
         </div>
 
