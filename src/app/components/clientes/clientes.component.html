@@ -26,7 +26,7 @@
         <span class="fs-5 text-muted">Nenhum cliente encontrado</span>
       </div>
 
-      <div class="table-responsive">
+      <div class="table-responsive" *ngIf="(listaClientes | buscador:nomePesquisa:['nome']).length > 0">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light text-center">
             <tr>
