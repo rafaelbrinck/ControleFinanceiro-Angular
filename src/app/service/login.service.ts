@@ -3,17 +3,12 @@ import { User } from '../models/user';
 import { ValidacaoService } from './validacao.service';
 import { BehaviorSubject } from 'rxjs';
 import { supabase } from '../supabase';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoginService {
-  private listaUsuarios: User[] = [
-    { id: 1, username: 'admin', password: 'admin' },
-    { id: 2, username: 'teste', password: 'teste' },
-    { id: 3, username: 'o', password: 'o' },
-  ];
-
   public idUserLogadoSubject = new BehaviorSubject<number>(0);
   public idUserLogado$ = this.idUserLogadoSubject.asObservable();
 
@@ -50,34 +45,35 @@ export class LoginService {
       return false;
     }
 
-    /*
-    const usuario = this.listaUsuarios.find(
-      (userExistente) => user.username == userExistente.username
-    );
-    if (usuario) {
-      return alert('Username já existe!');
+    const senhaCriptografada = bcrypt.hashSync(user.password, 10);
+    const { error } = await supabase.from('usuarios').insert([
+      {
+        username: user.username,
+        password: senhaCriptografada,
+      },
+    ]);
+    if (error) {
+      alert('Erro ao registrar usuário!');
+      return false;
     }
-    user.id = this.listaUsuarios.length + 1;
-    if (!user.username || !user.password) {
-      return alert('Username e senha são obrigatórios.');
-    }
-    this.listaUsuarios.push(user);
-    return true;*/
+    return true;
   }
 
-  logar(user: User) {
-    const usuario = this.listaUsuarios.find(
-      (cliente) => cliente.username == user.username
-    );
-    if (!usuario || user.password != usuario?.password) {
-      return alert('Usuário ou Senha inválida');
+  async logar(user: User): Promise<boolean> {
+    const { data: usuario } = await supabase
+      .from('usuarios')
+      .select('*')
+      .eq('username', user.username)
+      .single();
+
+    if (!usuario || !bcrypt.compareSync(user.password!, usuario.password)) {
+      alert('Usuário ou senha inválidos');
+      return false;
     }
     const token =
       Math.random().toString(25).substring(2) + Date.now().toString(25);
     this.validacao.login(token);
-    if (usuario.id != undefined) {
-      this.setUserLogado(usuario.id);
-    }
+    this.setUserLogado(usuario.id);
     return true;
   }
 
@@ -86,24 +82,15 @@ export class LoginService {
     this.setUserLogado(0);
   }
 
-  buscarUsername(username: string) {
-    const user = this.listaUsuarios.find(
-      (usuario) => usuario.username === username
-    );
-    if (!user) {
-      return false;
-    }
-    return true;
-  }
+  async deletar(id?: number) {
+    if (!id) return;
+    const { error } = await supabase.from('usuarios').delete().eq('id', id);
 
-  deletar(id?: number) {
-    const index = this.buscarIndice(id);
-    if (index >= 0) {
-      this.listaUsuarios.splice(index, 1);
+    if (error) {
+      console.error('Erro ao deletar usuário:', error.message);
+      alert('Erro ao deletar usuário.');
+    } else {
+      alert('Usuário deletado com sucesso!');
     }
-  }
-
-  private buscarIndice(id?: number) {
-    return this.listaUsuarios.findIndex((user) => user.id == id);
   }
 }
