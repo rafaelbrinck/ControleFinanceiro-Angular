@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { User } from '../models/user';
 import { ValidacaoService } from './validacao.service';
 import { BehaviorSubject } from 'rxjs';
+import { supabase } from '../supabase';
 
 @Injectable({
   providedIn: 'root',
@@ -21,14 +22,35 @@ export class LoginService {
   getUserLogado(): number {
     return this.idUserLogadoSubject.getValue();
   }
-  setUserLogado(id: number) {
+  setUserLogado(id: number): void {
     this.idUserLogadoSubject.next(id);
   }
 
-  listar() {
-    return this.listaUsuarios;
+  async listar() {
+    const { data, error } = await supabase.from('usuarios').select('*');
+    if (error) {
+      alert(error.message);
+      return [error.cause, error.message];
+    }
+    return data || [];
   }
-  inserir(user: User) {
+
+  async inserir(user: User): Promise<boolean> {
+    if (!user.username || !user.password) {
+      alert('Usuário e senha são obrigatórios');
+      return false;
+    }
+    const { data: userExistente } = await supabase
+      .from('usuarios')
+      .select('*')
+      .eq('username', user.username)
+      .single();
+    if (userExistente) {
+      alert('Username já existe!');
+      return false;
+    }
+
+    /*
     const usuario = this.listaUsuarios.find(
       (userExistente) => user.username == userExistente.username
     );
@@ -40,7 +62,7 @@ export class LoginService {
       return alert('Username e senha são obrigatórios.');
     }
     this.listaUsuarios.push(user);
-    return true;
+    return true;*/
   }
 
   logar(user: User) {
