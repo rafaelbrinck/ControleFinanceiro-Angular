@@ -1,13 +1,10 @@
-import { Component, NgModule } from '@angular/core';
+import { Component } from '@angular/core';
 import { User } from '../../models/user';
 import { LoginService } from '../../service/login.service';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -17,23 +14,34 @@ export class LoginComponent {
   registrar = false;
 
   constructor(private loginService: LoginService, private router: Router) {
-    this.listaUsuarios = loginService.listar();
+    this.listarUsuarios();
   }
 
-  inserir() {
+  async listarUsuarios() {
+    this.listaUsuarios = await this.loginService.listar();
+  }
+
+  async inserir() {
     if (this.validaCampos()) {
-      if (this.loginService.inserir(this.usuario)) {
-        alert('User inserido com sucesso!');
+      const sucesso = await this.loginService.inserir(this.usuario);
+      if (sucesso) {
+        alert('Usuário inserido com sucesso!');
         this.usuario = new User();
         this.registrar = false;
+        this.listarUsuarios();
+      } else {
+        alert('Erro ao registrar usuário (talvez já exista).');
       }
     }
   }
 
-  logar() {
-    if (this.loginService.logar(this.usuario)) {
+  async logar() {
+    const sucesso = await this.loginService.logar(this.usuario);
+    if (sucesso) {
       this.usuario = new User();
       this.router.navigate(['/inicio']);
+    } else {
+      alert('Usuário ou senha inválidos.');
     }
   }
 
@@ -43,16 +51,20 @@ export class LoginComponent {
       !this.usuario.password ||
       !this.usuario.validaPassword
     ) {
-      return alert('Obrigatório preencher todos os campos');
+      alert('Obrigatório preencher todos os campos');
+      return false;
     }
-    if (this.usuario.username?.length! < 3) {
-      return alert('Usuário deve ter pelo menos 3 caracteres');
+    if (this.usuario.username.length < 3) {
+      alert('Usuário deve ter pelo menos 3 caracteres');
+      return false;
     }
-    if (this.usuario.password?.length! < 5) {
-      return alert('Senha deve conter no mínimo 5 caracteres');
+    if (this.usuario.password.length < 5) {
+      alert('Senha deve conter no mínimo 5 caracteres');
+      return false;
     }
-    if (this.usuario.password != this.usuario.validaPassword) {
-      return alert('Senhas incompátiveis!');
+    if (this.usuario.password !== this.usuario.validaPassword) {
+      alert('Senhas incompatíveis!');
+      return false;
     }
     return true;
   }
