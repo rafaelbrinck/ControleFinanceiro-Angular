@@ -37,7 +37,7 @@
           </thead>
           <tbody>
             <tr *ngFor="let transacao of (lista | buscador:nomePesquisa)" class="text-center">
-              <td class="text-center">{{ transacao.descricao }}</td>
+              <td class="text-center">{{ transacao.nome }}</td>
               <td>{{ transacao.valor | moeda }}</td>
               <td>
                 <span class="badge" [ngClass]="{

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Categoria } from '../models/categoria';
-import { BehaviorSubject, map, Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { supabase } from '../supabase';
 import { LoginService } from './login.service';
 
 @Injectable({
@@ -8,74 +9,126 @@ import { LoginService } from './login.service';
 })
 export class CategoriaService {
   private categoriaSubject = new BehaviorSubject<Categoria[]>([]);
-  public categorias$: Observable<Categoria[]> = this.categoriaSubject
-    .asObservable()
-    .pipe(
-      map((transacoes) => {
-        const userId = this.loginService.getUserLogado();
-        return transacoes.filter((transacao) => transacao.userId === userId);
-      })
-    );
+  public categorias$: Observable<Categoria[]> =
+    this.categoriaSubject.asObservable();
 
-  private listaCategorias: Categoria[] = [
-    { id: 1, nome: 'Salário', userId: 1, tipo: 'Transacao' },
-    { id: 2, nome: 'Mercado', userId: 1, tipo: 'Transacao' },
-    { id: 3, nome: 'Pet', userId: 1, tipo: 'Transacao' },
-    { id: 4, nome: 'Restaurante', userId: 2, tipo: 'Transacao' },
-    { id: 5, nome: 'Bonificação', userId: 2, tipo: 'Transacao' },
-    { id: 6, nome: 'Redes', userId: 1, tipo: 'Produto' },
-    { id: 7, nome: 'Tocas', userId: 1, tipo: 'Produto' },
-  ];
+  constructor(private loginService: LoginService) {}
 
-  constructor(private loginService: LoginService) {
-    this.atualizarStream();
-  }
+  async carregarCategorias() {
+    const userId = this.loginService.getUserLogado();
+    const { data, error } = await supabase
+      .from('categoria')
+      .select('*')
+      .eq('userId', userId);
 
-  private atualizarStream() {
-    this.categoriaSubject.next([...this.listaCategorias]);
-  }
-  inserir(categoria: Categoria) {
-    categoria.id = this.listaCategorias.length + 1;
-    if (!categoria.nome) {
-      return alert('Obrigatório preencher o nome.');
+    if (error) {
+      console.error('Erro ao carregar categorias:', error.message);
+      return;
     }
+
+    if (data) {
+      this.categoriaSubject.next(data);
+    }
+  }
+
+  async inserir(categoria: Categoria) {
     categoria.userId = this.loginService.getUserLogado();
-    this.listaCategorias.push(categoria);
-    this.atualizarStream();
-  }
 
-  listar(id: number, tipo: string) {
-    return this.listaCategorias.filter(
-      (transacao) => transacao.userId === id && transacao.tipo == tipo
-    );
-  }
-  listarTudo(id: number) {
-    return this.listaCategorias.filter((transacao) => transacao.userId === id);
-  }
-  buscarNome(nome?: string) {
-    const categoria = this.listaCategorias.find((cat) => cat.nome === nome);
-    if (categoria) {
-      return false;
+    if (!categoria.nome) {
+      alert('Obrigatório preencher o nome.');
+      return;
     }
-    return true;
-  }
 
-  buscarId(id: number) {
-    const categoria = this.listaCategorias.find(
-      (categoria) => categoria.id == id
-    );
-    return categoria ? Object.assign({}, categoria) : new Categoria();
-  }
+    const { error } = await supabase.from('categoria').insert([
+      {
+        nome: categoria.nome,
+        userId: categoria.userId,
+        tipo: categoria.tipo,
+      },
+    ]);
 
-  deletar(id?: number) {
-    const index = this.buscarIndice(id);
-    if (index >= 0) {
-      this.listaCategorias.splice(index, 1);
-      this.atualizarStream();
+    if (error) {
+      console.error('Erro ao inserir categoria:', error.message);
+    } else {
+      this.carregarCategorias();
     }
   }
 
-  private buscarIndice(id?: number) {
-    return this.listaCategorias.findIndex((categoria) => categoria.id == id);
+  async listar(tipo: string): Promise<Categoria[]> {
+    const userId = this.loginService.getUserLogado();
+
+    const { data, error } = await supabase
+      .from('categoria')
+      .select('*')
+      .eq('userId', userId)
+      .eq('tipo', tipo);
+
+    if (error) {
+      console.error('Erro ao listar categorias:', error.message);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  async listarTudo(): Promise<Categoria[]> {
+    const userId = this.loginService.getUserLogado();
+
+    const { data, error } = await supabase
+      .from('categoria')
+      .select('*')
+      .eq('userId', userId);
+
+    if (error) {
+      console.error('Erro ao listar todas as categorias:', error.message);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  async buscarNome(nome: string): Promise<boolean> {
+    const userId = this.loginService.getUserLogado();
+
+    const { data, error } = await supabase
+      .from('categoria')
+      .select('*')
+      .eq('userId', userId)
+      .eq('nome', nome);
+
+    if (error) {
+      console.error('Erro ao buscar nome:', error.message);
+      return true; // Retorna true por segurança
+    }
+
+    return !data || data.length === 0;
+  }
+
+  async buscarId(id: number): Promise<Categoria | null> {
+    const userId = this.loginService.getUserLogado();
+
+    const { data, error } = await supabase
+      .from('categoria')
+      .select('*')
+      .eq('id', id)
+      .eq('userId', userId)
+      .single();
+
+    if (error) {
+      console.error('Erro ao buscar categoria por ID:', error.message);
+      return null;
+    }
+
+    return data || null;
+  }
+
+  async deletar(id: number) {
+    const { error } = await supabase.from('categoria').delete().eq('id', id);
+
+    if (error) {
+      console.error('Erro ao deletar categoria:', error.message);
+    } else {
+      this.carregarCategorias();
+    }
   }
 }

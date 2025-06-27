@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Transacao } from '../../models/trasacao';
 import { TransacaoService } from '../../service/transacao.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,11 +10,12 @@ import { LoginService } from '../../service/login.service';
 
 @Component({
   selector: 'app-formulario',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './formulario.component.html',
   styleUrl: './formulario.component.css',
 })
-export class FormularioComponent {
+export class FormularioComponent implements OnInit {
   valorFormatado: string = '';
   transacao = new Transacao();
   id?: number;
@@ -27,15 +28,15 @@ export class FormularioComponent {
     private route: ActivatedRoute,
     private router: Router,
     private loginService: LoginService
-  ) {
-    this.listaCategorias = this.categoriaService.listar(
-      loginService.getUserLogado(),
-      'Transacao'
-    );
+  ) {}
+
+  async ngOnInit() {
+    this.listaCategorias = await this.categoriaService.listar('Transacao');
+
     this.id = +this.route.snapshot.params['id'];
     if (this.id) {
       this.botao = 'Editar';
-      this.transacao = this.transacaoService.buscarId(this.id);
+      this.transacao = await this.transacaoService.buscarId(this.id);
       if (this.transacao.valor != null) {
         this.valorFormatado = this.transacao.valor.toLocaleString('pt-BR', {
           minimumFractionDigits: 2,
@@ -45,8 +46,8 @@ export class FormularioComponent {
     }
   }
 
-  salvar() {
-    if (this.transacao.descricao == undefined) {
+  async salvar() {
+    if (this.transacao.nome == undefined) {
       return alert('Descrição obrigatória!');
     }
     if (
@@ -65,9 +66,12 @@ export class FormularioComponent {
       return alert('Tipo de transação obrigatório ser preenchido!');
     }
     if (this.id) {
-      this.transacaoService.editar(this.id, this.transacao);
-      alert('Transação editada com sucesso!');
-      this.voltar();
+      if (await this.transacaoService.editar(this.id, this.transacao)) {
+        alert('Transação editada com sucesso!');
+        this.voltar();
+      } else {
+        alert('Problema para editar a transação!');
+      }
     } else {
       this.transacao.idUser = this.loginService.getUserLogado();
       this.transacaoService.inserir(this.transacao);
@@ -76,12 +80,11 @@ export class FormularioComponent {
       this.voltar();
     }
   }
+
   validaValor(valor: number) {
-    if (valor <= 0) {
-      return false;
-    }
-    return true;
+    return valor > 0;
   }
+
   mascaraValor(event: Event) {
     const input = event.target as HTMLInputElement;
     const valor = input.value;
@@ -94,6 +97,7 @@ export class FormularioComponent {
       maximumFractionDigits: 2,
     });
   }
+
   voltar() {
     this.router.navigate(['/transacoes']);
   }

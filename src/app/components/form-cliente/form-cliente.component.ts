@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Cliente } from '../../models/cliente';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,11 +8,12 @@ import { LoginService } from '../../service/login.service';
 
 @Component({
   selector: 'app-form-cliente',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './form-cliente.component.html',
   styleUrl: './form-cliente.component.css',
 })
-export class FormClienteComponent {
+export class FormClienteComponent implements OnInit {
   cliente = new Cliente();
   id?: number;
   botao = 'Cadastrar';
@@ -28,25 +29,31 @@ export class FormClienteComponent {
     private clienteService: ClientesService,
     private loginService: LoginService,
     private route: ActivatedRoute
-  ) {
+  ) {}
+
+  async ngOnInit() {
     this.id = +this.route.snapshot.params['id'];
     if (this.id) {
       this.botao = 'Editar';
-      this.cliente = this.clienteService.buscarId(this.id);
+      const cliente = await this.clienteService.buscarId(this.id);
+      if (cliente) {
+        this.cliente = cliente;
+      }
     }
   }
 
-  salvar() {
+  async salvar() {
+    this.cliente.idUser = this.loginService.getUserLogado();
     if (this.id) {
-      this.clienteService.editar(this.id, this.cliente);
-      alert('Cliente alterado com sucesso!');
-      this.voltar();
+      if (await this.clienteService.editar(this.id, this.cliente)) {
+        alert('Cliente alterado com sucesso!');
+        this.voltar();
+      }
     } else {
-      this.cliente.idUser = this.loginService.getUserLogado();
-      this.clienteService.insert(this.cliente);
-      alert('Cliente adicionado com sucesso!');
-      this.cliente = new Cliente();
-      this.voltar();
+      if (await this.clienteService.insert(this.cliente)) {
+        alert('Cliente adicionado com sucesso!');
+        this.voltar();
+      }
     }
   }
 
@@ -58,39 +65,28 @@ export class FormClienteComponent {
     this.cliente.uf = '';
 
     const cep = this.cliente.cep?.replace(/\D/g, '');
-    if (cep == '') {
-      return false;
-    }
-    if (cep && cep.length === 8) {
-      fetch(`https://viacep.com.br/ws/${cep}/json/`)
-        .then((response) => response.json())
-        .then((dados) => {
-          if (!dados.erro) {
-            this.cliente.endereco = dados.logradouro;
-            this.cliente.bairro = dados.bairro;
-            this.cliente.cidade = dados.localidade;
-            this.cliente.uf = dados.uf;
-            this.enderecoDesativado = true;
-          } else {
-            return alert('CEP não encontrado!');
-          }
-        })
-        .catch(() => {
-          return alert('Erro ao buscar o CEP!');
-        });
-    } else {
-      return alert('CEP inválido!');
-    }
+    if (!cep || cep.length !== 8) return alert('CEP inválido!');
+
+    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+      .then((response) => response.json())
+      .then((dados) => {
+        if (!dados.erro) {
+          this.cliente.endereco = dados.logradouro;
+          this.cliente.bairro = dados.bairro;
+          this.cliente.cidade = dados.localidade;
+          this.cliente.uf = dados.uf;
+          this.enderecoDesativado = true;
+        } else {
+          alert('CEP não encontrado!');
+        }
+      })
+      .catch(() => alert('Erro ao buscar o CEP!'));
   }
 
   mascaraCpf(event: Event) {
     const input = event.target as HTMLInputElement;
-    let valor = input.value;
+    let valor = input.value.replace(/\D/g, '');
 
-    // Remove tudo que não for número
-    valor = valor.replace(/\D/g, '');
-
-    // Aplica a máscara: XXX.XXX.XXX-XX
     if (valor.length <= 11) {
       valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
       valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
@@ -98,25 +94,15 @@ export class FormClienteComponent {
     }
 
     input.value = valor;
-    this.cliente.cpf = valor; // ou onde você estiver armazenando
+    this.cliente.cpf = valor;
   }
 
   mascaraTelefone(event: Event) {
     const input = event.target as HTMLInputElement;
-    let valor = input.value;
+    let valor = input.value.replace(/\D/g, '').slice(0, 11);
 
-    valor = valor.replace(/\D/g, '');
-
-    if (valor.length > 11) {
-      valor = valor.slice(0, 11); // Limita a 11 dígitos
-    }
-
-    if (valor.length > 0) {
-      valor = valor.replace(/^(\d{2})(\d)/g, '($1) $2');
-    }
-    if (valor.length >= 10) {
-      valor = valor.replace(/(\d{5})(\d{4})$/, '$1-$2');
-    }
+    if (valor.length > 0) valor = valor.replace(/^(\d{2})(\d)/g, '($1) $2');
+    if (valor.length >= 10) valor = valor.replace(/(\d{5})(\d{4})$/, '$1-$2');
 
     input.value = valor;
     this.cliente.telefone = valor;
@@ -124,25 +110,15 @@ export class FormClienteComponent {
 
   mascaraInstagram(event: Event) {
     const input = event.target as HTMLInputElement;
-    let valor = input.value;
-
-    // Remove qualquer @ extra e espaços
-    valor = valor.replace(/\s/g, '').replace(/^@*/, '');
-
-    // Garante que começa com "@"
-    valor = '@' + valor;
-
-    input.value = valor;
-    this.cliente.instaUser = valor;
+    let valor = input.value.replace(/\s/g, '').replace(/^@*/, '');
+    input.value = '@' + valor;
+    this.cliente.instaUser = input.value;
   }
 
   mascaraCep(event: Event) {
     const input = event.target as HTMLInputElement;
-    const valor = input.value;
-
-    const numeros = valor.replace(/\D/g, '').substring(0, 8);
+    const numeros = input.value.replace(/\D/g, '').substring(0, 8);
     this.cliente.cep = numeros;
-
     this.cepFormatado = numeros.replace(/(\d{5})(\d{1,3})$/, '$1-$2');
   }
 

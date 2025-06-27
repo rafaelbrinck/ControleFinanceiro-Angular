@@ -33,6 +33,28 @@ export class RelatorioComponent implements OnInit {
     private loginService: LoginService
   ) {}
 
+  async ngOnInit(): Promise<void> {
+    const userId = this.loginService.getUserLogado();
+
+    // Só carrega os dados se o usuário estiver logado
+    if (userId) {
+      // Carregar categorias e transações do Supabase
+      await this.categoriaService.carregarCategorias();
+      await this.transacaoService.carregarTransacoes();
+    }
+
+    // Sempre que a lista de transações mudar, atualiza o relatório
+    this.transacaoService.transacoes$.subscribe((transacoes) => {
+      this.listaTransacoes = transacoes;
+      this.atualizarRelatorio(transacoes);
+    });
+
+    // Sempre que as categorias forem atualizadas, guarda localmente
+    this.categoriaService.categorias$.subscribe((cats) => {
+      this.categorias = cats;
+    });
+  }
+
   exibirDetalhes(tipo: 'Entrada' | 'Saida') {
     this.tipoDetalhe = tipo;
     this.mostrarDetalhes = true;
@@ -47,16 +69,6 @@ export class RelatorioComponent implements OnInit {
   get transacoesFiltradas(): Transacao[] {
     return this.listaTransacoes.filter(
       (transacao) => transacao.tipo === this.tipoDetalhe
-    );
-  }
-
-  ngOnInit(): void {
-    this.transacaoService.transacoes$.subscribe((transacoes) => {
-      this.listaTransacoes = transacoes;
-      this.atualizarRelatorio(transacoes);
-    });
-    this.categoriaService.categorias$.subscribe(
-      (cats) => (this.categorias = cats)
     );
   }
 
@@ -75,9 +87,11 @@ export class RelatorioComponent implements OnInit {
     this.relatorio.saidas = saidas;
     this.relatorio.resultado = entradas - saidas;
   }
+
   navegarParaCategorias() {
     this.router.navigate(['/form-categoria']);
   }
+
   mostrar() {
     return this.relatorio;
   }

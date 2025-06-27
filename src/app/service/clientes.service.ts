@@ -1,93 +1,128 @@
 import { Injectable } from '@angular/core';
 import { Cliente } from '../models/cliente';
-import { BehaviorSubject, map, Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { LoginService } from './login.service';
+import { supabase } from '../supabase';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ClientesService {
   private clientesSubject = new BehaviorSubject<Cliente[]>([]);
-  public clientes$: Observable<Cliente[]> = this.clientesSubject
-    .asObservable()
-    .pipe(
-      map((clientes) => {
-        return clientes.filter(
-          (cliente) => cliente.idUser == this.loginService.getUserLogado()
-        );
-      })
-    );
-  private listaCliente: Cliente[] = [
-    {
-      id: 1,
-      nome: 'Rafael',
-      cpf: '525.319.350-29',
-      cep: '91060350',
-      endereco: 'Rua José Mauricio',
-      endNumero: 76,
-      endComplemento: 'ap 650',
-      cidade: 'Porto Alegre',
-      uf: 'RS',
-      bairro: 'São Sebastião',
-      telefone: '51999999999',
-      instaUser: 'admin',
-      idUser: 1,
-    },
-  ];
-  constructor(private loginService: LoginService) {
-    this.atualizarStream();
+  public clientes$: Observable<Cliente[]> = this.clientesSubject.asObservable();
+
+  constructor(private loginService: LoginService) {}
+
+  async carregarClientes() {
+    const userId = this.loginService.getUserLogado();
+    const { data, error } = await supabase
+      .from('clientes')
+      .select('*')
+      .eq('idUser', userId);
+
+    if (error) {
+      console.error('Erro ao carregar clientes:', error.message);
+      return;
+    }
+
+    if (data) {
+      this.clientesSubject.next(data);
+    }
   }
 
-  listar() {
-    return this.listaCliente.filter(
-      (cliente) => cliente.idUser === this.loginService.getUserLogado()
-    );
+  async listar(): Promise<Cliente[]> {
+    await this.carregarClientes();
+    return this.clientesSubject.getValue();
   }
 
-  insert(cliente: Cliente) {
-    cliente.id = this.listaCliente.length + 1;
+  async insert(cliente: Cliente): Promise<boolean> {
     cliente.idUser = this.loginService.getUserLogado();
-    cliente.instaUser = cliente.instaUser?.toLocaleLowerCase();
-    if (this.validarCampos(cliente)) {
-      this.listaCliente.push(cliente);
-      this.atualizarStream();
-      return true;
-    }
-    return alert('Problema ao inserir um cliente');
-  }
+    cliente.instaUser = cliente.instaUser?.toLowerCase();
 
-  buscarId(id: number): Cliente {
-    const cliente = this.listaCliente.find((cliente) => cliente.id === id);
-    return cliente ? Object.assign({}, cliente) : new Cliente();
-  }
+    if (!this.validarCampos(cliente)) return false;
 
-  deletar(id?: number) {
-    const index = this.buscarIndice(id);
-    if (index >= 0) {
-      this.listaCliente.splice(index, 1);
-      this.atualizarStream();
-    }
-  }
+    const { error } = await supabase.from('clientes').insert([
+      {
+        nome: cliente.nome,
+        cpf: cliente.cpf,
+        cep: cliente.cep,
+        endereco: cliente.endereco,
+        endNumero: cliente.endNumero,
+        endComplemento: cliente.endComplemento,
+        cidade: cliente.cidade,
+        uf: cliente.uf,
+        bairro: cliente.bairro,
+        telefone: cliente.telefone,
+        instaUser: cliente.instaUser,
+        idUser: cliente.idUser,
+      },
+    ]);
 
-  editar(id: number, cliente: Cliente) {
-    const index = this.buscarIndice(id);
-    if (index >= 0) {
-      this.listaCliente[index] = cliente;
-      this.atualizarStream();
+    if (error) {
+      console.error('Erro ao inserir cliente:', error.message);
+      return false;
     }
-  }
 
-  private validarCampos(cliente: Cliente) {
-    if (cliente.nome == undefined) {
-      return alert('Nome obrigatório!');
-    }
+    await this.carregarClientes();
     return true;
   }
 
-  private buscarIndice(id?: number) {
-    return this.listaCliente.findIndex((cliente) => cliente.id == id);
+  async buscarId(id: number): Promise<Cliente | null> {
+    const userId = this.loginService.getUserLogado();
+    const { data, error } = await supabase
+      .from('clientes')
+      .select('*')
+      .eq('idUser', userId)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Erro ao buscar cliente:', error.message);
+      return null;
+    }
+
+    return data || null;
   }
-  private atualizarStream() {
-    this.clientesSubject.next([...this.listaCliente]);
+
+  async deletar(id?: number): Promise<void> {
+    const userId = this.loginService.getUserLogado();
+    const { error } = await supabase
+      .from('clientes')
+      .delete()
+      .eq('id', id)
+      .eq('idUser', userId);
+
+    if (error) {
+      console.error('Erro ao deletar cliente:', error.message);
+    }
+
+    await this.carregarClientes();
+  }
+
+  async editar(id: number, cliente: Cliente): Promise<boolean> {
+    const userId = this.loginService.getUserLogado();
+    cliente.instaUser = cliente.instaUser?.toLowerCase();
+
+    const { error } = await supabase
+      .from('clientes')
+      .update(cliente)
+      .eq('id', id)
+      .eq('idUser', userId);
+
+    if (error) {
+      console.error('Erro ao editar cliente:', error.message);
+      return false;
+    }
+
+    await this.carregarClientes();
+    return true;
+  }
+
+  private validarCampos(cliente: Cliente): boolean {
+    if (!cliente.nome || cliente.nome.trim() === '') {
+      alert('Nome obrigatório!');
+      return false;
+    }
+    return true;
   }
 }

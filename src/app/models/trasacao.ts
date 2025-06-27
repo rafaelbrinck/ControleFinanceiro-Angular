@@ -1,6 +1,6 @@
 export class Transacao {
   id?: number;
-  descricao?: string;
+  nome?: string;
   valor?: number;
   tipo?: string;
   categoria?: string;

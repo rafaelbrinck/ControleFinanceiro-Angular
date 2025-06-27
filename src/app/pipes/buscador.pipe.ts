@@ -7,7 +7,7 @@ export class BuscadorPipe implements PipeTransform {
   transform<T>(
     lista: T[],
     nomePesquisa: string | undefined,
-    chaves: (keyof T)[] = ['descricao'] as (keyof T)[]
+    chaves: (keyof T)[] = ['nome'] as (keyof T)[]
   ): T[] {
     if (!nomePesquisa || nomePesquisa.length < 2) {
       return lista;

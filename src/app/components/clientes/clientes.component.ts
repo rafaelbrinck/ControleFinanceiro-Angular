@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Cliente } from '../../models/cliente';
 import { ClientesService } from '../../service/clientes.service';
 import { CommonModule } from '@angular/common';
@@ -12,6 +12,7 @@ import { CpfPipe } from '../../pipes/cpf.pipe';
 
 @Component({
   selector: 'app-clientes',
+  standalone: true,
   imports: [
     CommonModule,
     BuscadorPipe,
@@ -25,14 +26,15 @@ import { CpfPipe } from '../../pipes/cpf.pipe';
   templateUrl: './clientes.component.html',
   styleUrl: './clientes.component.css',
 })
-export class ClientesComponent {
+export class ClientesComponent implements OnInit {
   nomePesquisa?: string;
   listaClientes: Cliente[] = [];
   clienteSelecionado?: Cliente;
 
   constructor(private clienteService: ClientesService) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    await this.clienteService.carregarClientes();
     this.clienteService.clientes$.subscribe(
       (clientes) => (this.listaClientes = clientes)
     );
@@ -46,13 +48,11 @@ export class ClientesComponent {
     this.clienteSelecionado = undefined;
   }
 
-  deletar(id?: number) {
-    const cliente = this.clienteService.buscarId(id!);
-    if (cliente) {
-      if (confirm(`Deseja deletar ${cliente.nome}?`)) {
-        alert(`Cliente ${cliente.nome} removido com sucesso!`);
-        this.clienteService.deletar(id);
-      }
+  async deletar(id?: number) {
+    const cliente = await this.clienteService.buscarId(id!);
+    if (cliente && confirm(`Deseja deletar ${cliente.nome}?`)) {
+      await this.clienteService.deletar(id);
+      alert(`Cliente ${cliente.nome} removido com sucesso!`);
     }
   }
 }

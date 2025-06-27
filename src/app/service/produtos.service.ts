@@ -1,96 +1,117 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { LoginService } from './login.service';
 import { Produto } from '../models/produto';
+import { supabase } from '../supabase';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProdutosService {
   private produtosSubject = new BehaviorSubject<Produto[]>([]);
-  public produtos$: Observable<Produto[]> = this.produtosSubject
-    .asObservable()
-    .pipe(
-      map((produtos) => {
-        return produtos.filter(
-          (produto) => produto.idUser === this.loginService.getUserLogado()
-        );
-      })
-    );
-  private listaProdutos: Produto[] = [
-    {
-      id: 1,
-      nome: 'Produto 1',
-      categoria: 'Redes',
-      valor: 20,
-      idUser: 1,
-    },
-    {
-      id: 2,
-      nome: 'Testando',
-      categoria: 'Tocas',
-      valor: 250,
-      idUser: 1,
-    },
-  ];
+  public produtos$: Observable<Produto[]> = this.produtosSubject.asObservable();
 
-  constructor(private loginService: LoginService) {
-    this.atualizarStream();
+  constructor(private loginService: LoginService) {}
+
+  async carregarProdutos() {
+    const userId = this.loginService.getUserLogado();
+
+    const { data, error } = await supabase
+      .from('produtos')
+      .select('*')
+      .eq('idUser', userId);
+
+    if (error) {
+      console.error('Erro ao carregar produtos:', error.message);
+      return;
+    }
+
+    this.produtosSubject.next(data as Produto[]);
   }
 
-  private atualizarStream() {
-    this.produtosSubject.next([...this.listaProdutos]);
-  }
-
-  listar(id: number) {
-    return this.listaProdutos.filter((produto) => produto.idUser === id);
-  }
-
-  inserir(produto: Produto) {
-    produto.id = this.listaProdutos.length + 1;
+  async inserir(produto: Produto) {
     produto.idUser = this.loginService.getUserLogado();
-    if (this.validarCampos(produto)) {
-      this.listaProdutos.push(produto);
-      this.atualizarStream();
-      return true;
+
+    if (!this.validarCampos(produto)) return;
+
+    const { error } = await supabase.from('produtos').insert([
+      {
+        nome: produto.nome,
+        valor: produto.valor,
+        categoria: produto.categoria,
+        idUser: produto.idUser,
+      },
+    ]);
+
+    if (error) {
+      console.error('Erro ao inserir produto:', error.message);
+      return alert('Erro ao inserir produto.');
     }
-    return alert('Problema em inserir um produto.');
+
+    await this.carregarProdutos();
   }
 
-  buscarId(id: number): Produto {
-    const produto = this.listaProdutos.find((produto) => produto.id === id);
-    return produto ? Object.assign({}, produto) : new Produto();
+  async editar(id: number, produto: Produto) {
+    const userId = this.loginService.getUserLogado();
+
+    const { error } = await supabase
+      .from('produtos')
+      .update(produto)
+      .eq('id', id)
+      .eq('idUser', userId);
+
+    if (error) {
+      console.error('Erro ao editar produto:', error.message);
+      return alert('Erro ao editar produto.');
+    }
+
+    await this.carregarProdutos();
   }
 
-  deletar(id?: number) {
-    const index = this.buscarIndice(id);
-    if (index >= 0) {
-      this.listaProdutos.splice(index, 1);
-      this.atualizarStream();
+  async deletar(id?: number) {
+    const userId = this.loginService.getUserLogado();
+
+    const { error } = await supabase
+      .from('produtos')
+      .delete()
+      .eq('id', id)
+      .eq('idUser', userId);
+
+    if (error) {
+      console.error('Erro ao deletar produto:', error.message);
+      return alert('Erro ao deletar produto.');
     }
+
+    await this.carregarProdutos();
   }
 
-  editar(id: number, produto: Produto) {
-    const index = this.buscarIndice(id);
-    if (index >= 0) {
-      this.listaProdutos[index] = produto;
-      this.atualizarStream();
+  async buscarId(id: number): Promise<Produto | null> {
+    const userId = this.loginService.getUserLogado();
+
+    const { data, error } = await supabase
+      .from('produtos')
+      .select('*')
+      .eq('id', id)
+      .eq('idUser', userId)
+      .single();
+
+    if (error) {
+      console.error('Erro ao buscar produto por ID:', error.message);
+      return null;
     }
+
+    return data as Produto;
   }
 
-  private validarCampos(produto: Produto) {
-    if (produto.nome == undefined) {
-      return alert('Nome do produto é obrigatório');
+  private validarCampos(produto: Produto): boolean {
+    if (!produto.nome) {
+      alert('Nome do produto é obrigatório');
+      return false;
     }
-    if (produto.valor == undefined) {
-      return alert('Valor do produto é obrigatório');
-    }
-    if (produto.valor <= 0) {
-      return alert('Valor deve ser maior do que zero');
+    if (produto.valor == null || produto.valor <= 0) {
+      alert('Valor deve ser maior que zero');
+      return false;
     }
     return true;
-  }
-  private buscarIndice(id?: number) {
-    return this.listaProdutos.findIndex((produto) => produto.id == id);
   }
 }

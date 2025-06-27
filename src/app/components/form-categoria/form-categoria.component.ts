@@ -16,6 +16,7 @@ import { LoginService } from '../../service/login.service';
 export class FormCategoriaComponent {
   categoria = new Categoria();
   lista: Categoria[] = [];
+
   constructor(
     private categoriaService: CategoriaService,
     private router: Router,
@@ -28,37 +29,46 @@ export class FormCategoriaComponent {
     );
   }
 
-  salvar() {
+  async salvar() {
     if (!this.categoria.nome || this.categoria.nome.trim() === '') {
-      return alert('O nome da categoria é obrigatório');
+      alert('O nome da categoria é obrigatório');
+      return;
     }
+
+    // Padroniza nome: primeira letra maiúscula, resto minúsculo
     const nome =
       this.categoria.nome.charAt(0).toUpperCase() +
       this.categoria.nome.slice(1).toLowerCase();
     this.categoria.nome = nome;
 
-    const catVerificada = this.categoriaService.buscarNome(nome);
+    // Como buscarNome é async, precisamos aguardar
+    const catVerificada = await this.categoriaService.buscarNome(nome);
     if (!catVerificada) {
-      return alert(`Categoria ${nome} já cadastrada`);
+      alert(`Categoria ${nome} já cadastrada`);
+      return;
     }
 
-    this.categoriaService.inserir(this.categoria);
+    await this.categoriaService.inserir(this.categoria);
     alert(`Categoria ${this.categoria.nome} adicionada com sucesso!`);
     this.categoria = new Categoria();
     this.voltar();
   }
-  deletar(id: number) {
-    const categoria = this.categoriaService.buscarId(id);
-    if (confirm(`Tem certeza que deseja deletar ${categoria.nome}?`)) {
-      this.categoriaService.deletar(id);
-      this.lista = this.categoriaService.listarTudo(
-        this.loginService.getUserLogado()
-      ); // atualiza a lista
+
+  async deletar(id: number) {
+    const categoria = await this.categoriaService.buscarId(id);
+    if (
+      categoria &&
+      confirm(`Tem certeza que deseja deletar ${categoria.nome}?`)
+    ) {
+      await this.categoriaService.deletar(id);
+      this.lista = await this.categoriaService.listarTudo(); // atualiza a lista após deletar
     }
   }
+
   voltar() {
     this.router.navigate(['/form-categoria']);
   }
+
   voltarInicio() {
     this.router.navigate(['/inicio']);
   }

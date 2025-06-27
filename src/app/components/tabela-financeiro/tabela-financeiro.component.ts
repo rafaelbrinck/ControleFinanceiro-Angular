@@ -22,13 +22,14 @@ export class TabelaFinanceiroComponent {
     private transacaoService: TransacaoService,
     private loginService: LoginService
   ) {}
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    await this.transacaoService.carregarTransacoes();
     this.transacaoService.transacoes$.subscribe(
       (transacoes) => (this.lista = transacoes)
     );
   }
-  deletar(id?: number) {
+  async deletar(id?: number) {
     alert(`Produto com id ${id} removido com sucesso!`);
-    this.transacaoService.deletar(id);
+    await this.transacaoService.deletar(id!);
   }
 }
