@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { User } from '../models/user';
+import { User, UserLogado } from '../models/user';
 import { ValidacaoService } from './validacao.service';
 import { BehaviorSubject } from 'rxjs';
 import { supabase } from '../supabase';
@@ -12,13 +12,45 @@ export class LoginService {
   public idUserLogadoSubject = new BehaviorSubject<number>(0);
   public idUserLogado$ = this.idUserLogadoSubject.asObservable();
 
+  private userSubject = new BehaviorSubject<UserLogado | undefined>(undefined);
+  public user$ = this.userSubject.asObservable();
+
   constructor(private validacao: ValidacaoService) {}
 
   getUserLogado(): number {
     return this.idUserLogadoSubject.getValue();
   }
+
   setUserLogado(id: number): void {
     this.idUserLogadoSubject.next(id);
+  }
+
+  async getUser(): Promise<UserLogado> {
+    const userId = this.getUserLogado();
+    const { data } = await supabase
+      .from('usuarios')
+      .select('id, username, logo')
+      .eq('id', userId)
+      .single();
+    return data as UserLogado;
+  }
+
+  async recarregarUsuario(): Promise<void> {
+    const userId = this.getUserLogado();
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('id, username, logo')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Erro ao recarregar usuário:', error.message);
+      return;
+    }
+
+    if (data) {
+      this.userSubject.next(data); // 🔁 força o emit
+    }
   }
 
   async listar() {
@@ -35,6 +67,7 @@ export class LoginService {
       alert('Usuário e senha são obrigatórios');
       return false;
     }
+
     const { data: userExistente } = await supabase
       .from('usuarios')
       .select('*')
@@ -52,6 +85,7 @@ export class LoginService {
         password: senhaCriptografada,
       },
     ]);
+
     if (error) {
       alert('Erro ao registrar usuário!');
       return false;
@@ -70,20 +104,26 @@ export class LoginService {
       alert('Usuário ou senha inválidos');
       return false;
     }
+
     const token =
       Math.random().toString(25).substring(2) + Date.now().toString(25);
+
     this.validacao.login(token);
     this.setUserLogado(usuario.id);
+    this.userSubject.next(usuario); // <- armazena usuário logado
+
     return true;
   }
 
   logout() {
     this.validacao.logout();
     this.setUserLogado(0);
+    this.userSubject.next(undefined); // limpa o usuário
   }
 
   async deletar(id?: number) {
     if (!id) return;
+
     const { error } = await supabase.from('usuarios').delete().eq('id', id);
 
     if (error) {

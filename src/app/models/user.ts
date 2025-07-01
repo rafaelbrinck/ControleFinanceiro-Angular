@@ -4,3 +4,9 @@ export class User {
   password?: string;
   validaPassword?: string;
 }
+
+export class UserLogado {
+  id?: number;
+  username?: string;
+  logo?: string;
+}

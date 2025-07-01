@@ -12,6 +12,7 @@ import { FormProdutoComponent } from './components/form-produto/form-produto.com
 import { ClientesComponent } from './components/clientes/clientes.component';
 import { FormClienteComponent } from './components/form-cliente/form-cliente.component';
 import { OrcamentoComponent } from './components/orcamento/orcamento.component';
+import { PerfilComponent } from './components/perfil/perfil.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
@@ -75,6 +76,11 @@ export const routes: Routes = [
   {
     path: 'orcamento',
     component: OrcamentoComponent,
+    canActivate: [ValidacaoGuard],
+  },
+  {
+    path: 'perfil',
+    component: PerfilComponent,
     canActivate: [ValidacaoGuard],
   },
   { path: '**', component: PageNotFoundComponent },

@@ -43,8 +43,6 @@ export class LoginComponent {
     if (sucesso) {
       this.usuario = new User();
       this.router.navigate(['/inicio']);
-    } else {
-      alert('Usuário ou senha inválidos.');
     }
   }
 
