@@ -8,6 +8,7 @@ import { CategoriaService } from '../../service/categoria.service';
 import { Router } from '@angular/router';
 import { Categoria } from '../../models/categoria';
 import { LoginService } from '../../service/login.service';
+import { supabase } from '../../supabase';
 
 @Component({
   selector: 'app-relatorio',
@@ -46,9 +47,8 @@ export class RelatorioComponent implements OnInit {
     // Sempre que a lista de transações mudar, atualiza o relatório
     this.transacaoService.transacoes$.subscribe((transacoes) => {
       this.listaTransacoes = transacoes;
-      this.atualizarRelatorio(transacoes);
     });
-
+    await this.carregarRelatorioViaEdge();
     // Sempre que as categorias forem atualizadas, guarda localmente
     this.categoriaService.categorias$.subscribe((cats) => {
       this.categorias = cats;
@@ -72,20 +72,31 @@ export class RelatorioComponent implements OnInit {
     );
   }
 
-  atualizarRelatorio(transacoes: Transacao[]): void {
-    let entradas = 0;
-    let saidas = 0;
+  async carregarRelatorioViaEdge() {
+    try {
+      const idUser = this.loginService.getUserLogado();
+      console.log('Chamando Edge Function com userId:', idUser);
 
-    transacoes.forEach((transacao) => {
-      if (transacao.valor !== undefined) {
-        if (transacao.tipo === 'Entrada') entradas += transacao.valor;
-        else if (transacao.tipo === 'Saida') saidas += transacao.valor;
+      const { data, error } = await supabase.functions.invoke('relatorio', {
+        body: { userId: idUser },
+      });
+
+      if (error) {
+        console.error('Erro da função:', error);
+        alert(
+          'Erro ao carregar relatório via função: ' +
+            (error.message || JSON.stringify(error))
+        );
+        return;
       }
-    });
 
-    this.relatorio.entradas = entradas;
-    this.relatorio.saidas = saidas;
-    this.relatorio.resultado = entradas - saidas;
+      console.log('Resposta da função:', data);
+      this.relatorio.entradas = data.entradas;
+      this.relatorio.saidas = data.saidas;
+      this.relatorio.resultado = data.resultado;
+    } catch (e) {
+      console.error('Erro inesperado:', e);
+    }
   }
 
   navegarParaCategorias() {

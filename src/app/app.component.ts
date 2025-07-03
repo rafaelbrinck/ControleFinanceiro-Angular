@@ -8,6 +8,7 @@ import {
 import { ValidacaoService } from './service/validacao.service';
 import { CommonModule } from '@angular/common';
 import { LoginService } from './service/login.service';
+import { UserLogado } from './models/user';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ import { LoginService } from './service/login.service';
 })
 export class AppComponent implements OnInit {
   title = 'Controle Financeiro';
+  usuario: UserLogado | undefined;
 
   validaNavBar = true;
   constructor(
@@ -28,11 +30,15 @@ export class AppComponent implements OnInit {
     router.navigate(['']);
   }
 
-  ngOnInit(): void {
-    this.router.events.subscribe((event) => {
+  async ngOnInit(): Promise<void> {
+    this.router.events.subscribe(async (event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects;
         this.validaNavBar = !url.includes('login');
+
+        if (this.validacaoLogin()) {
+          this.usuario = await this.loginService.getUser(); // <- pega logo
+        }
       }
     });
   }

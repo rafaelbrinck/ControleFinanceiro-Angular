@@ -58,7 +58,7 @@ export class FormProdutoComponent implements OnInit {
       } else {
         this.produto.idUser = this.loginService.getUserLogado();
         const sucesso = await this.produtoService.inserir(this.produto);
-        if (sucesso!) {
+        if (sucesso) {
           alert('Produto adicionado com sucesso!');
           this.produto = new Produto();
           this.valorFormatado = '';

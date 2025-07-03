@@ -45,10 +45,12 @@ export class ProdutosService {
 
     if (error) {
       console.error('Erro ao inserir produto:', error.message);
-      return alert('Erro ao inserir produto.');
+      alert('Erro ao inserir produto.');
+      return false;
     }
 
     await this.carregarProdutos();
+    return true;
   }
 
   async editar(id: number, produto: Produto) {

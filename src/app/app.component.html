@@ -1,38 +1,61 @@
-<!-- Navbar só aparece quando showNavbar for true -->
-<nav *ngIf="validaNavBar && validacaoLogin()" class="navbar navbar-expand-lg bg-white shadow-sm rounded mb-4">
+<!-- Navbar moderna e responsiva -->
+<nav *ngIf="validaNavBar && validacaoLogin()" class="navbar navbar-expand-lg bg-white shadow-sm mb-4">
   <div class="container">
-    <a class="navbar-brand fw-bold text-primary" routerLink="/inicio">💼 {{ title }}</a>
+    <!-- Logo e título -->
+    <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" routerLink="/inicio">
+      <i class="bi bi-briefcase-fill fs-4"></i> {{ title }}
+    </a>
 
+    <!-- Botão para colapsar em telas pequenas -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
 
+    <!-- Conteúdo do menu -->
     <div class="collapse navbar-collapse" id="mainNavbar">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <!-- Links principais (lado esquerdo) -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-2 text-center text-lg-start">
         <li class="nav-item">
-          <a class="nav-link active fw-semibold" routerLink="/inicio">Início</a>
+          <a class="nav-link fw-medium" routerLink="/inicio">
+            <i class="bi bi-house-door me-1"></i> Início
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-semibold" routerLink="/transacoes">Transações</a>
+          <a class="nav-link fw-medium" routerLink="/transacoes">
+            <i class="bi bi-currency-exchange me-1"></i> Transações
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-semibold" routerLink="/produtos">Produtos</a>
+          <a class="nav-link fw-medium" routerLink="/produtos">
+            <i class="bi bi-box me-1"></i> Produtos
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-semibold" routerLink="/clientes">Clientes</a>
+          <a class="nav-link fw-medium" routerLink="/clientes">
+            <i class="bi bi-people me-1"></i> Clientes
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-semibold" routerLink="/orcamento">Orçamento</a>
+          <a class="nav-link fw-medium" routerLink="/orcamento">
+            <i class="bi bi-calculator me-1"></i> Orçamento
+          </a>
         </li>
       </ul>
 
-      <!-- Botão de logout alinhado à direita -->
-      <ul class="navbar-nav ms-auto">
+      <!-- Perfil e logout (lado direito) -->
+      <ul class="navbar-nav ms-auto align-items-center gap-3 text-center text-lg-end">
+        <!-- Avatar com fallback para ícone -->
         <li class="nav-item">
-          <a class="nav-link fw-semibold" style="cursor: pointer" routerLink="/perfil">Perfil</a>
+          <a class="nav-link p-0" routerLink="/perfil" style="display: flex; align-items: center;">
+            <img *ngIf="usuario?.logo" [src]="usuario?.logo" alt="Foto de Perfil"
+              class="rounded-circle" width="36" height="36" style="object-fit: cover;" />
+            <i *ngIf="!usuario?.logo" class="bi bi-person-circle fs-4 text-primary"></i>
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-bold text-danger" style="cursor: pointer" (click)="logout()">Sair</a>
+          <a class="nav-link fw-bold text-danger" style="cursor: pointer" (click)="logout()">
+            <i class="bi bi-box-arrow-right me-1"></i> Sair
+          </a>
         </li>
       </ul>
     </div>
