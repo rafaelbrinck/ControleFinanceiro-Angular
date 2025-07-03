@@ -3,13 +3,12 @@ import { User, UserLogado } from '../models/user';
 import { ValidacaoService } from './validacao.service';
 import { BehaviorSubject } from 'rxjs';
 import { supabase } from '../supabase';
-import * as bcrypt from 'bcryptjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoginService {
-  public idUserLogadoSubject = new BehaviorSubject<number>(0);
+  public idUserLogadoSubject = new BehaviorSubject<string>('');
   public idUserLogado$ = this.idUserLogadoSubject.asObservable();
 
   private userSubject = new BehaviorSubject<UserLogado | undefined>(undefined);
@@ -17,11 +16,11 @@ export class LoginService {
 
   constructor(private validacao: ValidacaoService) {}
 
-  getUserLogado(): number {
+  getUserLogado(): string {
     return this.idUserLogadoSubject.getValue();
   }
 
-  setUserLogado(id: number): void {
+  setUserLogado(id: string): void {
     this.idUserLogadoSubject.next(id);
   }
 
@@ -49,7 +48,7 @@ export class LoginService {
     }
 
     if (data) {
-      this.userSubject.next(data); // 🔁 força o emit
+      this.userSubject.next(data);
     }
   }
 
@@ -68,69 +67,75 @@ export class LoginService {
       return false;
     }
 
-    const { data: userExistente } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('username', user.username)
-      .single();
-    if (userExistente) {
-      alert('Username já existe!');
+    // Registra no sistema de autenticação do Supabase
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: user.username, // usando email como username
+      password: user.password,
+    });
+
+    if (authError || !authData.user) {
+      alert('Erro ao registrar autenticação: ' + authError?.message);
       return false;
     }
 
-    const senhaCriptografada = bcrypt.hashSync(user.password, 10);
-    const { error } = await supabase.from('usuarios').insert([
+    // Salva os dados adicionais na tabela de usuários
+    const { error: dbError } = await supabase.from('usuarios').insert([
       {
+        id: authData.user.id, // salva o ID do auth como ID do usuário
         username: user.username,
-        password: senhaCriptografada,
       },
     ]);
 
-    if (error) {
-      alert('Erro ao registrar usuário!');
+    if (dbError) {
+      alert('Erro ao registrar dados do usuário!');
       return false;
     }
+
     return true;
   }
 
   async logar(user: User): Promise<boolean> {
-    const { data: usuario } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('username', user.username)
-      .single();
-
-    if (!usuario || !bcrypt.compareSync(user.password!, usuario.password)) {
-      alert('Usuário ou senha inválidos');
+    if (!user.username || !user.password) {
+      alert('Email e senha são obrigatórios');
       return false;
     }
 
-    const token =
-      Math.random().toString(25).substring(2) + Date.now().toString(25);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: user.username,
+      password: user.password!,
+    });
 
-    this.validacao.login(token);
-    this.setUserLogado(usuario.id);
-    this.userSubject.next(usuario); // <- armazena usuário logado
+    if (error?.code == 'email_not_confirmed') {
+      alert('E-mail não confirmado! Conferir caixa de entrada do e-mail.');
+      return false;
+    }
+
+    if (error || !data.user) {
+      alert('E-mail ou senha inválidos');
+      return false;
+    }
+
+    this.validacao.login(data.session?.access_token || 'token');
+    this.setUserLogado(data.user.id);
+
+    // Pega dados do usuário no banco
+    const { data: usuario } = await supabase
+      .from('usuarios')
+      .select('id, username, logo')
+      .eq('id', data.user.id)
+      .single();
+
+    if (usuario) {
+      this.userSubject.next(usuario);
+    }
 
     return true;
   }
 
   logout() {
     this.validacao.logout();
-    this.setUserLogado(0);
-    this.userSubject.next(undefined); // limpa o usuário
-  }
-
-  async deletar(id?: number) {
-    if (!id) return;
-
-    const { error } = await supabase.from('usuarios').delete().eq('id', id);
-
-    if (error) {
-      console.error('Erro ao deletar usuário:', error.message);
-      alert('Erro ao deletar usuário.');
-    } else {
-      alert('Usuário deletado com sucesso!');
-    }
+    this.setUserLogado('');
+    this.userSubject.next(undefined);
+    supabase.auth.signOut();
   }
 }

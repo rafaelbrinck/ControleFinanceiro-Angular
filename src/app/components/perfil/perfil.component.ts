@@ -17,7 +17,7 @@ export class PerfilComponent implements OnInit {
   usuario?: UserLogado;
   username?: string = '';
   fotoUrl: string = '';
-  userId?: number;
+  userId?: string;
 
   novaFoto?: File;
   novaFotoPreview: string = '';

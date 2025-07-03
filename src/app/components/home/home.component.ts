@@ -1,23 +1,22 @@
 import { Component, OnInit } from '@angular/core';
-import { Relatorio } from '../../models/relatorio';
-import { TransacaoService } from '../../service/transacao.service';
 import { Transacao } from '../../models/trasacao';
-import { CommonModule, NgClass } from '@angular/common';
-import { MoedaPipe } from '../../pipes/moeda.pipe';
+import { Relatorio } from '../../models/relatorio';
+import { Categoria } from '../../models/categoria';
+import { TransacaoService } from '../../service/transacao.service';
 import { CategoriaService } from '../../service/categoria.service';
 import { Router } from '@angular/router';
-import { Categoria } from '../../models/categoria';
 import { LoginService } from '../../service/login.service';
 import { supabase } from '../../supabase';
+import { CommonModule, NgClass } from '@angular/common';
+import { MoedaPipe } from '../../pipes/moeda.pipe';
 
 @Component({
-  selector: 'app-relatorio',
-  standalone: true,
+  selector: 'app-home',
   imports: [NgClass, CommonModule, MoedaPipe],
-  templateUrl: './relatorio.component.html',
-  styleUrls: ['./relatorio.component.css'],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.css',
 })
-export class RelatorioComponent implements OnInit {
+export class HomeComponent implements OnInit {
   relatorio = new Relatorio(0, 0, 0);
   listaTransacoes: Transacao[] = [];
 
@@ -37,15 +36,19 @@ export class RelatorioComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     const userId = this.loginService.getUserLogado();
 
+    // Só carrega os dados se o usuário estiver logado
     if (userId) {
+      // Carregar categorias e transações do Supabase
       await this.categoriaService.carregarCategorias();
       await this.transacaoService.carregarTransacoes();
     }
 
+    // Sempre que a lista de transações mudar, atualiza o relatório
     this.transacaoService.transacoes$.subscribe((transacoes) => {
       this.listaTransacoes = transacoes;
     });
     await this.carregarRelatorioViaEdge();
+    // Sempre que as categorias forem atualizadas, guarda localmente
     this.categoriaService.categorias$.subscribe((cats) => {
       this.categorias = cats;
     });

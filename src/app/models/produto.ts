@@ -3,5 +3,5 @@ export class Produto {
   nome?: string;
   valor?: number;
   categoria?: string;
-  idUser?: number;
+  idUser?: string;
 }

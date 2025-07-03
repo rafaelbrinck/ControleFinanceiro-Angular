@@ -13,6 +13,7 @@ import { ClientesComponent } from './components/clientes/clientes.component';
 import { FormClienteComponent } from './components/form-cliente/form-cliente.component';
 import { OrcamentoComponent } from './components/orcamento/orcamento.component';
 import { PerfilComponent } from './components/perfil/perfil.component';
+import { HomeComponent } from './components/home/home.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
@@ -35,7 +36,7 @@ export const routes: Routes = [
   },
   {
     path: 'inicio',
-    component: RelatorioComponent,
+    component: HomeComponent,
     canActivate: [ValidacaoGuard],
   },
   {

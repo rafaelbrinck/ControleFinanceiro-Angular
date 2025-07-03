@@ -11,5 +11,5 @@ export class Cliente {
   bairro?: string;
   telefone?: string;
   instaUser?: string;
-  idUser?: number;
+  idUser?: string;
 }

@@ -33,7 +33,7 @@ export class LoginComponent {
         this.registrar = false;
         this.listarUsuarios();
       } else {
-        alert('Erro ao registrar usuário (talvez já exista).');
+        alert('Erro ao registrar e-mail (talvez já exista).');
       }
     }
   }
@@ -45,6 +45,10 @@ export class LoginComponent {
       this.router.navigate(['/inicio']);
     }
   }
+  private validarEmail(email: string): boolean {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
 
   private validaCampos() {
     if (
@@ -55,8 +59,8 @@ export class LoginComponent {
       alert('Obrigatório preencher todos os campos');
       return false;
     }
-    if (this.usuario.username.length < 3) {
-      alert('Usuário deve ter pelo menos 3 caracteres');
+    if (!this.validarEmail(this.usuario.username)) {
+      alert('Informe um e-mail válido');
       return false;
     }
     if (this.usuario.password.length < 5) {

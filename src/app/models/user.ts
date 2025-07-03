@@ -1,12 +1,12 @@
 export class User {
-  id?: number;
+  id?: string;
   username?: string;
   password?: string;
   validaPassword?: string;
 }
 
 export class UserLogado {
-  id?: number;
+  id?: string;
   username?: string;
   logo?: string;
 }

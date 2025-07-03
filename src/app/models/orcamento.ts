@@ -8,5 +8,5 @@ export class Orcamento {
   valorTotal?: number;
   status?: 'Aberto' | 'Pago' | 'Finalizado';
   formaPagamento?: 'Pix' | 'Dinheiro' | 'Crédito';
-  idUser?: number;
+  idUser?: string;
 }
