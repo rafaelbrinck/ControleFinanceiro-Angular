@@ -75,6 +75,19 @@
             >
           </div>
           <div class="col-12">
+            <label for="nome" class="form-label">Nome:</label>
+            <input
+              type="text"
+              [(ngModel)]="usuario.nome"
+              name="nome"
+              id="nome"
+              class="form-control form-control-lg"
+              placeholder="Nome"
+              required
+            >
+          </div>
+          
+          <div class="col-12">
             <label for="password" class="form-label">Senha:</label>
             <input
               type="password"

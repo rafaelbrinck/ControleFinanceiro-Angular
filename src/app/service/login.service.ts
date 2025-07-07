@@ -28,7 +28,7 @@ export class LoginService {
     const userId = this.getUserLogado();
     const { data } = await supabase
       .from('usuarios')
-      .select('id, username, logo')
+      .select('id, username, logo, nome')
       .eq('id', userId)
       .single();
     return data as UserLogado;
@@ -38,7 +38,7 @@ export class LoginService {
     const userId = this.getUserLogado();
     const { data, error } = await supabase
       .from('usuarios')
-      .select('id, username, logo')
+      .select('id, username, logo, nome')
       .eq('id', userId)
       .single();
 
@@ -81,6 +81,7 @@ export class LoginService {
       {
         id: authData.user.id,
         username: user.username,
+        nome: user.nome,
       },
     ]);
 
@@ -118,7 +119,7 @@ export class LoginService {
 
     const { data: usuario } = await supabase
       .from('usuarios')
-      .select('id, username, logo')
+      .select('id, username, logo, nome')
       .eq('id', data.user.id)
       .single();
 
