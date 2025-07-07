@@ -67,9 +67,8 @@ export class LoginService {
       return false;
     }
 
-    // Registra no sistema de autenticação do Supabase
     const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: user.username, // usando email como username
+      email: user.username,
       password: user.password,
     });
 
@@ -78,10 +77,9 @@ export class LoginService {
       return false;
     }
 
-    // Salva os dados adicionais na tabela de usuários
     const { error: dbError } = await supabase.from('usuarios').insert([
       {
-        id: authData.user.id, // salva o ID do auth como ID do usuário
+        id: authData.user.id,
         username: user.username,
       },
     ]);
@@ -118,7 +116,6 @@ export class LoginService {
     this.validacao.login(data.session?.access_token || 'token');
     this.setUserLogado(data.user.id);
 
-    // Pega dados do usuário no banco
     const { data: usuario } = await supabase
       .from('usuarios')
       .select('id, username, logo')

@@ -74,8 +74,6 @@ export class HomeComponent implements OnInit {
   async carregarRelatorioViaEdge() {
     try {
       const idUser = this.loginService.getUserLogado();
-      console.log('Chamando Edge Function com userId:', idUser);
-
       const { data, error } = await supabase.functions.invoke('relatorio', {
         body: { userId: idUser },
       });
@@ -88,8 +86,6 @@ export class HomeComponent implements OnInit {
         );
         return;
       }
-
-      console.log('Resposta da função:', data);
       this.relatorio.entradas = data.entradas;
       this.relatorio.saidas = data.saidas;
       this.relatorio.resultado = data.resultado;
