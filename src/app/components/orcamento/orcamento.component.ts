@@ -7,6 +7,8 @@ import { BuscadorPipe } from '../../pipes/buscador.pipe';
 import { MoedaPipe } from '../../pipes/moeda.pipe';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { Cliente } from '../../models/cliente';
+import { ClientesService } from '../../service/clientes.service';
 
 @Component({
   selector: 'app-orcamento',
@@ -16,19 +18,29 @@ import { RouterModule } from '@angular/router';
 })
 export class OrcamentoComponent {
   nomePesquisa?: string;
+  clientePesquisa?: string;
+  clienteSelecionado: Cliente = new Cliente();
+  listaClientes: Cliente[] = [];
   listaProdutos: Produto[] = [];
   produtosOrcamento: ProdutoOrcamento[] = [];
   mostrarDetalhes = false;
+  mostrarClientes = false;
 
   constructor(
     private loginService: LoginService,
-    private produtoService: ProdutosService
+    private produtoService: ProdutosService,
+    private clienteService: ClientesService
   ) {}
 
   async ngOnInit(): Promise<void> {
+    this.mostrarClientes = false;
     await this.produtoService.carregarProdutos();
     this.produtoService.produtos$.subscribe((produtos) => {
       this.listaProdutos = produtos;
+    });
+    await this.clienteService.carregarClientes();
+    this.clienteService.clientes$.subscribe((clientes) => {
+      this.listaClientes = clientes;
     });
   }
 
@@ -94,8 +106,8 @@ export class OrcamentoComponent {
       prodLista!.quantidade = (prodLista!.quantidade ?? 0) - 1;
     }
   }
-  adicionarCliente() {
-    // Lógica para redirecionar ou abrir form de cliente
+  adicionarCliente(cliente: Cliente) {
+    this.clienteSelecionado = cliente;
   }
 
   finalizarOrcamento() {
