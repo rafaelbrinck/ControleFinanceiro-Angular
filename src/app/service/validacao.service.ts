@@ -5,19 +5,22 @@ import { supabase } from '../supabase';
   providedIn: 'root',
 })
 export class ValidacaoService {
-  private readonly tokenPadrao = 'token_app';
-
   login(token: string) {
-    localStorage.setItem(this.tokenPadrao, token);
+    console.log('Sessão iniciada com token:', token);
+    // Não precisa salvar no localStorage (Supabase já faz isso)
   }
-  logout() {
-    localStorage.removeItem(this.tokenPadrao);
-    supabase.auth.signOut();
+
+  async logout() {
+    await supabase.auth.signOut();
   }
-  confirmaAutenticacao(): boolean {
-    return !!localStorage.getItem(this.tokenPadrao);
+
+  async confirmaAutenticacao(): Promise<boolean> {
+    const { data } = await supabase.auth.getSession();
+    return !!data.session;
   }
-  getToken(): string | null {
-    return localStorage.getItem(this.tokenPadrao);
+
+  async getToken(): Promise<string | null> {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token ?? null;
   }
 }

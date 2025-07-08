@@ -1,19 +1,27 @@
 <!-- Navbar moderna e responsiva -->
-<nav *ngIf="validaNavBar && validacaoLogin()" class="navbar navbar-expand-lg bg-white shadow-sm mb-4">
+<nav *ngIf="validaNavBar && estaLogado" class="navbar navbar-expand-lg bg-white shadow-sm mb-4">
   <div class="container">
     <!-- Logo e título -->
     <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" routerLink="/inicio">
       <i class="bi bi-briefcase-fill fs-4"></i> {{ title }}
     </a>
 
-    <!-- Botão para colapsar em telas pequenas -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+    <!-- Botão para telas pequenas -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#mainNavbar"
+      aria-controls="mainNavbar"
+      aria-expanded="false"
+      aria-label="Alternar navegação"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- Conteúdo do menu -->
+    <!-- Itens da Navbar -->
     <div class="collapse navbar-collapse" id="mainNavbar">
-      <!-- Links principais (lado esquerdo) -->
+      <!-- Menu lateral esquerdo -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-2 text-center text-lg-start">
         <li class="nav-item">
           <a class="nav-link fw-medium" routerLink="/inicio">
@@ -42,18 +50,24 @@
         </li>
       </ul>
 
-      <!-- Perfil e logout (lado direito) -->
+      <!-- Perfil e Sair -->
       <ul class="navbar-nav ms-auto align-items-center gap-3 text-center text-lg-end">
-        <!-- Avatar com fallback para ícone -->
         <li class="nav-item">
-          <a class="nav-link p-0" routerLink="/perfil" style="display: flex; align-items: center;">
-            <img *ngIf="usuario?.logo" [src]="usuario?.logo" alt="Foto de Perfil"
-              class="rounded-circle" width="36" height="36" style="object-fit: cover;" />
+          <a class="nav-link p-0 d-flex align-items-center" routerLink="/perfil" aria-label="Perfil">
+            <img
+              *ngIf="usuario?.logo"
+              [src]="usuario?.logo"
+              alt="Foto de Perfil"
+              class="rounded-circle"
+              width="36"
+              height="36"
+              style="object-fit: cover;"
+            />
             <i *ngIf="!usuario?.logo" class="bi bi-person-circle fs-4 text-primary"></i>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-bold text-danger" style="cursor: pointer" (click)="logout()">
+          <a class="nav-link fw-bold text-danger" role="button" (click)="logout()">
             <i class="bi bi-box-arrow-right me-1"></i> Sair
           </a>
         </li>

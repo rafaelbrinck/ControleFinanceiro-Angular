@@ -12,6 +12,7 @@ import { UserLogado } from './models/user';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   imports: [RouterOutlet, RouterLink, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
@@ -19,36 +20,41 @@ import { UserLogado } from './models/user';
 export class AppComponent implements OnInit {
   title = 'Controle Financeiro';
   usuario: UserLogado | undefined;
-
   validaNavBar = true;
+
   constructor(
     private validacao: ValidacaoService,
     private router: Router,
     private loginService: LoginService
-  ) {
-    this.loginService.logout();
-    router.navigate(['']);
-  }
+  ) {}
 
   async ngOnInit(): Promise<void> {
+    // ✅ Restaura sessão se existir ao carregar o app
+    await this.loginService.restaurarSessao();
+    this.usuario = await this.loginService.getUser();
+
+    // ✅ Detecta troca de rota e atualiza a navbar e sessão
     this.router.events.subscribe(async (event) => {
       if (event instanceof NavigationEnd) {
-        const url = event.urlAfterRedirects;
-        this.validaNavBar = !url.includes('login');
+        this.validaNavBar = !event.urlAfterRedirects.includes('login');
 
-        if (this.validacaoLogin()) {
-          this.usuario = await this.loginService.getUser(); // <- pega logo
+        const autenticado = await this.validacao.confirmaAutenticacao();
+        if (autenticado) {
+          this.usuario = await this.loginService.getUser();
+        } else {
+          this.usuario = undefined;
         }
       }
     });
   }
 
-  validacaoLogin(): boolean {
-    return this.validacao.confirmaAutenticacao();
+  async logout() {
+    await this.loginService.logout();
+    this.usuario = undefined;
+    this.router.navigate(['']);
   }
 
-  logout() {
-    this.validacao.logout();
-    this.router.navigate(['']);
+  get estaLogado(): boolean {
+    return !!this.usuario;
   }
 }

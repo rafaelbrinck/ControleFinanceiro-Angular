@@ -8,7 +8,7 @@ import { supabase } from '../supabase';
   providedIn: 'root',
 })
 export class LoginService {
-  public idUserLogadoSubject = new BehaviorSubject<string>('');
+  public idUserLogadoSubject = new BehaviorSubject<string>(''); // ← agora string (id do supabase)
   public idUserLogado$ = this.idUserLogadoSubject.asObservable();
 
   private userSubject = new BehaviorSubject<UserLogado | undefined>(undefined);
@@ -28,7 +28,7 @@ export class LoginService {
     const userId = this.getUserLogado();
     const { data } = await supabase
       .from('usuarios')
-      .select('id, username, logo, nome')
+      .select('id, username, logo')
       .eq('id', userId)
       .single();
     return data as UserLogado;
@@ -38,7 +38,7 @@ export class LoginService {
     const userId = this.getUserLogado();
     const { data, error } = await supabase
       .from('usuarios')
-      .select('id, username, logo, nome')
+      .select('id, username, logo')
       .eq('id', userId)
       .single();
 
@@ -67,29 +67,40 @@ export class LoginService {
       return false;
     }
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    const { data: userExistente } = await supabase
+      .from('usuarios')
+      .select('*')
+      .eq('username', user.username)
+      .single();
+    if (userExistente) {
+      alert('Username já existe!');
+      return false;
+    }
+
+    const { data, error: authError } = await supabase.auth.signUp({
       email: user.username,
       password: user.password,
     });
 
-    if (authError || !authData.user) {
-      alert('Erro ao registrar autenticação: ' + authError?.message);
+    if (authError) {
+      alert('Erro ao registrar usuário!');
       return false;
     }
 
-    const { error: dbError } = await supabase.from('usuarios').insert([
+    const { error } = await supabase.from('usuarios').insert([
       {
-        id: authData.user.id,
+        id: data.user?.id,
         username: user.username,
-        nome: user.nome,
+        password: 'protegido',
       },
     ]);
 
-    if (dbError) {
-      alert('Erro ao registrar dados do usuário!');
+    if (error) {
+      alert('Erro ao salvar usuário no banco!');
       return false;
     }
 
+    alert('Usuário registrado com sucesso! Verifique seu e-mail.');
     return true;
   }
 
@@ -104,8 +115,8 @@ export class LoginService {
       password: user.password!,
     });
 
-    if (error?.code == 'email_not_confirmed') {
-      alert('E-mail não confirmado! Conferir caixa de entrada do e-mail.');
+    if (error?.code === 'email_not_confirmed') {
+      alert('E-mail não confirmado! Verifique sua caixa de entrada.');
       return false;
     }
 
@@ -130,10 +141,28 @@ export class LoginService {
     return true;
   }
 
-  logout() {
-    this.validacao.logout();
+  async restaurarSessao(): Promise<void> {
+    const { data } = await supabase.auth.getSession();
+    const session = data?.session;
+
+    if (!session?.user) return;
+
+    this.setUserLogado(session.user.id);
+
+    const { data: usuario } = await supabase
+      .from('usuarios')
+      .select('id, username, logo, nome')
+      .eq('id', session.user.id)
+      .single();
+
+    if (usuario) {
+      this.userSubject.next(usuario);
+    }
+  }
+
+  async logout(): Promise<void> {
+    await this.validacao.logout();
     this.setUserLogado('');
     this.userSubject.next(undefined);
-    supabase.auth.signOut();
   }
 }

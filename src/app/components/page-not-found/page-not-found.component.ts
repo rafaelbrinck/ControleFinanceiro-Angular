@@ -11,8 +11,8 @@ import { ValidacaoService } from '../../service/validacao.service';
 export class PageNotFoundComponent {
   constructor(private router: Router, private validacao: ValidacaoService) {}
 
-  voltar() {
-    if (this.validacao.confirmaAutenticacao()) {
+  async voltar() {
+    if (await this.validacao.confirmaAutenticacao()) {
       this.router.navigate(['/inicio']);
     } else {
       this.router.navigate(['']);
