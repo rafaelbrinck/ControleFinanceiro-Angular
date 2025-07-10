@@ -7,7 +7,7 @@ export class BuscadorPipe implements PipeTransform {
   transform<T>(
     lista: T[],
     nomePesquisa: string | undefined,
-    chaves: (keyof T)[] = ['nome'] as (keyof T)[]
+    chaves: (keyof T | string)[] = ['nome']
   ): T[] {
     if (!nomePesquisa || nomePesquisa.length < 2) {
       return lista;
@@ -15,7 +15,7 @@ export class BuscadorPipe implements PipeTransform {
 
     return lista.filter((item) => {
       return chaves.some((chave) => {
-        const valor = item[chave];
+        const valor = (item as any)[chave];
         if (typeof valor === 'string') {
           return valor
             .toLocaleLowerCase()

@@ -1,12 +1,14 @@
 import { Cliente } from './cliente';
-import { Produto } from './produto';
+import { ProdutoOrcamento } from './produto';
 
 export class Orcamento {
   id?: number;
   cliente?: Cliente;
-  produtos?: [Produto];
-  valorTotal?: number;
-  status?: 'Aberto' | 'Pago' | 'Finalizado';
+  produtos?: ProdutoOrcamento[];
+  valorCredito?: number;
+  valor?: number;
+  status?: 'Aberto' | 'Pago' | 'Finalizado' | 'Cancelado';
   formaPagamento?: 'Pix' | 'Dinheiro' | 'Crédito';
   idUser?: string;
+  nomeCliente?: string;
 }

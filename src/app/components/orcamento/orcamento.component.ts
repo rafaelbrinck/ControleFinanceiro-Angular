@@ -6,9 +6,11 @@ import { LoginService } from '../../service/login.service';
 import { BuscadorPipe } from '../../pipes/buscador.pipe';
 import { MoedaPipe } from '../../pipes/moeda.pipe';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Cliente } from '../../models/cliente';
 import { ClientesService } from '../../service/clientes.service';
+import { Orcamento } from '../../models/orcamento';
+import { OrcamentoService } from '../../service/orcamento.service';
 
 @Component({
   selector: 'app-orcamento',
@@ -29,7 +31,9 @@ export class OrcamentoComponent {
   constructor(
     private loginService: LoginService,
     private produtoService: ProdutosService,
-    private clienteService: ClientesService
+    private clienteService: ClientesService,
+    private orcamentoService: OrcamentoService,
+    private router: Router
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -110,8 +114,40 @@ export class OrcamentoComponent {
     this.clienteSelecionado = cliente;
   }
 
-  finalizarOrcamento() {
-    // Lógica futura para salvar orçamento
-    alert('Orçamento finalizado com sucesso!');
+  async finalizarOrcamento() {
+    if (!this.validarOrcamento()) return;
+    const orcamento: Orcamento = {
+      cliente: this.clienteSelecionado,
+      produtos: this.produtosOrcamento,
+      valorCredito: this.totalParcelamento, // Implementar lógica de crédito se necessário
+      valor: this.total, // Valor total do orçamento
+      status: 'Aberto',
+      idUser: this.loginService.getUserLogado(),
+    };
+    await this.orcamentoService.inserir(orcamento).then((success) => {
+      if (success) {
+        this.produtosOrcamento = [];
+        this.clienteSelecionado = new Cliente();
+        this.mostrarDetalhes = false;
+        this.mostrarClientes = false;
+        alert('Orçamento finalizado com sucesso!');
+      } else {
+        alert('Erro ao finalizar o orçamento. Tente novamente.');
+      }
+    });
+  }
+  validarOrcamento(): boolean {
+    if (this.produtosOrcamento.length === 0) {
+      alert('Adicione pelo menos um produto ao orçamento.');
+      return false;
+    }
+    if (!this.clienteSelecionado.id) {
+      alert('Selecione um cliente para o orçamento.');
+      return false;
+    }
+    return true;
+  }
+  paginaOrcamentos() {
+    this.router.navigate(['/lista-orcamentos']);
   }
 }

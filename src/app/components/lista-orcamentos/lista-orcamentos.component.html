@@ -1,0 +1,178 @@
+<!-- HTML atualizado da tela de orçamentos com modal -->
+<div class="container my-5">
+  <div class="card shadow rounded-4">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary mb-0">Lista de Orçamentos</h2>
+        <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" (click)="paginaOrcamentos()">
+          <i class="bi bi-arrow-left"></i> Voltar
+        </button>
+      </div>
+      <!-- Campo de busca -->
+      <div class="input-group mb-4 shadow-sm">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search text-secondary"></i>
+        </span>
+        <input
+          type="text"
+          [(ngModel)]="nomePesquisa"
+          id="nomePesquisa"
+          class="form-control form-control-lg border-start-0"
+          placeholder="Digite para pesquisar..."
+          aria-label="Pesquisar orçamentos">
+      </div>
+
+      <!-- Lista de orçamentos -->
+      <div *ngIf="(listaOrcamentos | buscador:nomePesquisa:['nomeCliente']).length === 0"
+           class="alert alert-light text-center shadow-sm rounded p-4">
+        <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
+        <span class="fs-5 text-muted">Nenhum orçamento encontrado</span>
+      </div>
+
+      <div class="table-responsive" *ngIf="(listaOrcamentos | buscador:nomePesquisa:['nomeCliente']).length > 0">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-center">
+            <tr>
+              <th scope="col">Cliente</th>
+              <th scope="col">Valor Total</th>
+              <th scope="col">Status</th>
+              <th scope="col" class="col-4">Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let orcamento of (listaOrcamentos | buscador:nomePesquisa:['nomeCliente'])" class="text-center">
+              <td>{{ orcamento.cliente?.nome }}</td>
+              <td>{{ orcamento.valor | currency:'BRL' }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'bg-success': orcamento.status === 'Finalizado',
+                  'bg-primary': orcamento.status === 'Aberto',
+                  'bg-danger': orcamento.status === 'Cancelado'
+                }">{{ orcamento.status }}</span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-info me-2" (click)="abrirModal(orcamento)">
+                  <i class="bi bi-eye-fill"></i> Ver Detalhes
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal de Detalhes do Orçamento -->
+<div class="modal fade show d-block" *ngIf="orcamentoSelecionado" style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow border-0">
+
+      <!-- Cabeçalho -->
+      <div class="modal-header bg-primary text-white rounded-top-4">
+        <h5 class="modal-title d-flex align-items-center gap-2">
+          <i class="bi bi-receipt-cutoff fs-4"></i>
+          <span>Detalhes do Orçamento #{{ orcamentoSelecionado.id }}</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="fecharModal()" aria-label="Fechar"></button>
+      </div>
+
+      <!-- Corpo do modal -->
+      <div class="modal-body py-4 px-4">
+
+        <!-- Seção Cliente -->
+        <section class="mb-4">
+          <h6 class="text-muted text-uppercase small fw-bold border-bottom pb-2 mb-3">Cliente</h6>
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <strong>Nome:</strong> {{ orcamentoSelecionado.cliente?.nome }}
+            </div>
+            <div class="col-md-6 mb-2">
+              <strong>CPF:</strong> {{ orcamentoSelecionado.cliente?.cpf! | cpf }}
+            </div>
+            <div class="col-md-6 mb-2">
+              <strong>Telefone:</strong> {{ orcamentoSelecionado.cliente?.telefone! | telefone }}
+            </div>
+          </div>
+        </section>
+
+        <!-- Seção Produtos -->
+        <section class="mb-4">
+          <h6 class="text-muted text-uppercase small fw-bold border-bottom pb-2 mb-3">Produtos</h6>
+          <div *ngFor="let produto of orcamentoSelecionado.produtos" class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <div>
+              <div class="fw-semibold">{{ produto.nome }}</div>
+              <div class="text-muted small">{{ produto.quantidade }} x {{ produto.valor | currency:'BRL' }}</div>
+            </div>
+            <div class="fw-bold text-success">
+              {{ produto.quantidade * produto.valor | currency:'BRL' }}
+            </div>
+          </div>
+        </section>
+
+        <!-- Seção Resumo -->
+        <section>
+          <h6 class="text-muted text-uppercase small fw-bold border-bottom pb-2 mb-3">Resumo</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <strong>Forma de Pagamento:</strong>
+              <div class="d-flex flex-column mt-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="formaPagamento" id="radioPix radios" value="Pix"
+                    [(ngModel)]="orcamentoSelecionado.formaPagamento" [disabled]="orcamentoSelecionado.status === 'Cancelado' ||
+                    orcamentoSelecionado.status === 'Finalizado'">
+                  <label class="form-check-label" for="radioPix">Pix</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="formaPagamento" id="radioCredito radios" value="Crédito"
+                    [(ngModel)]="orcamentoSelecionado.formaPagamento" [disabled]=" orcamentoSelecionado.status === 'Cancelado' ||
+                    orcamentoSelecionado.status === 'Finalizado'">
+                  <label class="form-check-label" for="radioCredito">Crédito</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Status:</strong>
+              <div class="text-muted mt-1">{{ orcamentoSelecionado.status }}</div>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Crédito Utilizado:</strong>
+              <div class="text-muted mt-1">{{ orcamentoSelecionado.valorCredito || 0 | currency:'BRL' }}</div>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Valor Total:</strong>
+              <div class="fw-bold text-primary mt-1">{{ orcamentoSelecionado.valor | currency:'BRL' }}</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Rodapé com botões -->
+      <div class="modal-footer border-top-0 px-4 pb-4 pt-2">
+        <div class="container px-0">
+          <div class="row g-2">
+            <div class="col-md-6">
+              <button class="btn btn-outline-primary w-100" (click)="finalizarOrcamento(orcamentoSelecionado)">
+                <i class="bi bi-check2-circle me-1"></i> Finalizar
+              </button>
+            </div>
+            <div class="col-md-6">
+              <button class="btn btn-outline-danger w-100" (click)="cancelarOrcamento(orcamentoSelecionado)">
+                <i class="bi bi-x-circle me-1"></i> Cancelar
+              </button>
+            </div>
+            <div class="col-md-12">
+              <button class="btn btn-outline-secondary w-100" (click)="fecharModal()">
+                <i class="bi bi-arrow-left me-1"></i> Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
