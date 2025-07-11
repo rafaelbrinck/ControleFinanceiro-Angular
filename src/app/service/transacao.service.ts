@@ -33,7 +33,7 @@ export class TransacaoService {
   }
 
   // Inserir nova transação no Supabase
-  async inserir(transacao: Transacao): Promise<void> {
+  async inserir(transacao: Transacao): Promise<boolean> {
     const userId = this.loginService.getUserLogado();
 
     const { error } = await supabase.from('transacao').insert([
@@ -49,8 +49,10 @@ export class TransacaoService {
 
     if (error) {
       console.error('Erro ao inserir transação:', error.message);
+      return false;
     } else {
       await this.carregarTransacoes();
+      return true;
     }
   }
 

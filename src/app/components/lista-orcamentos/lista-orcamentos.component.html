@@ -34,8 +34,9 @@
           <thead class="table-light text-center">
             <tr>
               <th scope="col">Cliente</th>
-              <th scope="col">Valor Total</th>
+              <th scope="col">Valor</th>
               <th scope="col">Status</th>
+              <th scope="col">Data</th>
               <th scope="col" class="col-4">Ação</th>
             </tr>
           </thead>
@@ -50,6 +51,7 @@
                   'bg-danger': orcamento.status === 'Cancelado'
                 }">{{ orcamento.status }}</span>
               </td>
+              <td>{{ orcamento.created_at | date}}</td>
               <td>
                 <button class="btn btn-sm btn-outline-info me-2" (click)="abrirModal(orcamento)">
                   <i class="bi bi-eye-fill"></i> Ver Detalhes
@@ -133,7 +135,17 @@
 
             <div class="col-md-6">
               <strong>Status:</strong>
-              <div class="text-muted mt-1">{{ orcamentoSelecionado.status }}</div>
+              <div class="text-muted mt-1">{{ orcamentoSelecionado.status}}</div>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Frete:</strong>
+              <div class="text-muted mt-1">{{ orcamentoSelecionado.frete || 0 | currency:'BRL'}}</div>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Desconto:</strong>
+              <div class="text-muted mt-1">{{ orcamentoSelecionado.desconto || 0 | currency:'BRL' }}</div>
             </div>
 
             <div class="col-md-6">

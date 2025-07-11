@@ -60,6 +60,8 @@ export class OrcamentoService {
         status: orcamento.status,
         formaPagamento: orcamento.formaPagamento,
         idUser: orcamento.idUser,
+        frete: orcamento.frete,
+        desconto: orcamento.desconto,
       },
     ]);
 
@@ -81,6 +83,7 @@ export class OrcamentoService {
       .update({
         status: orcamento.status,
         formaPagamento: orcamento.formaPagamento,
+        updated_at: orcamento.updated_at,
       })
       .eq('id', orcamento.id)
       .eq('idUser', userId);

@@ -11,4 +11,8 @@ export class Orcamento {
   formaPagamento?: 'Pix' | 'Dinheiro' | 'Crédito';
   idUser?: string;
   nomeCliente?: string;
+  created_at?: Date;
+  updated_at?: Date;
+  frete?: number;
+  desconto?: number;
 }

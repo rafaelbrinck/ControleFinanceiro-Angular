@@ -143,6 +143,38 @@
 
       <!-- Resumo financeiro -->
       <div class="mt-4 border-top pt-3">
+        <!-- Frete -->
+        <div class="mb-2 d-flex justify-content-between align-items-center w-100">
+          <label class="fw-semibold mb-1 me-2" for="frete">Frete:</label>
+          <div class="input-group input-group-sm" style="max-width: 160px;">
+            <span class="input-group-text">R$</span>
+            <input
+              type="text"
+              class="form-control text-end"
+              id="frete"
+              [value]="freteFormatado"
+              (input)="mascaraValor($event, 'frete')"
+              placeholder="0,00"
+            />
+          </div>
+        </div>
+
+        <!-- Desconto -->
+        <div class="mb-2 d-flex justify-content-between align-items-center w-100">
+          <label class="fw-semibold mb-1 me-2" for="desconto">Desconto:</label>
+          <div class="input-group input-group-sm" style="max-width: 160px;">
+            <span class="input-group-text">R$</span>
+            <input
+              type="text"
+              class="form-control text-end"
+              id="desconto"
+              [value]="descontoFormatado"
+              (input)="mascaraValor($event, 'desconto')"
+              placeholder="0,00"
+            />
+          </div>
+        </div>
+
         <div class="d-flex justify-content-between mb-2">
           <span class="fw-semibold">Valor total:</span>
           <span class="fw-bold text-primary">{{ total | currency:'BRL' }}</span>

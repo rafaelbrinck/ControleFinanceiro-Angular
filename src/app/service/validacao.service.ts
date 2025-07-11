@@ -6,11 +6,11 @@ import { supabase } from '../supabase';
 })
 export class ValidacaoService {
   login(token: string) {
-    console.log('Sessão iniciada com token:', token);
-    // Não precisa salvar no localStorage (Supabase já faz isso)
+    localStorage.setItem('token', token);
   }
 
   async logout() {
+    localStorage.removeItem('token');
     await supabase.auth.signOut();
   }
 
