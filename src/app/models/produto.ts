@@ -2,7 +2,8 @@ export class Produto {
   id?: number;
   nome?: string;
   valor?: number;
-  categoria?: string;
+  categoria?: number;
+  cat?: string;
   idUser?: string;
 }
 

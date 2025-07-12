@@ -14,6 +14,21 @@ export class CategoriaService {
 
   constructor(private loginService: LoginService) {}
 
+  async retornarVenda(): Promise<Categoria | null> {
+    const userId = this.loginService.getUserLogado();
+    const { data, error } = await supabase
+      .from('categoria')
+      .select('*')
+      .eq('userId', userId)
+      .eq('nome', 'Vendas')
+      .single();
+    if (error) {
+      console.error('Erro ao buscar categoria de vendas:', error.message);
+      return null;
+    }
+    return data as Categoria;
+  }
+
   async carregarCategorias() {
     const userId = this.loginService.getUserLogado();
     const { data, error } = await supabase

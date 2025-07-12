@@ -3,6 +3,7 @@ import { Transacao } from '../models/trasacao';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { LoginService } from './login.service';
 import { supabase } from '../supabase';
+import { CategoriaService } from './categoria.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +13,10 @@ export class TransacaoService {
   public transacoes$: Observable<Transacao[]> =
     this.transacoesSubject.asObservable();
 
-  constructor(private loginService: LoginService) {}
+  constructor(
+    private loginService: LoginService,
+    private categoriaService: CategoriaService
+  ) {}
 
   // Carregar todas as transações do usuário logado
   async carregarTransacoes(): Promise<void> {
@@ -28,6 +32,17 @@ export class TransacaoService {
     }
 
     if (data) {
+      await this.categoriaService.carregarCategorias();
+      this.categoriaService.categorias$.subscribe((categorias) => {
+        data.forEach((transacao) => {
+          const categoria = categorias.find(
+            (cat) => cat.id === transacao.categoria
+          );
+          transacao.cat = categoria
+            ? categoria.nome
+            : 'Categoria não encontrada';
+        });
+      });
       this.transacoesSubject.next(data);
     }
   }

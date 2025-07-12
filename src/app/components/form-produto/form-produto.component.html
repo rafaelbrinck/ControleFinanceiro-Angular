@@ -23,7 +23,7 @@
           <div class="col-12 col-sm-12 col-md-6">
             <label for="categoria" class="form-label">Categorias:</label>
             <select name="categoria" id="categoria" class="form-select form-select-lg" [(ngModel)]="produto.categoria" (ngModelChange)="conferirCategoria($event)">
-              <option *ngFor="let categoria of(listaCategorias)" [ngValue]="categoria.nome">{{categoria.nome}}</option>
+              <option *ngFor="let categoria of(listaCategorias)" [ngValue]="categoria.id">{{categoria.nome}}</option>
               <option [ngValue]="'nova'">Adicionar nova categoria</option>
             </select>
           </div>

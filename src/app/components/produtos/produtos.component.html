@@ -37,7 +37,7 @@
             <tr *ngFor="let produto of (listaProdutos | buscador:nomePesquisa:['nome'])" class="text-center">
               <td class="text-center">{{ produto.nome }}</td>
               <td>{{ produto.valor | moeda }}</td>
-              <td>{{ produto.categoria }}</td>
+              <td>{{ produto.cat }}</td>
               <td class="text-center">
                 <a class="btn btn-sm btn-outline-primary me-2 mb-1 mb-sm-0" routerLink="/form-produto/{{ produto.id }}">
                   <i class="bi bi-pencil-fill"></i> Editar

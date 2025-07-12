@@ -4,6 +4,7 @@ import { LoginService } from './login.service';
 import { Produto } from '../models/produto';
 import { supabase } from '../supabase';
 import { AlertaService } from './alerta.service';
+import { CategoriaService } from './categoria.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +15,8 @@ export class ProdutosService {
 
   constructor(
     private loginService: LoginService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
+    private categoriaService: CategoriaService
   ) {}
 
   async carregarProdutos() {
@@ -29,7 +31,15 @@ export class ProdutosService {
       console.error('Erro ao carregar produtos:', error.message);
       return;
     }
-
+    await this.categoriaService.carregarCategorias();
+    this.categoriaService.categorias$.subscribe((categorias) => {
+      data.forEach((produto) => {
+        const categoria = categorias.find(
+          (cat) => cat.id === produto.categoria
+        );
+        produto.cat = categoria ? categoria.nome : 'Categoria não encontrada';
+      });
+    });
     this.produtosSubject.next(data as Produto[]);
   }
 

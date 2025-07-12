@@ -3,7 +3,8 @@ export class Transacao {
   nome?: string;
   valor?: number;
   tipo?: string;
-  categoria?: string;
+  categoria?: number;
+  cat?: string;
   data?: Date;
   idUser?: string;
 }

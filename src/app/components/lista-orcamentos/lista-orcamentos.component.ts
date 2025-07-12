@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { TransacaoService } from '../../service/transacao.service';
 import { Transacao } from '../../models/trasacao';
 import { AlertaService } from '../../service/alerta.service';
+import { CategoriaService } from '../../service/categoria.service';
 
 @Component({
   selector: 'app-lista-orcamentos',
@@ -27,7 +28,8 @@ export class ListaOrcamentosComponent implements OnInit {
     private orcamentoService: OrcamentoService,
     private router: Router,
     private transacaoService: TransacaoService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
+    private categoriaService: CategoriaService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -66,6 +68,14 @@ export class ListaOrcamentosComponent implements OnInit {
             );
             return false;
           }
+          const categoriaVenda = await this.categoriaService.retornarVenda();
+          if (!categoriaVenda) {
+            this.alertaService.erro(
+              'Erro',
+              "erro ao buscar categoria de vendas. Verifique se a categoria 'Vendas' está cadastrada."
+            );
+            return false;
+          }
           // Registrar transação
           const transacao: Transacao = {
             nome: `Pagamento de ${orcamento.cliente!.nome} - Orçamento #${
@@ -73,7 +83,7 @@ export class ListaOrcamentosComponent implements OnInit {
             }`,
             valor: orcamento.valor,
             tipo: 'Entrada',
-            categoria: 'Vendas',
+            categoria: categoriaVenda.id,
             data: new Date(),
           };
 

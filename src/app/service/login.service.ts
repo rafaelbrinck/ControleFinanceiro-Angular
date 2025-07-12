@@ -4,6 +4,7 @@ import { ValidacaoService } from './validacao.service';
 import { BehaviorSubject } from 'rxjs';
 import { supabase } from '../supabase';
 import { AlertaService } from './alerta.service';
+import { CategoriaService } from './categoria.service';
 
 @Injectable({
   providedIn: 'root',
@@ -101,7 +102,6 @@ export class LoginService {
       {
         id: data.user?.id,
         username: user.username,
-        password: 'protegido',
       },
     ]);
 
@@ -112,6 +112,7 @@ export class LoginService {
       );
       return false;
     }
+    this.insertVendas(data.user?.id!);
     this.alertaService.sucesso(
       'Sucesso',
       'Usuário registrado com sucesso! Verifique seu e-mail.'
@@ -185,5 +186,20 @@ export class LoginService {
     await this.validacao.logout();
     this.setUserLogado('');
     this.userSubject.next(undefined);
+  }
+
+  async insertVendas(id: string) {
+    if (!id) {
+      console.error(
+        'ID do usuário não fornecido para inserir categoria de vendas.'
+      );
+      return;
+    }
+    const { error } = await supabase
+      .from('categoria')
+      .insert({ nome: 'Vendas', userId: id, tipo: 'Transacao' });
+    if (error) {
+      console.error('Erro ao inserir categoria de vendas:', error.message);
+    }
   }
 }
