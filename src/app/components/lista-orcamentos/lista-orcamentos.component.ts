@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BuscadorPipe } from '../../pipes/buscador.pipe';
@@ -14,14 +14,7 @@ import { AlertaService } from '../../service/alerta.service';
 @Component({
   selector: 'app-lista-orcamentos',
   standalone: true,
-  imports: [
-    CommonModule,
-    BuscadorPipe,
-    FormsModule,
-    CpfPipe,
-    TelefonePipe,
-    DatePipe,
-  ],
+  imports: [CommonModule, BuscadorPipe, FormsModule, CpfPipe, TelefonePipe],
   templateUrl: './lista-orcamentos.component.html',
   styleUrl: './lista-orcamentos.component.css',
 })

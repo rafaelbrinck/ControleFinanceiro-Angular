@@ -149,7 +149,7 @@ export class OrcamentoComponent {
         this.desconto = 0;
         this.alertaService.sucesso(
           'Orçamento Finalizado',
-          'O orçamento foi finalizado com sucesso!'
+          'O orçamento foi salvo com sucesso!'
         );
       } else {
         this.alertaService.erro(
