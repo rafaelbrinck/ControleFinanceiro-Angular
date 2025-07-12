@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { LoginService } from '../../service/login.service';
 import { ProdutosService } from '../../service/produtos.service';
+import { AlertaService } from '../../service/alerta.service';
 
 @Component({
   selector: 'app-produtos',
@@ -21,7 +22,8 @@ export class ProdutosComponent implements OnInit {
 
   constructor(
     private loginService: LoginService,
-    private produtoService: ProdutosService
+    private produtoService: ProdutosService,
+    private alertaService: AlertaService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -33,13 +35,20 @@ export class ProdutosComponent implements OnInit {
 
   async deletar(id?: number) {
     if (!id) return;
-
     const produto = await this.produtoService.buscarId(id);
     if (produto) {
-      if (confirm(`Deseja deletar ${produto.nome}?`)) {
-        await this.produtoService.deletar(id);
-        alert(`Produto ${produto.nome} removido com sucesso!`);
-      }
+      this.alertaService.confirmar(
+        'Confirmação',
+        `Deseja deletar ${produto?.nome}?`,
+        async (confirma) => {
+          if (!confirma) return;
+          await this.produtoService.deletar(id);
+          this.alertaService.sucesso(
+            'Sucesso',
+            'Produto deletado com sucesso!'
+          );
+        }
+      );
     }
   }
 }

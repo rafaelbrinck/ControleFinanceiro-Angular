@@ -11,6 +11,7 @@ import { Cliente } from '../../models/cliente';
 import { ClientesService } from '../../service/clientes.service';
 import { Orcamento } from '../../models/orcamento';
 import { OrcamentoService } from '../../service/orcamento.service';
+import { AlertaService } from '../../service/alerta.service';
 
 @Component({
   selector: 'app-orcamento',
@@ -37,6 +38,7 @@ export class OrcamentoComponent {
     private produtoService: ProdutosService,
     private clienteService: ClientesService,
     private orcamentoService: OrcamentoService,
+    private alertaService: AlertaService,
     private router: Router
   ) {}
 
@@ -145,31 +147,52 @@ export class OrcamentoComponent {
         this.mostrarClientes = false;
         this.frete = 0;
         this.desconto = 0;
-        alert('Orçamento finalizado com sucesso!');
+        this.alertaService.sucesso(
+          'Orçamento Finalizado',
+          'O orçamento foi finalizado com sucesso!'
+        );
       } else {
-        alert('Erro ao finalizar o orçamento. Tente novamente.');
+        this.alertaService.erro(
+          'Erro ao Finalizar Orçamento',
+          'Ocorreu um erro ao finalizar o orçamento. Tente novamente.'
+        );
       }
     });
   }
   validarOrcamento(): boolean {
     if (this.produtosOrcamento.length === 0) {
-      alert('Adicione pelo menos um produto ao orçamento.');
+      this.alertaService.info(
+        'Orçamento Vazio',
+        'Você precisa adicionar pelo menos um produto ao orçamento.'
+      );
       return false;
     }
     if (!this.clienteSelecionado.id) {
-      alert('Selecione um cliente para o orçamento.');
+      this.alertaService.info(
+        'Cliente Não Selecionado',
+        'Você precisa selecionar um cliente para o orçamento.'
+      );
       return false;
     }
     if (this.frete < 0) {
-      alert('O valor do frete não pode ser negativo.');
+      this.alertaService.info(
+        'Frete Inválido',
+        'O valor do frete não pode ser negativo.'
+      );
       return false;
     }
     if (this.desconto < 0) {
-      alert('O valor do desconto não pode ser negativo.');
+      this.alertaService.info(
+        'Desconto Inválido',
+        'O valor do desconto não pode ser negativo.'
+      );
       return false;
     }
     if (this.total < 0) {
-      alert('O valor total do orçamento não pode ser negativo.');
+      this.alertaService.info(
+        'Valor Total Inválido',
+        'O valor total do orçamento não pode ser negativo.'
+      );
       return false;
     }
     return true;

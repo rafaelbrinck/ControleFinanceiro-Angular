@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { LoginService } from '../../service/login.service';
 import { supabase } from '../../supabase';
 import { UserLogado } from '../../models/user';
+import { AlertaService } from '../../service/alerta.service';
 
 @Component({
   selector: 'app-perfil',
@@ -22,7 +23,11 @@ export class PerfilComponent implements OnInit {
   novaFoto?: File;
   novaFotoPreview: string = '';
 
-  constructor(private loginService: LoginService, private router: Router) {}
+  constructor(
+    private loginService: LoginService,
+    private router: Router,
+    private alertaService: AlertaService
+  ) {}
 
   ngOnInit(): void {
     this.loginService.user$.subscribe((user) => {
@@ -68,7 +73,7 @@ export class PerfilComponent implements OnInit {
 
     if (uploadError) {
       console.error(uploadError.message);
-      alert('Erro ao fazer upload da imagem.');
+      this.alertaService.erro('Erro', 'Erro ao fazer upload da imagem.');
       return;
     }
 
@@ -86,7 +91,10 @@ export class PerfilComponent implements OnInit {
 
     if (dbError) {
       console.error(dbError.message);
-      alert('Erro ao atualizar a foto no banco de dados.');
+      this.alertaService.erro(
+        'Erro',
+        'Erro ao atualizar a foto no banco de dados.'
+      );
       return;
     }
 
@@ -96,6 +104,6 @@ export class PerfilComponent implements OnInit {
     // Limpa seleção e preview
     this.novaFoto = undefined;
     this.novaFotoPreview = '';
-    alert('Foto atualizada com sucesso!');
+    this.alertaService.sucesso('Sucesso', 'Foto atualizada com sucesso!');
   }
 }

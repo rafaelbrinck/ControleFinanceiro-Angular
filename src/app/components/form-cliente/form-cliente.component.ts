@@ -5,6 +5,7 @@ import { Cliente } from '../../models/cliente';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ClientesService } from '../../service/clientes.service';
 import { LoginService } from '../../service/login.service';
+import { AlertaService } from '../../service/alerta.service';
 
 @Component({
   selector: 'app-form-cliente',
@@ -28,7 +29,8 @@ export class FormClienteComponent implements OnInit {
     private router: Router,
     private clienteService: ClientesService,
     private loginService: LoginService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private alertaService: AlertaService
   ) {}
 
   async ngOnInit() {
@@ -46,12 +48,15 @@ export class FormClienteComponent implements OnInit {
     this.cliente.idUser = this.loginService.getUserLogado();
     if (this.id) {
       if (await this.clienteService.editar(this.id, this.cliente)) {
-        alert('Cliente alterado com sucesso!');
+        this.alertaService.sucesso('Sucesso', 'Cliente editado com sucesso!');
         this.voltar();
       }
     } else {
       if (await this.clienteService.insert(this.cliente)) {
-        alert('Cliente adicionado com sucesso!');
+        this.alertaService.sucesso(
+          'Sucesso',
+          'Cliente cadastrado com sucesso!'
+        );
         this.voltar();
       }
     }
@@ -65,7 +70,8 @@ export class FormClienteComponent implements OnInit {
     this.cliente.uf = '';
 
     const cep = this.cliente.cep?.replace(/\D/g, '');
-    if (!cep || cep.length !== 8) return alert('CEP inválido!');
+    if (!cep || cep.length !== 8)
+      return this.alertaService.erro('Erro', 'CEP inválido!');
 
     fetch(`https://viacep.com.br/ws/${cep}/json/`)
       .then((response) => response.json())
@@ -77,10 +83,10 @@ export class FormClienteComponent implements OnInit {
           this.cliente.uf = dados.uf;
           this.enderecoDesativado = true;
         } else {
-          alert('CEP não encontrado!');
+          this.alertaService.erro('Erro', 'CEP não encontrado!');
         }
       })
-      .catch(() => alert('Erro ao buscar o CEP!'));
+      .catch(() => this.alertaService.erro('Erro', 'Erro ao buscar o CEP!'));
   }
 
   mascaraCpf(event: Event) {

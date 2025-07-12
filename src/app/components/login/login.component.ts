@@ -4,6 +4,7 @@ import { LoginService } from '../../service/login.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AlertaService } from '../../service/alerta.service';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,11 @@ export class LoginComponent {
   listaUsuarios: User[] = [];
   registrar = false;
 
-  constructor(private loginService: LoginService, private router: Router) {
+  constructor(
+    private loginService: LoginService,
+    private router: Router,
+    private alertaService: AlertaService
+  ) {
     this.listarUsuarios();
   }
 
@@ -28,12 +33,18 @@ export class LoginComponent {
     if (this.validaCampos()) {
       const sucesso = await this.loginService.inserir(this.usuario);
       if (sucesso) {
-        alert('Usuário inserido com sucesso!');
+        this.alertaService.sucesso(
+          'Usuário Registrado',
+          'O usuário foi registrado com sucesso!'
+        );
         this.usuario = new User();
         this.registrar = false;
         this.listarUsuarios();
       } else {
-        alert('Erro ao registrar e-mail (talvez já exista).');
+        this.alertaService.erro(
+          'Erro ao Registrar Usuário',
+          'Ocorreu um erro ao registrar o usuário. Tente novamente.'
+        );
       }
     }
   }
@@ -56,19 +67,31 @@ export class LoginComponent {
       !this.usuario.password ||
       !this.usuario.validaPassword
     ) {
-      alert('Obrigatório preencher todos os campos');
+      this.alertaService.info(
+        'Campos Obrigatórios',
+        'Todos os campos são obrigatórios.'
+      );
       return false;
     }
     if (!this.validarEmail(this.usuario.username)) {
-      alert('Informe um e-mail válido');
+      this.alertaService.info(
+        'E-mail Inválido',
+        'Por favor, informe um e-mail válido.'
+      );
       return false;
     }
     if (this.usuario.password.length < 5) {
-      alert('Senha deve conter no mínimo 5 caracteres');
+      this.alertaService.info(
+        'Senha Inválida',
+        'A senha deve conter no mínimo 5 caracteres.'
+      );
       return false;
     }
     if (this.usuario.password !== this.usuario.validaPassword) {
-      alert('Senhas incompatíveis!');
+      this.alertaService.info(
+        'Senhas Incompatíveis',
+        'As senhas informadas não coincidem.'
+      );
       return false;
     }
     return true;

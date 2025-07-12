@@ -7,6 +7,7 @@ import { MoedaPipe } from '../../pipes/moeda.pipe';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { LoginService } from '../../service/login.service';
+import { AlertaService } from '../../service/alerta.service';
 
 @Component({
   selector: 'app-tabela-financeiro',
@@ -20,7 +21,8 @@ export class TabelaFinanceiroComponent {
 
   constructor(
     private transacaoService: TransacaoService,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private alertaService: AlertaService
   ) {}
   async ngOnInit(): Promise<void> {
     await this.transacaoService.carregarTransacoes();
@@ -29,7 +31,10 @@ export class TabelaFinanceiroComponent {
     );
   }
   async deletar(id?: number) {
-    alert(`Produto com id ${id} removido com sucesso!`);
+    this.alertaService.sucesso(
+      'Sucesso',
+      `Produto com id ${id} removido com sucesso!`
+    );
     await this.transacaoService.deletar(id!);
   }
 }

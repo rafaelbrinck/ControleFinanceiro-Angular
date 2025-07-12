@@ -9,6 +9,7 @@ import { TelefonePipe } from '../../pipes/telefone.pipe';
 import { InstagramPipe } from '../../pipes/insta.pipe';
 import { CepPipe } from '../../pipes/cep.pipe';
 import { CpfPipe } from '../../pipes/cpf.pipe';
+import { AlertaService } from '../../service/alerta.service';
 
 @Component({
   selector: 'app-clientes',
@@ -31,7 +32,10 @@ export class ClientesComponent implements OnInit {
   listaClientes: Cliente[] = [];
   clienteSelecionado?: Cliente;
 
-  constructor(private clienteService: ClientesService) {}
+  constructor(
+    private clienteService: ClientesService,
+    private alertaService: AlertaService
+  ) {}
 
   async ngOnInit(): Promise<void> {
     await this.clienteService.carregarClientes();
@@ -50,9 +54,18 @@ export class ClientesComponent implements OnInit {
 
   async deletar(id?: number) {
     const cliente = await this.clienteService.buscarId(id!);
-    if (cliente && confirm(`Deseja deletar ${cliente.nome}?`)) {
-      await this.clienteService.deletar(id);
-      alert(`Cliente ${cliente.nome} removido com sucesso!`);
-    }
+    this.alertaService.confirmar(
+      'Confirmação',
+      `Deseja deletar o cliente ${cliente?.nome}?`,
+      async (resultado) => {
+        if (cliente && resultado) {
+          await this.clienteService.deletar(id);
+          this.alertaService.sucesso(
+            'Sucesso',
+            `Cliente ${cliente.nome} removido com sucesso!`
+          );
+        }
+      }
+    );
   }
 }

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Categoria } from '../../models/categoria';
 import { CategoriaService } from '../../service/categoria.service';
-import { LoginService } from '../../service/login.service';
+import { AlertaService } from '../../service/alerta.service';
 
 @Component({
   selector: 'app-form-categoria',
@@ -20,7 +20,7 @@ export class FormCategoriaComponent {
   constructor(
     private categoriaService: CategoriaService,
     private router: Router,
-    private loginService: LoginService
+    private alertaService: AlertaService
   ) {}
 
   ngOnInit() {
@@ -31,7 +31,10 @@ export class FormCategoriaComponent {
 
   async salvar() {
     if (!this.categoria.nome || this.categoria.nome.trim() === '') {
-      alert('O nome da categoria é obrigatório');
+      this.alertaService.info(
+        'Obrigatório',
+        'O nome da categoria é obrigatório'
+      );
       return;
     }
 
@@ -44,25 +47,31 @@ export class FormCategoriaComponent {
     // Como buscarNome é async, precisamos aguardar
     const catVerificada = await this.categoriaService.buscarNome(nome);
     if (!catVerificada) {
-      alert(`Categoria ${nome} já cadastrada`);
+      this.alertaService.erro('Erro', `Categoria ${nome} já cadastrada`);
       return;
     }
 
     await this.categoriaService.inserir(this.categoria);
-    alert(`Categoria ${this.categoria.nome} adicionada com sucesso!`);
+    this.alertaService.sucesso(
+      'Sucesso',
+      `Categoria ${this.categoria.nome} cadastrada com sucesso!`
+    );
     this.categoria = new Categoria();
     this.voltar();
   }
 
   async deletar(id: number) {
     const categoria = await this.categoriaService.buscarId(id);
-    if (
-      categoria &&
-      confirm(`Tem certeza que deseja deletar ${categoria.nome}?`)
-    ) {
-      await this.categoriaService.deletar(id);
-      this.lista = await this.categoriaService.listarTudo(); // atualiza a lista após deletar
-    }
+    this.alertaService.confirmar(
+      'Confirmação',
+      `Deseja realmente deletar a categoria ${categoria?.nome}?`,
+      async (resultado) => {
+        if (categoria && resultado) {
+          await this.categoriaService.deletar(id);
+          this.lista = await this.categoriaService.listarTudo(); // atualiza a lista após deletar
+        }
+      }
+    );
   }
 
   voltar() {

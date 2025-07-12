@@ -7,6 +7,7 @@ import { ProdutosService } from '../../service/produtos.service';
 import { LoginService } from '../../service/login.service';
 import { Categoria } from '../../models/categoria';
 import { CategoriaService } from '../../service/categoria.service';
+import { AlertaService } from '../../service/alerta.service';
 
 @Component({
   selector: 'app-form-produto',
@@ -27,7 +28,8 @@ export class FormProdutoComponent implements OnInit {
     private route: ActivatedRoute,
     private produtoService: ProdutosService,
     private loginService: LoginService,
-    private categoriaService: CategoriaService
+    private categoriaService: CategoriaService,
+    private alertaService: AlertaService
   ) {}
 
   async ngOnInit() {
@@ -53,13 +55,16 @@ export class FormProdutoComponent implements OnInit {
     if (this.validarCampos()) {
       if (this.id) {
         await this.produtoService.editar(this.id, this.produto);
-        alert('Produto editado com sucesso!');
+        this.alertaService.sucesso('Sucesso', 'Produto editado com sucesso!');
         this.voltar();
       } else {
         this.produto.idUser = this.loginService.getUserLogado();
         const sucesso = await this.produtoService.inserir(this.produto);
         if (sucesso) {
-          alert('Produto adicionado com sucesso!');
+          this.alertaService.sucesso(
+            'Sucesso',
+            'Produto cadastrado com sucesso!'
+          );
           this.produto = new Produto();
           this.valorFormatado = '';
           this.voltar();
@@ -87,19 +92,31 @@ export class FormProdutoComponent implements OnInit {
 
   conferirCategoria(valor: string) {
     if (valor === 'nova') {
-      if (confirm('Gostaria de adicionar uma nova categoria?')) {
-        this.router.navigate(['/form-categoria']);
-      }
+      this.alertaService.confirmar(
+        'Nova Categoria',
+        'Você selecionou a opção de nova categoria. Deseja adicionar uma nova categoria?',
+        (resultado) => {
+          if (resultado) {
+            this.router.navigate(['/form-categoria']);
+          }
+        }
+      );
     }
   }
 
   private validarCampos() {
     if (!this.produto.nome || this.produto.nome.trim() === '') {
-      alert('Obrigatório preencher nome do produto!');
+      this.alertaService.info(
+        'Obrigatório',
+        'Obrigatório preencher nome do produto!'
+      );
       return false;
     }
     if (!this.produto.valor || this.produto.valor <= 0) {
-      alert('Valor deve ser maior do que zero!');
+      this.alertaService.info(
+        'Obrigatório',
+        'Valor deve ser maior do que zero!'
+      );
       return false;
     }
     return true;

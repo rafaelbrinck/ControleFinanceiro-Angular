@@ -1,0 +1,40 @@
+<!-- alerta.component.html adaptado ao seu layout -->
+<div *ngIf="visivel" class="modal fade show d-block" style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow border-0">
+
+      <!-- Cabeçalho -->
+      <div [ngClass]="classeCabecalho()" class="modal-header text-white rounded-top-4">
+        <h5 class="modal-title d-flex align-items-center">
+          <i [ngClass]="icone()" class="me-2"></i>
+          {{ titulo }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="fechar()"></button>
+      </div>
+
+      <!-- Corpo da mensagem -->
+      <div class="modal-body px-4 py-3">
+        <p class="mb-0 fs-6 text-muted">{{ mensagem }}</p>
+      </div>
+
+      <!-- Rodapé com botões -->
+      <div class="modal-footer border-0 px-4 pb-4 pt-2">
+        <div class="container px-0">
+          <div class="row g-2">
+            <div class="col-6" *ngIf="tipo === 'confirmar'">
+              <button class="btn btn-outline-secondary w-100" (click)="fechar(false)">
+                <i class="bi bi-x-circle me-1"></i> Cancelar
+              </button>
+            </div>
+            <div [ngClass]="tipo === 'confirmar' ? 'col-6' : 'col-12'">
+              <button class="btn w-100" [ngClass]="classeBotao()" (click)="fechar(true)">
+                <i class="bi bi-check-circle me-1"></i> OK
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

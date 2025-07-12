@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, viewChild } from '@angular/core';
 import {
   NavigationEnd,
   Router,
@@ -9,11 +9,13 @@ import { ValidacaoService } from './service/validacao.service';
 import { CommonModule } from '@angular/common';
 import { LoginService } from './service/login.service';
 import { UserLogado } from './models/user';
+import { AlertaComponent } from './components/shared/alerta/alerta.component';
+import { AlertaService } from './service/alerta.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule],
+  imports: [RouterOutlet, RouterLink, CommonModule, AlertaComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
@@ -22,11 +24,19 @@ export class AppComponent implements OnInit {
   usuario: UserLogado | undefined;
   validaNavBar = true;
 
+  @ViewChild('alertaGlobal', { static: false })
+  alertaGlobal!: AlertaComponent;
+
   constructor(
     private validacao: ValidacaoService,
     private router: Router,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private alertaService: AlertaService
   ) {}
+
+  ngAfterViewInit(): void {
+    this.alertaService.registrar(this.alertaGlobal);
+  }
 
   async ngOnInit(): Promise<void> {
     // ✅ Restaura sessão se existir ao carregar o app

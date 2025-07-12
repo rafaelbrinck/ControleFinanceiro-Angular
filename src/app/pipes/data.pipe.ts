@@ -13,9 +13,7 @@ export class DataPipe implements PipeTransform {
     }
   ): string {
     if (!valor) return '';
-
     const data = new Date(valor);
-
     return new Intl.DateTimeFormat('pt-BR', formato).format(data);
   }
 }

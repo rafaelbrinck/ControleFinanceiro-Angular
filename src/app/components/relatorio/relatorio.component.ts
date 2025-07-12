@@ -71,7 +71,6 @@ export class RelatorioComponent implements OnInit {
   async carregarRelatorioViaEdge() {
     try {
       const idUser = this.loginService.getUserLogado();
-      console.log('Chamando Edge Function com userId:', idUser);
 
       const { data, error } = await supabase.functions.invoke('relatorio', {
         body: { userId: idUser },
