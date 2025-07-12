@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { LoginService } from './login.service';
 import { Produto } from '../models/produto';
 import { supabase } from '../supabase';
+import { AlertaService } from './alerta.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,10 @@ export class ProdutosService {
   private produtosSubject = new BehaviorSubject<Produto[]>([]);
   public produtos$: Observable<Produto[]> = this.produtosSubject.asObservable();
 
-  constructor(private loginService: LoginService) {}
+  constructor(
+    private loginService: LoginService,
+    private alertaService: AlertaService
+  ) {}
 
   async carregarProdutos() {
     const userId = this.loginService.getUserLogado();
@@ -45,7 +49,10 @@ export class ProdutosService {
 
     if (error) {
       console.error('Erro ao inserir produto:', error.message);
-      alert('Erro ao inserir produto.');
+      this.alertaService.erro(
+        'Erro ao inserir produto',
+        'Por favor, tente novamente mais tarde.'
+      );
       return false;
     }
 
@@ -64,7 +71,11 @@ export class ProdutosService {
 
     if (error) {
       console.error('Erro ao editar produto:', error.message);
-      return alert('Erro ao editar produto.');
+      this.alertaService.erro(
+        'Erro ao editar produto',
+        'Por favor, tente novamente mais tarde.'
+      );
+      return;
     }
 
     await this.carregarProdutos();
@@ -81,7 +92,10 @@ export class ProdutosService {
 
     if (error) {
       console.error('Erro ao deletar produto:', error.message);
-      return alert('Erro ao deletar produto.');
+      return this.alertaService.erro(
+        'Erro ao deletar produto',
+        'Por favor, tente novamente mais tarde.'
+      );
     }
 
     await this.carregarProdutos();
@@ -107,11 +121,14 @@ export class ProdutosService {
 
   private validarCampos(produto: Produto): boolean {
     if (!produto.nome) {
-      alert('Nome do produto é obrigatório');
+      this.alertaService.info('Obrigatório', 'Nome do produto é obrigatório');
       return false;
     }
     if (produto.valor == null || produto.valor <= 0) {
-      alert('Valor deve ser maior que zero');
+      this.alertaService.info(
+        'Obrigatório',
+        'Valor do produto deve ser maior que zero'
+      );
       return false;
     }
     return true;

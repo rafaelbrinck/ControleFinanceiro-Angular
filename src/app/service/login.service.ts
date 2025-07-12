@@ -3,6 +3,7 @@ import { User, UserLogado } from '../models/user';
 import { ValidacaoService } from './validacao.service';
 import { BehaviorSubject } from 'rxjs';
 import { supabase } from '../supabase';
+import { AlertaService } from './alerta.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +15,10 @@ export class LoginService {
   private userSubject = new BehaviorSubject<UserLogado | undefined>(undefined);
   public user$ = this.userSubject.asObservable();
 
-  constructor(private validacao: ValidacaoService) {}
+  constructor(
+    private validacao: ValidacaoService,
+    private alertaService: AlertaService
+  ) {}
 
   getUserLogado(): string {
     return this.idUserLogadoSubject.getValue();
@@ -63,7 +67,10 @@ export class LoginService {
 
   async inserir(user: User): Promise<boolean> {
     if (!user.username || !user.password) {
-      alert('Usuário e senha são obrigatórios');
+      this.alertaService.info(
+        'Obrigatório',
+        'Usuário e senha são obrigatórios'
+      );
       return false;
     }
 
@@ -73,7 +80,10 @@ export class LoginService {
       .eq('username', user.username)
       .single();
     if (userExistente) {
-      alert('Username já existe!');
+      this.alertaService.erro(
+        'Usuário já existe',
+        'Por favor, escolha outro nome de usuário.'
+      );
       return false;
     }
 
@@ -83,7 +93,7 @@ export class LoginService {
     });
 
     if (authError) {
-      alert('Erro ao registrar usuário!');
+      this.alertaService.erro('Erro', 'Erro ao registrar usuário');
       return false;
     }
 
@@ -96,11 +106,16 @@ export class LoginService {
     ]);
 
     if (error) {
-      alert('Erro ao salvar usuário no banco!');
+      this.alertaService.erro(
+        'Erro ao salvar usuário',
+        'Erro ao salvar usuário no banco de dados'
+      );
       return false;
     }
-
-    alert('Usuário registrado com sucesso! Verifique seu e-mail.');
+    this.alertaService.sucesso(
+      'Sucesso',
+      'Usuário registrado com sucesso! Verifique seu e-mail.'
+    );
     return true;
   }
 
@@ -116,12 +131,18 @@ export class LoginService {
     });
 
     if (error?.code === 'email_not_confirmed') {
-      alert('E-mail não confirmado! Verifique sua caixa de entrada.');
+      this.alertaService.info(
+        'E-mail não confirmado',
+        'Por favor, verifique sua caixa de entrada para confirmar seu e-mail.'
+      );
       return false;
     }
 
     if (error || !data.user) {
-      alert('E-mail ou senha inválidos');
+      this.alertaService.info(
+        'Erro de login',
+        'E-mail ou senha inválidos. Por favor, tente novamente.'
+      );
       return false;
     }
 

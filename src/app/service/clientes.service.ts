@@ -3,6 +3,7 @@ import { Cliente } from '../models/cliente';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { LoginService } from './login.service';
 import { supabase } from '../supabase';
+import { AlertaService } from './alerta.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,10 @@ export class ClientesService {
   private clientesSubject = new BehaviorSubject<Cliente[]>([]);
   public clientes$: Observable<Cliente[]> = this.clientesSubject.asObservable();
 
-  constructor(private loginService: LoginService) {}
+  constructor(
+    private loginService: LoginService,
+    private alertaService: AlertaService
+  ) {}
 
   async carregarClientes() {
     const userId = this.loginService.getUserLogado();
@@ -120,7 +124,7 @@ export class ClientesService {
 
   private validarCampos(cliente: Cliente): boolean {
     if (!cliente.nome || cliente.nome.trim() === '') {
-      alert('Nome obrigatório!');
+      this.alertaService.info('Obrigário', 'Nome é obrigatório!');
       return false;
     }
     return true;

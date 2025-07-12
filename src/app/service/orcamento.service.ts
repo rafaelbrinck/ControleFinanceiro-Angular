@@ -4,6 +4,7 @@ import { Orcamento } from '../models/orcamento';
 import { supabase } from '../supabase';
 import { LoginService } from './login.service';
 import { ClientesService } from './clientes.service';
+import { AlertaService } from './alerta.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,8 @@ export class OrcamentoService {
 
   constructor(
     private loginService: LoginService,
-    private clienteService: ClientesService
+    private clienteService: ClientesService,
+    private alertaService: AlertaService
   ) {}
 
   async carregarOrcamentos() {
@@ -67,7 +69,10 @@ export class OrcamentoService {
 
     if (error) {
       console.error('Erro ao inserir orçamento:', error.message);
-      alert('Erro ao inserir orçamento.');
+      this.alertaService.erro(
+        'Erro ao inserir orçamento',
+        'Por favor, tente novamente mais tarde.'
+      );
       return false;
     }
 
@@ -90,10 +95,12 @@ export class OrcamentoService {
 
     if (error) {
       console.error('Erro ao editar orçamento:', error.message);
-      alert('Erro ao editar orçamento.');
+      this.alertaService.erro(
+        'Erro ao editar orçamento',
+        'Por favor, tente novamente mais tarde.'
+      );
       return false;
     }
-
     await this.carregarOrcamentos();
     return true;
   }
