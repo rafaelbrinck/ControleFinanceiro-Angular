@@ -253,16 +253,39 @@ export class OrcamentoComponent {
       .toFixed(2)
       .replace('.', ',');
 
-    const mensagem = `
-🛒 *Produtos:*
-${produtos}
-
-📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
-💸 *Desconto:* R$ ${orcamento.desconto?.toFixed(2).replace('.', ',') || '0,00'}
-
-💳 *Total:* R$ ${total}
-💳 *Total parcelado:* R$ ${valorCredito}
-`;
+    var mensagem = '';
+    if (orcamento.desconto != 0) {
+      mensagem = `
+  *🐭✨ Resumo da sua compra: ✨🐭*
+  
+  *🛍️ Produtos:*
+  ${produtos}
+  
+  📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
+  💝 *Descontinho:* R$ ${
+    orcamento.desconto?.toFixed(2).replace('.', ',') || '0,00'
+  }
+  
+  💳 *Total no pix:* R$ ${total}
+  💳 *Total parcelado:* R$ ${valorCredito}
+  
+  Qual a forma de pagamento? 💰🫶🏻
+  `;
+    } else {
+      mensagem = `
+  *🐭✨ Resumo da sua compra: ✨🐭*
+  
+  *🛍️ Produtos:*
+  ${produtos}
+  
+  📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
+  
+  💳 *Total no pix:* R$ ${total}
+  💳 *Total parcelado:* R$ ${valorCredito}
+  
+  Qual a forma de pagamento? 💰🫶🏻
+  `;
+    }
 
     const telefone = cliente?.telefone!.replace(/\D/g, ''); // remove símbolos
     const url = `https://api.whatsapp.com/send?phone=55${telefone}&text=${encodeURIComponent(
