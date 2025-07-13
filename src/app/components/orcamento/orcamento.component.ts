@@ -151,6 +151,17 @@ export class OrcamentoComponent {
           'Orçamento Finalizado',
           'O orçamento foi salvo com sucesso!'
         );
+        this.alertaService.confirmar(
+          'Deseja enviar o orçamento pelo WhatsApp?',
+          'Você pode enviar o orçamento para o cliente via WhatsApp.',
+          (resultado) => {
+            if (resultado) {
+              this.enviarOrcamentoWhatsApp(orcamento);
+              this.paginaOrcamentos();
+            }
+            this.paginaOrcamentos();
+          }
+        );
       } else {
         this.alertaService.erro(
           'Erro ao Finalizar Orçamento',
@@ -224,5 +235,40 @@ export class OrcamentoComponent {
     }
 
     input.value = formatado; // reflete no input imediatamente
+  }
+
+  enviarOrcamentoWhatsApp(orcamento: Orcamento) {
+    const cliente = orcamento.cliente;
+    const produtos = orcamento
+      .produtos!.map(
+        (p) =>
+          `• ${p.quantidade}x ${p.nome} - R$ ${(p.valor ?? 0)
+            .toFixed(2)
+            .replace('.', ',')}`
+      )
+      .join('\n');
+
+    const total = (orcamento.valor ?? 0).toFixed(2).replace('.', ',');
+    const valorCredito = (orcamento.valorCredito ?? 0)
+      .toFixed(2)
+      .replace('.', ',');
+
+    const mensagem = `
+🛒 *Produtos:*
+${produtos}
+
+📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
+💸 *Desconto:* R$ ${orcamento.desconto?.toFixed(2).replace('.', ',') || '0,00'}
+
+💳 *Total:* R$ ${total}
+💳 *Total parcelado:* R$ ${valorCredito}
+`;
+
+    const telefone = cliente?.telefone!.replace(/\D/g, ''); // remove símbolos
+    const url = `https://api.whatsapp.com/send?phone=55${telefone}&text=${encodeURIComponent(
+      mensagem
+    )}`;
+
+    window.open(url, '_blank');
   }
 }

@@ -75,7 +75,7 @@
                 <tr *ngFor="let transacao of transacoesFiltradas" class="text-center">
                   <td>{{ transacao.nome }}</td>
                   <td>{{ transacao.valor | moeda }}</td>
-                  <td>{{ transacao.categoria}}</td>
+                  <td>{{ transacao.cat}}</td>
                   <td>{{ transacao.data | date:'dd/MM/yyyy' }}</td>
                 </tr>
               </tbody>

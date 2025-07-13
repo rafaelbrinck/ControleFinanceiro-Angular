@@ -42,15 +42,21 @@ export class HomeComponent implements OnInit {
       await this.categoriaService.carregarCategorias();
       await this.transacaoService.carregarTransacoes();
     }
-
-    // Sempre que a lista de transações mudar, atualiza o relatório
-    this.transacaoService.transacoes$.subscribe((transacoes) => {
-      this.listaTransacoes = transacoes;
-    });
     await this.carregarRelatorioViaEdge();
     // Sempre que as categorias forem atualizadas, guarda localmente
     this.categoriaService.categorias$.subscribe((cats) => {
       this.categorias = cats;
+    });
+
+    // Sempre que a lista de transações mudar, atualiza o relatório
+    this.transacaoService.transacoes$.subscribe((transacoes) => {
+      transacoes.forEach((transacao) => {
+        const categoria = this.categorias.find(
+          (cat) => cat.id === transacao.categoria
+        );
+        transacao.cat = categoria ? categoria.nome : 'Categoria não encontrada';
+      });
+      this.listaTransacoes = transacoes;
     });
   }
 
