@@ -9,6 +9,11 @@ import { LoginService } from '../../service/login.service';
 import { supabase } from '../../supabase';
 import { CommonModule, NgClass } from '@angular/common';
 import { MoedaPipe } from '../../pipes/moeda.pipe';
+import { ClientesService } from '../../service/clientes.service';
+import { ProdutosService } from '../../service/produtos.service';
+import { OrcamentoService } from '../../service/orcamento.service';
+import { VariacoesService } from '../../service/variacoes.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -29,6 +34,10 @@ export class HomeComponent implements OnInit {
   constructor(
     private transacaoService: TransacaoService,
     private categoriaService: CategoriaService,
+    private clienteService: ClientesService,
+    private produtoService: ProdutosService,
+    private orcamentoService: OrcamentoService,
+    private variacoesService: VariacoesService,
     private router: Router,
     private loginService: LoginService
   ) {}
@@ -36,19 +45,14 @@ export class HomeComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     const userId = this.loginService.getUserLogado();
 
-    // Só carrega os dados se o usuário estiver logado
     if (userId) {
-      // Carregar categorias e transações do Supabase
-      await this.categoriaService.carregarCategorias();
-      await this.transacaoService.carregarTransacoes();
+      await this.carregarSistema();
     }
     await this.carregarRelatorioViaEdge();
-    // Sempre que as categorias forem atualizadas, guarda localmente
     this.categoriaService.categorias$.subscribe((cats) => {
       this.categorias = cats;
     });
 
-    // Sempre que a lista de transações mudar, atualiza o relatório
     this.transacaoService.transacoes$.subscribe((transacoes) => {
       transacoes.forEach((transacao) => {
         const categoria = this.categorias.find(
@@ -106,5 +110,39 @@ export class HomeComponent implements OnInit {
 
   mostrar() {
     return this.relatorio;
+  }
+
+  async carregarSistema() {
+    const transacoes = await firstValueFrom(this.transacaoService.transacoes$);
+    if (transacoes.length === 0) {
+      await this.transacaoService.carregarTransacoes();
+    }
+
+    const categorias = await firstValueFrom(this.categoriaService.categorias$);
+    if (categorias.length === 0) {
+      await this.categoriaService.carregarCategorias();
+    }
+
+    const clientes = await firstValueFrom(this.clienteService.clientes$);
+    if (clientes.length === 0) {
+      await this.clienteService.carregarClientes();
+    }
+
+    const produtos = await firstValueFrom(this.produtoService.produtos$);
+    if (produtos.length === 0) {
+      await this.produtoService.carregarProdutos();
+    }
+
+    const orcamentos = await firstValueFrom(this.orcamentoService.orcamento$);
+    if (orcamentos.length === 0) {
+      await this.orcamentoService.carregarOrcamentos();
+    }
+
+    const variacoes = await firstValueFrom(this.variacoesService.variacoes$);
+    /*
+    if (variacoes.length === 0) {
+      await this.variacoesService.carregarVariacoes();
+    }
+    */
   }
 }

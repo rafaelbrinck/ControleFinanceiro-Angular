@@ -25,7 +25,11 @@ export class TabelaFinanceiroComponent {
     private alertaService: AlertaService
   ) {}
   async ngOnInit(): Promise<void> {
-    await this.transacaoService.carregarTransacoes();
+    this.transacaoService.transacoes$.subscribe(async (transacoes) => {
+      if (transacoes.length == 0) {
+        await this.transacaoService.carregarTransacoes();
+      }
+    });
     this.transacaoService.transacoes$.subscribe(
       (transacoes) => (this.lista = transacoes)
     );

@@ -38,6 +38,11 @@ export class ClientesComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    this.clienteService.clientes$.subscribe(async (clientes) => {
+      if (clientes.length == 0) {
+        await this.clienteService.carregarClientes();
+      }
+    });
     this.clienteService.clientes$.subscribe(
       (clientes) => (this.listaClientes = clientes)
     );

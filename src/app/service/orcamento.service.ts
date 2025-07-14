@@ -34,10 +34,8 @@ export class OrcamentoService {
     }
     await this.clienteService.carregarClientes();
 
-    // Obter a lista de clientes assinando o observable uma vez
     this.clienteService.clientes$
       .subscribe((clientes) => {
-        // Mapear os dados para incluir o cliente associado
         data.forEach((orcamento) => {
           orcamento.cliente = clientes.find(
             (cliente) => cliente.id === orcamento.idCliente

@@ -27,7 +27,11 @@ export class ProdutosComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    await this.produtoService.carregarProdutos();
+    this.produtoService.produtos$.subscribe(async (produtos) => {
+      if (produtos.length == 0) {
+        await this.produtoService.carregarProdutos();
+      }
+    });
     this.produtoService.produtos$.subscribe((produtos) => {
       this.listaProdutos = produtos;
     });

@@ -44,11 +44,19 @@ export class OrcamentoComponent {
 
   async ngOnInit(): Promise<void> {
     this.mostrarClientes = false;
-    await this.produtoService.carregarProdutos();
+    this.produtoService.produtos$.subscribe(async (produtos) => {
+      if (produtos.length == 0) {
+        await this.produtoService.carregarProdutos();
+      }
+    });
+    this.produtoService.produtos$.subscribe(async (produtos) => {
+      if (produtos.length == 0) {
+        await this.produtoService.carregarProdutos();
+      }
+    });
     this.produtoService.produtos$.subscribe((produtos) => {
       this.listaProdutos = produtos;
     });
-    await this.clienteService.carregarClientes();
     this.clienteService.clientes$.subscribe((clientes) => {
       this.listaClientes = clientes;
     });

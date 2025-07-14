@@ -18,7 +18,6 @@ export class TransacaoService {
     private categoriaService: CategoriaService
   ) {}
 
-  // Carregar todas as transações do usuário logado
   async carregarTransacoes(): Promise<void> {
     const userId = this.loginService.getUserLogado();
     const { data, error } = await supabase
@@ -47,7 +46,6 @@ export class TransacaoService {
     }
   }
 
-  // Inserir nova transação no Supabase
   async inserir(transacao: Transacao): Promise<boolean> {
     const userId = this.loginService.getUserLogado();
 
@@ -71,7 +69,6 @@ export class TransacaoService {
     }
   }
 
-  // Buscar transação por ID
   async buscarId(id: number): Promise<Transacao> {
     const userId = this.loginService.getUserLogado();
 
@@ -90,7 +87,6 @@ export class TransacaoService {
     return data as Transacao;
   }
 
-  // Editar uma transação
   async editar(id: number, transacao: Transacao): Promise<boolean> {
     const userId = this.loginService.getUserLogado();
 
@@ -118,7 +114,6 @@ export class TransacaoService {
     }
   }
 
-  // Deletar uma transação
   async deletar(id: number): Promise<void> {
     const userId = this.loginService.getUserLogado();
 

@@ -33,7 +33,11 @@ export class ListaOrcamentosComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    await this.orcamentoService.carregarOrcamentos();
+    this.orcamentoService.orcamento$.subscribe(async (orcamentos) => {
+      if (orcamentos.length == 0) {
+        await this.orcamentoService.carregarOrcamentos();
+      }
+    });
     this.orcamentoService.orcamento$.subscribe((dados) => {
       this.listaOrcamentos = dados;
     });
