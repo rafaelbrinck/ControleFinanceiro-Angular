@@ -50,6 +50,7 @@ export class ClientesComponent implements OnInit {
 
   abrirModal(cliente: Cliente) {
     this.clienteSelecionado = cliente;
+    console.log('Cliente selecionado:', this.clienteSelecionado);
   }
 
   fecharModal() {
