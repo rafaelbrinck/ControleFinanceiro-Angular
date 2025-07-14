@@ -42,7 +42,7 @@ Sistema web completo para **gestão de orçamentos** com foco em usabilidade, pe
 ```bash
 # Clonar o repositório
 git clone https://github.com/rafaelbrinck/ControleFinanceiro-Angular.git
-cd seu-repositorio
+cd ControleFinanceiro-Angular
 
 # Instalar dependências
 npm install
