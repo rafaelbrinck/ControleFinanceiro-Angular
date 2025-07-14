@@ -65,8 +65,20 @@ export class HomeComponent implements OnInit {
   }
 
   exibirDetalhes(tipo: 'Entrada' | 'Saida') {
-    this.tipoDetalhe = tipo;
-    this.mostrarDetalhes = true;
+    if (this.tipoDetalhe === tipo && this.mostrarDetalhes) {
+      this.fecharDetalhes();
+      return;
+    } else {
+      this.tipoDetalhe = tipo;
+      this.mostrarDetalhes = true;
+    }
+  }
+  exibirCategorias() {
+    if (this.mostrarCategorias) {
+      this.mostrarCategorias = false;
+    } else {
+      this.mostrarCategorias = true;
+    }
   }
 
   fecharDetalhes() {
