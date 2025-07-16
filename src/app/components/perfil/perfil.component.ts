@@ -6,6 +6,7 @@ import { LoginService } from '../../service/login.service';
 import { supabase } from '../../supabase';
 import { UserLogado } from '../../models/user';
 import { AlertaService } from '../../service/alerta.service';
+import { PerfilService } from '../../service/perfil.service';
 
 @Component({
   selector: 'app-perfil',
@@ -26,7 +27,8 @@ export class PerfilComponent implements OnInit {
   constructor(
     private loginService: LoginService,
     private router: Router,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
+    private perfilService: PerfilService
   ) {}
 
   ngOnInit(): void {
@@ -60,46 +62,11 @@ export class PerfilComponent implements OnInit {
 
   async salvarFoto(): Promise<void> {
     if (!this.novaFoto || !this.userId) return;
-
-    const file = this.novaFoto;
-    const fileExt = file.name.split('.').pop();
-    const filePath = `avatars/${this.userId}.${fileExt}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('foto-usuario')
-      .upload(filePath, file, {
-        upsert: true,
-      });
-
-    if (uploadError) {
-      console.error(uploadError.message);
-      this.alertaService.erro('Erro', 'Erro ao fazer upload da imagem.');
+    const novaUrl = await this.perfilService.salvarFoto(this.novaFoto);
+    if (!novaUrl) {
+      this.alertaService.erro('Erro', 'Não foi possível atualizar a foto.');
       return;
     }
-
-    const { data } = supabase.storage
-      .from('foto-usuario')
-      .getPublicUrl(filePath);
-
-    const novaUrl = data.publicUrl;
-
-    // Atualiza no banco
-    const { error: dbError } = await supabase
-      .from('usuarios')
-      .update({ logo: novaUrl })
-      .eq('id', this.userId);
-
-    if (dbError) {
-      console.error(dbError.message);
-      this.alertaService.erro(
-        'Erro',
-        'Erro ao atualizar a foto no banco de dados.'
-      );
-      return;
-    }
-
-    // Atualiza o usuário em memória no loginService
-    await this.loginService.recarregarUsuario();
     this.fotoUrl = novaUrl; // atualiza localmente já
     // Limpa seleção e preview
     this.novaFoto = undefined;
