@@ -191,6 +191,7 @@ export class OrcamentoComponent {
         'Cliente Não Selecionado',
         'Você precisa selecionar um cliente para o orçamento.'
       );
+      this.mostrarClientes = true;
       return false;
     }
     if (this.frete < 0) {
@@ -214,6 +215,14 @@ export class OrcamentoComponent {
       );
       return false;
     }
+    if (!this.clienteSelecionado.telefone) {
+      this.alertaService.info(
+        'Telefone Obrigatório',
+        'O telefone do cliente é obrigatório para enviar o orçamento. Por favor, preencha o telefone do cliente.'
+      );
+      return false;
+    }
+
     return true;
   }
 

@@ -46,6 +46,7 @@ export class FormClienteComponent implements OnInit {
 
   async salvar() {
     this.cliente.idUser = this.loginService.getUserLogado();
+    if (!this.validarCampos()) return;
     if (this.id) {
       if (await this.clienteService.editar(this.id, this.cliente)) {
         this.alertaService.sucesso('Sucesso', 'Cliente editado com sucesso!');
@@ -60,6 +61,18 @@ export class FormClienteComponent implements OnInit {
         this.voltar();
       }
     }
+  }
+
+  validarCampos() {
+    if (!this.cliente.nome) {
+      this.alertaService.info('Campo Obrigatório', 'O nome é obrigatório!');
+      return false;
+    }
+    if (!this.cliente.telefone) {
+      this.alertaService.info('Campo Obrigatório', 'O telefone é obrigatório!');
+      return false;
+    }
+    return true;
   }
 
   buscarCep() {
