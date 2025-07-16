@@ -1,50 +1,50 @@
 <div class="container mt-4 d-flex justify-content-center">
-  <div class="card p-4 shadow" style="width: 100%; max-width: 600px;">
-    <div class="d-flex align-items-center">
-
-      <!-- Área da Foto de Perfil -->
-      <div class="me-4 text-center">
-        <div class="position-relative">
+  <div class="card p-4 shadow rounded-4 w-100" style="max-width: 600px;">
+    
+    <!-- Layout flexível -->
+    <div class="d-flex flex-column flex-md-row align-items-center text-center text-md-start">
+      
+      <!-- Foto de Perfil e Ações -->
+      <div class="mb-3 mb-md-0 me-md-4">
+        <div class="position-relative mx-auto mx-md-0" style="width: 110px; height: 110px;">
           <img
             [src]="novaFotoPreview || fotoUrl"
             alt="Foto de Perfil"
-            class="rounded-circle mb-2 border"
-            style="width: 100px; height: 100px; object-fit: cover; min-width: 100px; min-height: 100px;"
+            class="rounded-circle border shadow-sm"
+            style="width: 100%; height: 100%; object-fit: cover;"
           />
-          <!-- Badge se estiver previewando nova -->
           <span
             *ngIf="novaFotoPreview"
             class="badge bg-info text-dark position-absolute top-0 start-100 translate-middle rounded-pill"
-            style="font-size: 0.7rem;"
+            style="font-size: 0.75rem;"
           >
             Preview
           </span>
         </div>
 
-        <!-- Botão de selecionar nova imagem -->
-        <label class="btn btn-outline-primary btn-sm w-100 mt-2">
-          Escolher foto
-          <input
-            type="file"
-            hidden
-            (change)="selecionarFoto($event)"
-            accept="image/*"
-          />
-        </label>
+        <div class="mt-3 d-grid gap-2">
+          <label class="btn btn-outline-primary btn-sm">
+            Escolher Foto
+            <input type="file" hidden (change)="selecionarFoto($event)" accept="image/*" />
+          </label>
 
-        <!-- Botão de salvar nova imagem -->
-        <button
-          class="btn btn-success btn-sm mt-2 w-100"
-          (click)="salvarFoto()"
-          [disabled]="!novaFoto"
-        >
-          Salvar
-        </button>
+          <button
+            *ngIf="novaFotoPreview"
+            class="btn btn-success btn-sm"
+            (click)="salvarFoto()"
+          >
+            Salvar
+          </button>
+        </div>
       </div>
 
-      <!-- Nome do Usuário -->
-      <div class="flex-grow-1">
-        <h2 class="mb-1 text-center">{{ usuario?.nome }}</h2>
+      <!-- Informações do Usuário -->
+      <div class="flex-grow-1 mt-3 mt-md-0">
+        <h4 class="fw-bold mb-2">{{ usuario?.nome }}</h4>
+        
+        <div class="text-muted small">
+          <div><i class="bi bi-envelope me-1"></i> {{ usuario?.username || 'sem email' }}</div>
+        </div>
       </div>
 
     </div>
