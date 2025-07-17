@@ -65,7 +65,8 @@ export class LoginComponent {
     if (
       !this.usuario.username ||
       !this.usuario.password ||
-      !this.usuario.validaPassword
+      !this.usuario.validaPassword ||
+      !this.usuario.nome
     ) {
       this.alertaService.info(
         'Campos Obrigatórios',
