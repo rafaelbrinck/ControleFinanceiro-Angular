@@ -5,6 +5,8 @@ import { supabase } from '../supabase';
 import { LoginService } from './login.service';
 import { ClientesService } from './clientes.service';
 import { AlertaService } from './alerta.service';
+import { ProdutoOrcamento } from '../models/produto';
+import { Cliente } from '../models/cliente';
 
 @Injectable({
   providedIn: 'root',
@@ -14,11 +16,27 @@ export class OrcamentoService {
   public orcamento$: Observable<Orcamento[]> =
     this.orcamentoSubject.asObservable();
 
+  public produtosOrcamento = new BehaviorSubject<ProdutoOrcamento[]>([]);
+  public produtosOrcamento$ = this.produtosOrcamento.asObservable();
+  public clienteOrcamento = new BehaviorSubject<Cliente>(new Cliente());
+  public clienteOrcamento$ = this.clienteOrcamento.asObservable();
+
   constructor(
     private loginService: LoginService,
     private clienteService: ClientesService,
     private alertaService: AlertaService
   ) {}
+
+  addProdutos(produtos: ProdutoOrcamento[]) {
+    this.produtosOrcamento.next(produtos);
+  }
+  addCliente(cliente: Cliente) {
+    this.clienteOrcamento.next(cliente);
+  }
+  limparOrcamento() {
+    this.produtosOrcamento.next([]);
+    this.clienteOrcamento.next(new Cliente());
+  }
 
   async carregarOrcamentos() {
     const userId = this.loginService.getUserLogado();

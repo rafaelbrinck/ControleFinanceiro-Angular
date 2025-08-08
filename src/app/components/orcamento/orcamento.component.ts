@@ -60,6 +60,24 @@ export class OrcamentoComponent {
     this.clienteService.clientes$.subscribe((clientes) => {
       this.listaClientes = clientes;
     });
+    this.orcamentoService.produtosOrcamento$.subscribe((produtos) => {
+      this.produtosOrcamento = produtos;
+    });
+    this.orcamentoService.clienteOrcamento$.subscribe((cliente) => {
+      this.clienteSelecionado = cliente;
+    });
+  }
+
+  limparCarrinho() {
+    this.alertaService.confirmar(
+      'Limpar Carrinho',
+      'Deseja esvaziar o carrinho?',
+      (resultado) => {
+        this.orcamentoService.limparOrcamento();
+        this.produtosOrcamento = [];
+        this.clienteSelecionado = new Cliente();
+      }
+    );
   }
 
   async adicionarProduto(id?: number) {
@@ -80,6 +98,7 @@ export class OrcamentoComponent {
           quantidade: 1,
         };
         this.produtosOrcamento.push(prod);
+        this.orcamentoService.addProdutos(this.produtosOrcamento);
       }
     }
   }
@@ -133,6 +152,7 @@ export class OrcamentoComponent {
   }
   adicionarCliente(cliente: Cliente) {
     this.clienteSelecionado = cliente;
+    this.orcamentoService.addCliente(cliente);
   }
 
   async finalizarOrcamento() {
