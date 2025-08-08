@@ -73,9 +73,11 @@ export class OrcamentoComponent {
       'Limpar Carrinho',
       'Deseja esvaziar o carrinho?',
       (resultado) => {
-        this.orcamentoService.limparOrcamento();
-        this.produtosOrcamento = [];
-        this.clienteSelecionado = new Cliente();
+        if (resultado) {
+          this.orcamentoService.limparOrcamento();
+          this.produtosOrcamento = [];
+          this.clienteSelecionado = new Cliente();
+        }
       }
     );
   }
