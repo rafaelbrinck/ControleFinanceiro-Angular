@@ -88,9 +88,9 @@
             <div class="col-md-6 mb-2">
               <strong>Nome:</strong> {{ orcamentoSelecionado.cliente?.nome }}
             </div>
-            <div class="col-md-6 mb-2">
-              <strong>CPF:</strong> {{ orcamentoSelecionado.cliente?.cpf! | cpf }}
-            </div>
+              <div class="col-md-6 mb-2">
+                <strong>CPF:</strong> {{ orcamentoSelecionado.cliente && orcamentoSelecionado.cliente.cpf ? (orcamentoSelecionado.cliente.cpf | cpf) : 'Não informado'}}
+              </div>
             <div class="col-md-6 mb-2">
               <strong>Telefone:</strong> {{ orcamentoSelecionado.cliente?.telefone! | telefone }}
             </div>
