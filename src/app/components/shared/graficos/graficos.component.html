@@ -1,0 +1,27 @@
+<div class="container my-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Vendas por Cliente</h2>
+    </div>
+    <div class="card-body">
+      <canvas baseChart
+        [data]="chartClientesData"
+        [options]="chartOptions"
+        chartType="bar">
+      </canvas>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-danger text-white">
+      <h2 class="mb-0">Vendas por Produto</h2>
+    </div>
+    <div class="card-body">
+      <canvas baseChart
+        [data]="chartProdutosData"
+        [options]="chartOptions"
+        chartType="bar">
+      </canvas>
+    </div>
+  </div>
+</div>

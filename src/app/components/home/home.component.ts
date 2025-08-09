@@ -14,10 +14,12 @@ import { ProdutosService } from '../../service/produtos.service';
 import { OrcamentoService } from '../../service/orcamento.service';
 import { VariacoesService } from '../../service/variacoes.service';
 import { firstValueFrom } from 'rxjs';
+import { GraficosComponent } from '../shared/graficos/graficos.component';
+import { GraficosDataService } from '../../service/grafico.service';
 
 @Component({
   selector: 'app-home',
-  imports: [NgClass, CommonModule, MoedaPipe],
+  imports: [NgClass, CommonModule, MoedaPipe, GraficosComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
@@ -39,8 +41,11 @@ export class HomeComponent implements OnInit {
     private orcamentoService: OrcamentoService,
     private variacoesService: VariacoesService,
     private router: Router,
-    private loginService: LoginService
-  ) {}
+    private loginService: LoginService,
+    private graficoService: GraficosDataService
+  ) {
+    console.log('HomeComponent constructor chamado');
+  }
 
   async ngOnInit(): Promise<void> {
     const userId = this.loginService.getUserLogado();
@@ -148,6 +153,11 @@ export class HomeComponent implements OnInit {
     const orcamentos = await firstValueFrom(this.orcamentoService.orcamento$);
     if (orcamentos.length === 0) {
       await this.orcamentoService.carregarOrcamentos();
+    }
+
+    const graficoVendas = await firstValueFrom(this.graficoService.vendas$);
+    if (graficoVendas.length === 0) {
+      await this.graficoService.carregarDados();
     }
 
     const variacoes = await firstValueFrom(this.variacoesService.variacoes$);

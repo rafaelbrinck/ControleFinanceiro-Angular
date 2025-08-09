@@ -17,6 +17,9 @@
     </div>
 
     <div class="row justify-content-center">
+
+
+      <!-- ENTRADAS E SAÍDAS -->
       <div class="col-md-6 mb-3" (click)="mostrarCategorias = false;exibirDetalhes('Entrada')" style="cursor:pointer">
         <div class="p-4 border rounded-4 shadow-sm bg-white h-100 text-center">
           <h6 class="text-muted mb-1">
@@ -26,7 +29,7 @@
           <h4 class="fw-semibold text-success">{{ relatorio.entradas | moeda}}</h4>
         </div>
       </div>
-  
+
       <div class="col-md-6 mb-3" (click)="mostrarCategorias = false;exibirDetalhes('Saida')" style="cursor:pointer">
         <div class="p-4 border rounded-4 shadow-sm bg-white h-100 text-center">
           <h6 class="text-muted mb-1">
@@ -37,15 +40,6 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3 mb-3" (click)="exibirCategorias()" style="cursor:pointer">
-      <div class="p-4 border rounded-4 shadow-sm bg-white h-100 text-center">
-        <h3 class="text-muted mb-1">
-          <i class="bi bi-tags-fill text-primary me-2"></i>Categorias
-        </h3>
-      </div>
-    </div>
-    
-
 
     <!-- Parte que mostra as listas na hora de clicar em Entrada ou Saida -->
     <div *ngIf="mostrarDetalhes" class="container my-5">
@@ -84,8 +78,20 @@
         </div>
       </div>
     </div>
-    
+
+
+
+
+
     <!-- Categorias -->
+    <div class="col-md-3 mb-3" (click)="exibirCategorias()" style="cursor:pointer">
+      <div class="p-4 border rounded-4 shadow-sm bg-white h-100 text-center">
+        <h3 class="text-muted mb-1">
+          <i class="bi bi-tags-fill text-primary me-2"></i>Categorias
+        </h3>
+      </div>
+    </div>
+    
     <div *ngIf="mostrarCategorias" class="container my-5">
       <div class="card shadow rounded-4">
         <div class="card-body p-4">
@@ -123,6 +129,9 @@
         </div>
       </div>
     </div>
+
+
+     <app-graficos></app-graficos>
     
   </div>
   

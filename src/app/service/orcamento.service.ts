@@ -7,6 +7,7 @@ import { ClientesService } from './clientes.service';
 import { AlertaService } from './alerta.service';
 import { ProdutoOrcamento } from '../models/produto';
 import { Cliente } from '../models/cliente';
+import { GraficosDataService } from './grafico.service';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,8 @@ export class OrcamentoService {
   constructor(
     private loginService: LoginService,
     private clienteService: ClientesService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
+    private graficoService: GraficosDataService
   ) {}
 
   addProdutos(produtos: ProdutoOrcamento[]) {
@@ -92,6 +94,7 @@ export class OrcamentoService {
       return false;
     }
 
+    await this.graficoService.atualizarDados();
     await this.carregarOrcamentos();
     return true;
   }
@@ -117,6 +120,7 @@ export class OrcamentoService {
       );
       return false;
     }
+    await this.graficoService.atualizarDados();
     await this.carregarOrcamentos();
     return true;
   }
