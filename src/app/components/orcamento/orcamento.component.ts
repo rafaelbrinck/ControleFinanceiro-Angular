@@ -171,6 +171,7 @@ export class OrcamentoComponent {
     };
     await this.orcamentoService.inserir(orcamento).then((success) => {
       if (success) {
+        this.orcamentoService.limparOrcamento();
         this.produtosOrcamento = [];
         this.clienteSelecionado = new Cliente();
         this.mostrarDetalhes = false;
