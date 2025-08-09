@@ -1,22 +1,23 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { User, UserLogado } from '../models/user';
 import { ValidacaoService } from './validacao.service';
 import { BehaviorSubject } from 'rxjs';
 import { supabase } from '../supabase';
 import { AlertaService } from './alerta.service';
-import { CategoriaService } from './categoria.service';
+import { OrcamentoService } from './orcamento.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoginService {
-  public idUserLogadoSubject = new BehaviorSubject<string>(''); // ← agora string (id do supabase)
+  public idUserLogadoSubject = new BehaviorSubject<string>('');
   public idUserLogado$ = this.idUserLogadoSubject.asObservable();
 
   private userSubject = new BehaviorSubject<UserLogado | undefined>(undefined);
   public user$ = this.userSubject.asObservable();
 
   constructor(
+    private injector: Injector,
     private validacao: ValidacaoService,
     private alertaService: AlertaService
   ) {}
@@ -159,7 +160,7 @@ export class LoginService {
     if (usuario) {
       this.userSubject.next(usuario);
     }
-
+    this.orcamentoService.limparOrcamento();
     return true;
   }
 
@@ -186,6 +187,7 @@ export class LoginService {
     await this.validacao.logout();
     this.setUserLogado('');
     this.userSubject.next(undefined);
+    this.orcamentoService.limparOrcamento();
   }
 
   async insertVendas(id: string) {
@@ -201,5 +203,9 @@ export class LoginService {
     if (error) {
       console.error('Erro ao inserir categoria de vendas:', error.message);
     }
+  }
+
+  private get orcamentoService(): OrcamentoService {
+    return this.injector.get(OrcamentoService);
   }
 }

@@ -43,9 +43,7 @@ export class HomeComponent implements OnInit {
     private router: Router,
     private loginService: LoginService,
     private graficoService: GraficosDataService
-  ) {
-    console.log('HomeComponent constructor chamado');
-  }
+  ) {}
 
   async ngOnInit(): Promise<void> {
     const userId = this.loginService.getUserLogado();

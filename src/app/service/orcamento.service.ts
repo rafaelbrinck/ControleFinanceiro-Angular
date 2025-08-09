@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Orcamento } from '../models/orcamento';
 import { supabase } from '../supabase';
@@ -23,7 +23,7 @@ export class OrcamentoService {
   public clienteOrcamento$ = this.clienteOrcamento.asObservable();
 
   constructor(
-    private loginService: LoginService,
+    private injector: Injector,
     private clienteService: ClientesService,
     private alertaService: AlertaService,
     private graficoService: GraficosDataService
@@ -140,5 +140,9 @@ export class OrcamentoService {
     }
 
     return data as Orcamento;
+  }
+
+  private get loginService(): LoginService {
+    return this.injector.get(LoginService);
   }
 }

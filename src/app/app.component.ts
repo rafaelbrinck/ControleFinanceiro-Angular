@@ -11,6 +11,7 @@ import { LoginService } from './service/login.service';
 import { UserLogado } from './models/user';
 import { AlertaComponent } from './components/shared/alerta/alerta.component';
 import { AlertaService } from './service/alerta.service';
+import { OrcamentoService } from './service/orcamento.service';
 
 @Component({
   selector: 'app-root',
@@ -31,7 +32,8 @@ export class AppComponent implements OnInit {
     private validacao: ValidacaoService,
     private router: Router,
     private loginService: LoginService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
+    private orcamentoService: OrcamentoService
   ) {}
 
   ngAfterViewInit(): void {
@@ -61,6 +63,7 @@ export class AppComponent implements OnInit {
   async logout() {
     await this.loginService.logout();
     this.usuario = undefined;
+    this.orcamentoService.limparOrcamento();
     this.router.navigate(['']);
   }
 

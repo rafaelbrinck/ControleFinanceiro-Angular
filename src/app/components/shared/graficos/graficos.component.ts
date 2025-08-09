@@ -46,12 +46,6 @@ export class GraficosComponent implements OnInit {
 
   ngOnInit(): void {
     this.graficosDataService.vendas$.subscribe((vendas) => {
-      console.log(vendas.length);
-      if (!vendas || vendas.length === 0) {
-        console.log('Nenhum dado para gráfico');
-        return;
-      }
-
       const clientesResumo = this.organizarPorCliente(vendas);
       const produtosResumo = this.organizarPorProduto(vendas);
 

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AlertaService } from '../../service/alerta.service';
+import { OrcamentoService } from '../../service/orcamento.service';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,8 @@ export class LoginComponent {
   constructor(
     private loginService: LoginService,
     private router: Router,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
+    private orcamentoService: OrcamentoService
   ) {
     this.listarUsuarios();
   }
@@ -53,6 +55,7 @@ export class LoginComponent {
     const sucesso = await this.loginService.logar(this.usuario);
     if (sucesso) {
       this.usuario = new User();
+      this.orcamentoService.limparOrcamento();
       this.router.navigate(['/inicio']);
     }
   }
