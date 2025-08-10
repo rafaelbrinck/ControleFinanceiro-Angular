@@ -99,6 +99,22 @@ export class ListaOrcamentosComponent implements OnInit {
             return false;
           }
 
+          const transacaoFrete: Transacao = {
+            nome: `Frete do orçamento #${orcamento.id}`,
+            valor: orcamento.frete || 0,
+            tipo: 'Saida',
+            categoria: categoriaVenda.id,
+            data: new Date(),
+          };
+
+          const sucessoTransacaoFrete = await this.transacaoService.inserir(
+            transacaoFrete
+          );
+          if (!sucessoTransacaoFrete) {
+            console.error('Erro ao registrar transação Frete');
+            return false;
+          }
+
           this.fecharModal();
           return true;
         }
