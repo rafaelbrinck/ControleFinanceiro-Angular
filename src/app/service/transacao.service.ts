@@ -56,7 +56,7 @@ export class TransacaoService {
         tipo: transacao.tipo,
         categoria: transacao.categoria,
         idUser: userId,
-        data: transacao.data,
+        data: transacao.data || new Date(),
       },
     ]);
 
