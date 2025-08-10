@@ -27,7 +27,7 @@ export class AlertaComponent {
     this.callback = callback ?? (() => {});
   }
 
-  fechar(resposta: boolean = true) {
+  fechar(resposta: boolean = false) {
     this.visivel = false;
     this.callback(resposta);
   }

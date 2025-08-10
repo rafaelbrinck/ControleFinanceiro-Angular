@@ -278,60 +278,6 @@ export class OrcamentoComponent {
   }
 
   enviarOrcamentoWhatsApp(orcamento: Orcamento) {
-    const cliente = orcamento.cliente;
-    const produtos = orcamento
-      .produtos!.map(
-        (p) =>
-          `• ${p.quantidade}x ${p.nome} - R$ ${(p.valor ?? 0)
-            .toFixed(2)
-            .replace('.', ',')}`
-      )
-      .join('\n');
-
-    const total = (orcamento.valor ?? 0).toFixed(2).replace('.', ',');
-    const valorCredito = (orcamento.valorCredito ?? 0)
-      .toFixed(2)
-      .replace('.', ',');
-
-    var mensagem = '';
-    if (orcamento.desconto != 0) {
-      mensagem = `
-  *🐭✨ Resumo da sua compra: ✨🐭*
-  
-  *🛍️ Produtos:*
-  ${produtos}
-  
-  📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
-  💝 *Descontinho:* R$ ${
-    orcamento.desconto?.toFixed(2).replace('.', ',') || '0,00'
-  }
-  
-  💳 *Total no pix:* R$ ${total}
-  💳 *Total parcelado:* R$ ${valorCredito}
-  
-  Qual a forma de pagamento? 💰🫶🏻
-  `;
-    } else {
-      mensagem = `
-  *🐭✨ Resumo da sua compra: ✨🐭*
-  
-  *🛍️ Produtos:*
-  ${produtos}
-  
-  📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
-  
-  💳 *Total no pix:* R$ ${total}
-  💳 *Total parcelado:* R$ ${valorCredito}
-  
-  Qual a forma de pagamento? 💰🫶🏻
-  `;
-    }
-
-    const telefone = cliente?.telefone!.replace(/\D/g, ''); // remove símbolos
-    const url = `https://api.whatsapp.com/send?phone=55${telefone}&text=${encodeURIComponent(
-      mensagem
-    )}`;
-
-    window.open(url, '_blank');
+    this.orcamentoService.enviarOrcamentoWhatsApp(orcamento);
   }
 }

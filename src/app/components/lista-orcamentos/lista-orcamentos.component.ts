@@ -46,6 +46,24 @@ export class ListaOrcamentosComponent implements OnInit {
     });
   }
 
+  reenviarOrcamento(orcamento: Orcamento) {
+    this.alertaService.confirmar(
+      'Reenviar Orçamento',
+      `Deseja reenviar o orçamento para ${orcamento.cliente?.nome}?`,
+      (resposta) => {
+        if (resposta) {
+          this.orcamentoService.enviarOrcamentoWhatsApp(orcamento);
+          this.alertaService.sucesso(
+            'Orçamento Reenviado',
+            `O orçamento para ${orcamento.cliente?.nome} foi reenviado com sucesso.`
+          );
+          return true;
+        }
+        return false;
+      }
+    );
+  }
+
   abrirModal(orcamento: Orcamento) {
     this.orcamentoService.addOrcamentoSelecionado(orcamento);
   }
