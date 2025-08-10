@@ -1,4 +1,96 @@
-<div class="container my-4">
+<div class="my-4">
+  <!-- Título geral -->
+  <div class="text-center mb-4">
+    <h1 class="fw-bold">Painel de Vendas</h1>
+    <p class="text-muted">Resumo de clientes, produtos e status de orçamentos</p>
+  </div>
+
+  <!-- Cards de métricas -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card text-center shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">Orçamentos</h6>
+          <h3 class="fw-bold text-primary">{{ totalOrcamento }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">Finalizados</h6>
+          <h3 class="fw-bold text-success">{{ orcamentosFinalizados }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">Pendentes</h6>
+          <h3 class="fw-bold text-warning">{{ orcamentosPendentes }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">Cancelados</h6>
+          <h3 class="fw-bold text-danger">{{ orcamentosCancelados }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Valor total de vendas -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body text-center">
+      <h5 class="text-muted mb-1">Total em Vendas</h5>
+      <h2 class="fw-bold text-success">
+        {{ totalVendas | currency:'BRL' }}
+      </h2>
+    </div>
+  </div>
+
+  <!-- Gráficos lado a lado -->
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white text-center">
+          <h5 class="mb-0">Vendas por Cliente</h5>
+        </div>
+        <div class="card-body">
+          <canvas baseChart
+            [data]="chartClientesData"
+            [options]="chartOptions"
+            chartType="bar">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-danger text-white text-center">
+          <h5 class="mb-0">Vendas por Produto</h5>
+        </div>
+        <div class="card-body">
+          <canvas baseChart
+            [data]="chartProdutosData"
+            [options]="chartOptions"
+            chartType="bar">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+<!-- <div class="container my-4">
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-primary text-white text-center">
       <h2 class="mb-0">Vendas por Cliente</h2>
@@ -24,4 +116,11 @@
       </canvas>
     </div>
   </div>
-</div>
+
+
+  <h2>{{totalOrcamento}}</h2>
+  <h2>{{orcamentosCancelados}}</h2>
+  <h2>{{orcamentosPendentes}}</h2>
+  <h2>{{orcamentosFinalizados}}</h2>
+  <h2>{{totalVendas}}</h2>
+</div> -->

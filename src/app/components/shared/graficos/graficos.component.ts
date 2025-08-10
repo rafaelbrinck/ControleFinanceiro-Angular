@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { NgChartsModule } from 'ng2-charts';
 import { GraficosDataService, Venda } from '../../../service/grafico.service';
 import { ClienteResumo, ProdutoResumo } from '../../../models/relatorios';
+import { OrcamentoService } from '../../../service/orcamento.service';
 
 @Component({
   selector: 'app-graficos',
@@ -16,6 +17,12 @@ export class GraficosComponent implements OnInit {
   chartClientesData!: ChartData<'bar'>;
   chartProdutosData!: ChartData<'bar'>;
 
+  totalOrcamento: number = 0;
+  orcamentosFinalizados: number = 0;
+  orcamentosCancelados: number = 0;
+  orcamentosPendentes: number = 0;
+  totalVendas: number = 0;
+
   chartOptions: ChartOptions = {
     responsive: true,
     plugins: {
@@ -27,9 +34,31 @@ export class GraficosComponent implements OnInit {
     },
   };
 
-  constructor(private graficosDataService: GraficosDataService) {}
+  constructor(
+    private graficosDataService: GraficosDataService,
+    private orcamentoService: OrcamentoService
+  ) {}
 
   ngOnInit(): void {
+    this.orcamentoService.orcamento$.subscribe((orcamentos) => {
+      orcamentos.forEach((orcamento) => {
+        if (orcamento.status === 'Cancelado') {
+          this.orcamentosCancelados++;
+        }
+        if (orcamento.status === 'Aberto') {
+          this.orcamentosPendentes++;
+        }
+        if (orcamento.status === 'Finalizado') {
+          this.orcamentosFinalizados++;
+          this.totalVendas += orcamento.valor || 0;
+        }
+      });
+    });
+
+    this.orcamentoService.qtdOrcamentos().subscribe((qtd) => {
+      this.totalOrcamento = qtd;
+    });
+
     this.graficosDataService.vendas$.subscribe((vendas) => {
       const clientesResumo = this.organizarPorCliente(vendas);
       const produtosResumo = this.organizarPorProduto(vendas);

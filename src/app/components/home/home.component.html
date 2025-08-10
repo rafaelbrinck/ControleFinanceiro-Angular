@@ -1,137 +1,133 @@
-<div class="container mt-5">
-    <!-- Card Resultado (ocupa toda a largura) -->
-    <div 
-      class="row mb-4 justify-content-center"
-      [ngClass]="relatorio.resultado >= 0 ? 'bg-success-subtle' : 'bg-danger-subtle'"
-      style="border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.05); padding: 25px;"
-    >
-      <div class="col text-center">
-        <h5 class="fw-semibold text-uppercase text-muted mb-2">Resultado</h5>
-        <h2 class="fw-bold" *ngIf="relatorio.resultado === 0" [ngClass]="relatorio.resultado >= 0 ? 'text-success' : 'text-danger'">
-          R$ 0,00
-        </h2>
-        <h2 class="fw-bold" [ngClass]="relatorio.resultado >= 0 ? 'text-success' : 'text-danger'">
-          {{ relatorio.resultado | moeda}}
-        </h2>
-      </div>
-    </div>
+<div class="container my-4 max-w-700">
 
-    <div class="row justify-content-center">
-
-
-      <!-- ENTRADAS E SAÍDAS -->
-      <div class="col-md-6 mb-3" (click)="mostrarCategorias = false;exibirDetalhes('Entrada')" style="cursor:pointer">
-        <div class="p-4 border rounded-4 shadow-sm bg-white h-100 text-center">
-          <h6 class="text-muted mb-1">
-            <i class="bi bi-arrow-down-circle-fill text-success me-1"></i>Entradas
-          </h6>
-          <h4 *ngIf="relatorio.entradas == 0" class="fw-semibold text-success">R$ 0,00</h4>
-          <h4 class="fw-semibold text-success">{{ relatorio.entradas | moeda}}</h4>
-        </div>
-      </div>
-
-      <div class="col-md-6 mb-3" (click)="mostrarCategorias = false;exibirDetalhes('Saida')" style="cursor:pointer">
-        <div class="p-4 border rounded-4 shadow-sm bg-white h-100 text-center">
-          <h6 class="text-muted mb-1">
-            <i class="bi bi-arrow-up-circle-fill text-danger me-1"></i>Saídas
-          </h6>
-          <h4 *ngIf="relatorio.saidas == 0" class="fw-semibold text-success">R$ 0,00</h4>
-          <h4 class="fw-semibold text-danger">{{ relatorio.saidas | moeda}}</h4>
-        </div>
-      </div>
-    </div>
-
-    <!-- Parte que mostra as listas na hora de clicar em Entrada ou Saida -->
-    <div *ngIf="mostrarDetalhes" class="container my-5">
-      <div class="card shadow rounded-4">
-        <div class="card-body p-4">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold text-primary m-0">Detalhes de {{ tipoDetalhe }}s</h5>
-            <button class="btn btn-sm btn-outline-secondary" (click)="fecharDetalhes()">Fechar</button>
-          </div>
-    
-          <div *ngIf="transacoesFiltradas.length === 0" class="alert alert-light text-center shadow-sm rounded p-4">
-            <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
-            <span class="fs-6 text-muted">Nenhuma transação encontrada</span>
-          </div>
-    
-          <div class="table-responsive" *ngIf="transacoesFiltradas.length > 0">
-            <table class="table table-hover align-middle">
-              <thead class="table-light text-center">
-                <tr>
-                  <th>Descrição</th>
-                  <th>Valor</th>
-                  <th>Categoria</th>
-                  <th>Data</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let transacao of transacoesFiltradas" class="text-center">
-                  <td>{{ transacao.nome }}</td>
-                  <td>{{ transacao.valor | moeda }}</td>
-                  <td>{{ transacao.cat}}</td>
-                  <td>{{ transacao.data | date:'dd/MM/yyyy' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-
-
-
-    <!-- Categorias -->
-    <div class="col-md-3 mb-3" (click)="exibirCategorias()" style="cursor:pointer">
-      <div class="p-4 border rounded-4 shadow-sm bg-white h-100 text-center">
-        <h3 class="text-muted mb-1">
-          <i class="bi bi-tags-fill text-primary me-2"></i>Categorias
-        </h3>
-      </div>
-    </div>
-    
-    <div *ngIf="mostrarCategorias" class="container my-5">
-      <div class="card shadow rounded-4">
-        <div class="card-body p-4">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold text-primary m-0">Detalhes de Categorias</h5>
-            <button class="btn btn-sm btn-outline-secondary" (click)="fecharDetalhes()">Fechar</button>
-          </div>
-    
-          <div *ngIf="categorias.length === 0" class="alert alert-light text-center shadow-sm rounded p-4">
-            <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
-            <span class="fs-6 text-muted">Nenhuma categoria encontrada</span>
-          </div>
-    
-          <div class="table-responsive" *ngIf="categorias.length > 0">
-            <table class="table table-hover align-middle">
-              <thead class="table-light text-center">
-                <tr>
-                  <th>Nome</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let categoria of categorias" class="text-center">
-                  <td>{{ categoria.nome }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-    
-          <!-- Botão para navegar para o form de categorias -->
-          <div class="text-end mt-4">
-            <button class="btn btn-primary" (click)="navegarParaCategorias()">
-              <i class="bi bi-gear-fill me-1"></i> Gerenciar Categorias
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-     <app-graficos></app-graficos>
-    
+  <!-- Título geral -->
+  <div class="text-center mb-4">
+    <h1 class="fw-bold">Painel de Transações</h1>
+    <p class="text-muted">Resumo de entradas, saídas, categorias e detalhes</p>
   </div>
-  
+
+  <!-- Resultado principal -->
+  <div class="card shadow-sm border-0 mb-4" 
+       [ngClass]="relatorio.resultado >= 0 ? 'bg-success-subtle' : 'bg-danger-subtle'">
+    <div class="card-body text-center py-4">
+      <h6 class="text-uppercase text-muted mb-1">Resultado</h6>
+      <h2 class="fw-bold" 
+          [ngClass]="relatorio.resultado >= 0 ? 'text-success' : 'text-danger'">
+        {{ relatorio.resultado | currency:'BRL' }}
+      </h2>
+    </div>
+  </div>
+
+  <!-- Cards de entradas e saídas -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-6">
+      <div class="card shadow-sm border-0 text-center card-hover h-100" (click)="mostrarCategorias = false; exibirDetalhes('Entrada')">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">
+            <i class="bi bi-arrow-down-circle-fill text-success me-1"></i> Entradas
+          </h6>
+          <h3 class="fw-bold text-success">{{ relatorio.entradas | currency:'BRL'}}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-6">
+      <div class="card shadow-sm border-0 text-center card-hover h-100" (click)="mostrarCategorias = false; exibirDetalhes('Saida')">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">
+            <i class="bi bi-arrow-up-circle-fill text-danger me-1"></i> Saídas
+          </h6>
+          <h3 class="fw-bold text-danger">{{ relatorio.saidas | currency: 'BRL'}}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listagem de transações -->
+  <div *ngIf="mostrarDetalhes" class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-primary m-0">Detalhes de {{ tipoDetalhe }}s</h5>
+        <button class="btn btn-sm btn-outline-secondary" (click)="fecharDetalhes()">Fechar</button>
+      </div>
+
+      <div *ngIf="transacoesFiltradas.length === 0" class="alert alert-light text-center rounded">
+        <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
+        Nenhuma transação encontrada
+      </div>
+
+      <div class="table-responsive" *ngIf="transacoesFiltradas.length > 0">
+        <table class="table table-hover align-middle">
+          <thead class="table-light text-center">
+            <tr>
+              <th>Descrição</th>
+              <th>Valor</th>
+              <th>Categoria</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let transacao of transacoesFiltradas" class="text-center">
+              <td>{{ transacao.nome }}</td>
+              <td>{{ transacao.valor | moeda }}</td>
+              <td>{{ transacao.cat }}</td>
+              <td>{{ transacao.data | date:'dd/MM/yyyy' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categorias -->
+  <div class="mb-4">
+    <div class="card shadow-sm border-0 card-hover text-center" (click)="exibirCategorias()">
+      <div class="card-body">
+        <h5 class="text-primary mb-0">
+          <i class="bi bi-tags-fill me-2"></i> Categorias
+        </h5>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="mostrarCategorias" class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-primary m-0">Detalhes de Categorias</h5>
+        <button class="btn btn-sm btn-outline-secondary" (click)="fecharDetalhes()">Fechar</button>
+      </div>
+
+      <div *ngIf="categorias.length === 0" class="alert alert-light text-center rounded">
+        <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
+        Nenhuma categoria encontrada
+      </div>
+
+      <div class="table-responsive" *ngIf="categorias.length > 0">
+        <table class="table table-hover align-middle">
+          <thead class="table-light text-center">
+            <tr>
+              <th>Nome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let categoria of categorias" class="text-center">
+              <td>{{ categoria.nome }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="text-end mt-3">
+        <button class="btn btn-primary" (click)="navegarParaCategorias()">
+          <i class="bi bi-gear-fill me-1"></i> Gerenciar Categorias
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráficos orçamentos (componente já estilizado) -->
+  <div class="mt-5">
+    <app-graficos></app-graficos>
+  </div>
+
+</div>

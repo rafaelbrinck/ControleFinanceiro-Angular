@@ -1,0 +1,99 @@
+/* Cards com sombra leve, bordas arredondadas e transição para hover */
+.card {
+  border-radius: 0.75rem; /* cantos mais arredondados */
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  cursor: default;
+}
+
+.card-hover {
+  cursor: pointer;
+}
+
+.card-hover:hover {
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
+  transform: translateY(-4px);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+/* Bordas mais arredondadas nas tabelas para harmonizar */
+.table-responsive > table {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
+}
+
+/* Cabeçalho da tabela com cor de fundo clara e texto centralizado */
+.table thead.table-light th {
+  background-color: #f8f9fa;
+  color: #495057;
+  text-align: center;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+}
+
+/* Linhas da tabela com alinhamento central e hover leve */
+.table tbody tr {
+  text-align: center;
+  transition: background-color 0.15s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+/* Botão de fechar detalhes com margem e cores suaves */
+.btn-outline-secondary {
+  font-weight: 500;
+  padding: 0.25rem 0.6rem;
+}
+
+/* Ajuste no título e subtítulo para textos mais leves e alinhados */
+h1.fw-bold,
+h2.fw-bold,
+h5.fw-bold {
+  font-weight: 700 !important;
+}
+
+.text-muted {
+  font-weight: 400;
+  color: #6c757d !important;
+}
+
+/* Cards de métricas com texto centralizado e títulos com espaço */
+.card-body h6 {
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  color: #6c757d;
+}
+
+/* Ícones com espaçamento e cor consistente */
+.bi {
+  vertical-align: -0.125em;
+  margin-right: 0.3rem;
+  font-size: 1.1rem;
+}
+
+/* Fundo sutil para bg-success-subtle e bg-danger-subtle */
+.bg-success-subtle {
+  background-color: #d1e7dd !important;
+}
+
+.bg-danger-subtle {
+  background-color: #f8d7da !important;
+}
+
+/* Ajuste para espaçamento interno dos cards principais */
+.card-body.py-4 {
+  padding-top: 1.5rem !important;
+  padding-bottom: 1.5rem !important;
+}
+
+/* Ajuste para o container do app-graficos dentro do home */
+.mt-5 {
+  margin-top: 3rem !important;
+}

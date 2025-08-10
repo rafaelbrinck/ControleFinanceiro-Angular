@@ -142,6 +142,14 @@ export class OrcamentoService {
     return data as Orcamento;
   }
 
+  qtdOrcamentos(): Observable<number> {
+    return new Observable<number>((observer) => {
+      this.orcamento$.subscribe((orcamentos) => {
+        observer.next(orcamentos.length);
+      });
+    });
+  }
+
   private get loginService(): LoginService {
     return this.injector.get(LoginService);
   }
