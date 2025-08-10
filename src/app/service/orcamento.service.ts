@@ -22,12 +22,22 @@ export class OrcamentoService {
   public clienteOrcamento = new BehaviorSubject<Cliente>(new Cliente());
   public clienteOrcamento$ = this.clienteOrcamento.asObservable();
 
+  public orcamentoSelecionado = new BehaviorSubject<Orcamento | null>(null);
+  public orcamentoSelecionado$ = this.orcamentoSelecionado.asObservable();
+
   constructor(
     private injector: Injector,
     private clienteService: ClientesService,
     private alertaService: AlertaService,
     private graficoService: GraficosDataService
   ) {}
+
+  addOrcamentoSelecionado(orcamento: Orcamento) {
+    this.orcamentoSelecionado.next(orcamento);
+  }
+  limparOrcamentoSelecionado() {
+    this.orcamentoSelecionado.next(null);
+  }
 
   addProdutos(produtos: ProdutoOrcamento[]) {
     this.produtosOrcamento.next(produtos);
@@ -140,6 +150,22 @@ export class OrcamentoService {
     }
 
     return data as Orcamento;
+  }
+
+  async buscarPorCliente(id: number): Promise<Orcamento[] | null> {
+    const userId = this.loginService.getUserLogado();
+    const { data, error } = await supabase
+      .from('orcamentos')
+      .select('*')
+      .eq('idCliente', id)
+      .eq('idUser', userId);
+
+    if (error) {
+      console.error('Erro ao buscar orçamento por ID:', error.message);
+      return null;
+    }
+
+    return data as Orcamento[];
   }
 
   qtdOrcamentos(): Observable<number> {

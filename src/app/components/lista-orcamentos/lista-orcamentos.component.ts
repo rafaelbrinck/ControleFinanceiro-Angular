@@ -33,6 +33,9 @@ export class ListaOrcamentosComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    this.orcamentoService.orcamentoSelecionado$.subscribe(
+      (orcamento) => (this.orcamentoSelecionado = orcamento ?? undefined)
+    );
     this.orcamentoService.orcamento$.subscribe(async (orcamentos) => {
       if (orcamentos.length == 0) {
         await this.orcamentoService.carregarOrcamentos();
@@ -44,10 +47,11 @@ export class ListaOrcamentosComponent implements OnInit {
   }
 
   abrirModal(orcamento: Orcamento) {
-    this.orcamentoSelecionado = orcamento;
+    this.orcamentoService.addOrcamentoSelecionado(orcamento);
   }
 
   fecharModal() {
+    this.orcamentoService.limparOrcamentoSelecionado();
     this.orcamentoSelecionado = undefined;
   }
 

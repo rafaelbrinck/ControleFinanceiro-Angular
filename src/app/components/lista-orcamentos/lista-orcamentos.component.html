@@ -33,6 +33,7 @@
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light text-center">
             <tr>
+              <th scope="col">ID</th>
               <th scope="col">Cliente</th>
               <th scope="col">Valor</th>
               <th scope="col">Status</th>
@@ -42,6 +43,7 @@
           </thead>
           <tbody>
             <tr *ngFor="let orcamento of (listaOrcamentos | buscador:nomePesquisa:['nomeCliente'])" class="text-center">
+              <td>{{orcamento.id}}</td>
               <td>{{ orcamento.cliente?.nome }}</td>
               <td>{{ orcamento.valor | currency:'BRL' }}</td>
               <td>

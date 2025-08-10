@@ -4,12 +4,15 @@ import { ClientesService } from '../../service/clientes.service';
 import { CommonModule } from '@angular/common';
 import { BuscadorPipe } from '../../pipes/buscador.pipe';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TelefonePipe } from '../../pipes/telefone.pipe';
 import { InstagramPipe } from '../../pipes/insta.pipe';
 import { CepPipe } from '../../pipes/cep.pipe';
 import { CpfPipe } from '../../pipes/cpf.pipe';
 import { AlertaService } from '../../service/alerta.service';
+import { Orcamento } from '../../models/orcamento';
+import { OrcamentoService } from '../../service/orcamento.service';
+import { ListaOrcamentosComponent } from '../lista-orcamentos/lista-orcamentos.component';
 
 @Component({
   selector: 'app-clientes',
@@ -32,9 +35,13 @@ export class ClientesComponent implements OnInit {
   listaClientes: Cliente[] = [];
   clienteSelecionado?: Cliente;
 
+  listaOrcamentos: Orcamento[] = [];
+
   constructor(
     private clienteService: ClientesService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
+    private orcamentoService: OrcamentoService,
+    private router: Router
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -48,9 +55,19 @@ export class ClientesComponent implements OnInit {
     );
   }
 
-  abrirModal(cliente: Cliente) {
+  redirecionarOrcamento(orcamento: Orcamento) {
+    orcamento.cliente = this.clienteSelecionado;
+    this.orcamentoService.addOrcamentoSelecionado(orcamento);
+    this.router.navigate(['/lista-orcamentos']);
+  }
+
+  async abrirModal(cliente: Cliente) {
     this.clienteSelecionado = cliente;
     console.log('Cliente selecionado:', this.clienteSelecionado);
+    const orcamentos = await this.orcamentoService.buscarPorCliente(
+      cliente.id!
+    );
+    this.listaOrcamentos = orcamentos ?? [];
   }
 
   fecharModal() {
