@@ -3,22 +3,7 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { NgChartsModule } from 'ng2-charts';
 import { GraficosDataService, Venda } from '../../../service/grafico.service';
-
-interface ClienteResumo {
-  cliente_id: number;
-  cliente_nome: string;
-  total_compras: number;
-  total_produtos_vendidos: number;
-  produtos: {
-    produto_nome: string;
-    total_vendido: number;
-  }[];
-}
-
-interface ProdutoResumo {
-  produto_nome: string;
-  total_vendido: number;
-}
+import { ClienteResumo, ProdutoResumo } from '../../../models/relatorios';
 
 @Component({
   selector: 'app-graficos',
