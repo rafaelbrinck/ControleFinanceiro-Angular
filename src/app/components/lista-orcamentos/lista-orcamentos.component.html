@@ -132,6 +132,12 @@
                     orcamentoSelecionado.status === 'Finalizado'">
                   <label class="form-check-label" for="radioCredito">Crédito</label>
                 </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="formaPagamento" id="radioDinheiro radios" value="Dinheiro"
+                    [(ngModel)]="orcamentoSelecionado.formaPagamento" [disabled]=" orcamentoSelecionado.status === 'Cancelado' ||
+                    orcamentoSelecionado.status === 'Finalizado'">
+                  <label class="form-check-label" for="radioDinheiro">Dinheiro</label>
+                </div>
               </div>
             </div>
 
