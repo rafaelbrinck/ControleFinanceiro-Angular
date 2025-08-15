@@ -15,6 +15,7 @@ import { OrcamentoComponent } from './components/orcamento/orcamento.component';
 import { PerfilComponent } from './components/perfil/perfil.component';
 import { HomeComponent } from './components/home/home.component';
 import { ListaOrcamentosComponent } from './components/lista-orcamentos/lista-orcamentos.component';
+import { FornecedoresComponent } from './components/fornecedores/fornecedores.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
@@ -88,6 +89,11 @@ export const routes: Routes = [
   {
     path: 'lista-orcamentos',
     component: ListaOrcamentosComponent,
+    canActivate: [ValidacaoGuard],
+  },
+  {
+    path: 'fornecedores',
+    component: FornecedoresComponent,
     canActivate: [ValidacaoGuard],
   },
   { path: '**', component: PageNotFoundComponent },

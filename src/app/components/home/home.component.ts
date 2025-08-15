@@ -16,6 +16,7 @@ import { VariacoesService } from '../../service/variacoes.service';
 import { firstValueFrom } from 'rxjs';
 import { GraficosComponent } from '../shared/graficos/graficos.component';
 import { GraficosDataService } from '../../service/grafico.service';
+import { FornecedoresService } from '../../service/fornecedores.service';
 
 @Component({
   selector: 'app-home',
@@ -42,7 +43,8 @@ export class HomeComponent implements OnInit {
     private variacoesService: VariacoesService,
     private router: Router,
     private loginService: LoginService,
-    private graficoService: GraficosDataService
+    private graficoService: GraficosDataService,
+    private fornecedoresService: FornecedoresService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -156,6 +158,13 @@ export class HomeComponent implements OnInit {
     const graficoVendas = await firstValueFrom(this.graficoService.vendas$);
     if (graficoVendas.length === 0) {
       await this.graficoService.carregarDados();
+    }
+
+    const fornecedores = await firstValueFrom(
+      this.fornecedoresService.fornecedores$
+    );
+    if (fornecedores.length === 0) {
+      await this.fornecedoresService.carregarFornecedores();
     }
 
     const variacoes = await firstValueFrom(this.variacoesService.variacoes$);
