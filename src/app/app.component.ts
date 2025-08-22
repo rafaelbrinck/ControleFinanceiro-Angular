@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewChild, viewChild } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  OnInit,
+  ViewChild,
+  viewChild,
+} from '@angular/core';
 import {
   NavigationEnd,
   Router,
@@ -27,6 +33,14 @@ export class AppComponent implements OnInit {
 
   @ViewChild('alertaGlobal', { static: false })
   alertaGlobal!: AlertaComponent;
+
+  // Captura qualquer dblclick no app inteiro
+  @HostListener('document:dblclick', ['$event'])
+  blockDoubleClick(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log('Duplo clique bloqueado 🚫');
+  }
 
   constructor(
     private validacao: ValidacaoService,

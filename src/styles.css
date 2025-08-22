@@ -1,8 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
-.container {
-  min-width: 95vw;
-}
 html,
 body {
-  touch-action: manipulation;
+  touch-action: manipulation; /* evita zoom em double tap */
+  -webkit-user-select: none; /* evita seleção acidental */
+  user-select: none; /* compatibilidade padrão */
+  -webkit-tap-highlight-color: transparent; /* remove highlight no toque */
+}
+
+.container {
+  min-width: 95vw;
 }
