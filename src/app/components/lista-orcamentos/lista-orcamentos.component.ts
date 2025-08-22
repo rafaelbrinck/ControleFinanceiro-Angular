@@ -20,6 +20,7 @@ import { CategoriaService } from '../../service/categoria.service';
   styleUrl: './lista-orcamentos.component.css',
 })
 export class ListaOrcamentosComponent implements OnInit {
+  campoPesquisa: string = 'nomeCliente';
   nomePesquisa?: string;
   listaOrcamentos: Orcamento[] = [];
   orcamentoSelecionado?: Orcamento;
