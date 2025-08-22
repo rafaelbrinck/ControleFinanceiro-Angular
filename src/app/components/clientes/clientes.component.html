@@ -35,13 +35,9 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let cliente of (listaClientes | buscador:nomePesquisa:['nome'])" class="text-center">
+            <tr *ngFor="let cliente of (listaClientes | buscador:nomePesquisa:['nome'])" class="text-center" (click)="abrirModal(cliente)" style="cursor: pointer;">
               <td>{{ cliente.nome }}</td>
               <td>
-                <button class="btn btn-sm btn-outline-info me-2 mb-1" (click)="abrirModal(cliente)">
-                  <i class="bi bi-info-circle-fill"></i> Descrição
-                </button>
-
                 <a class="btn btn-sm btn-outline-primary me-2 mb-1" routerLink="/form-cliente/{{ cliente.id }}">
                   <i class="bi bi-pencil-fill"></i> Editar
                 </a>
