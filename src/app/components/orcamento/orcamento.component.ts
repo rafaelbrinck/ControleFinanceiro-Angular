@@ -132,12 +132,11 @@ export class OrcamentoComponent {
       this.produtosOrcamento.reduce(
         (soma, p) => soma + (p.quantidade ?? 0) * (p.valor ?? 0),
         0
-      ) || 0;
+      ) + this.frete || 0;
     const taxaTotal = 4.98 + 8.66;
     const totalComTaxa = total / (1 - taxaTotal / 100);
     const totalComTaxaDesconto = totalComTaxa - this.desconto;
-    const totalComTaxaFrete = totalComTaxaDesconto + this.frete;
-    return totalComTaxaFrete;
+    return totalComTaxaDesconto;
   }
 
   removerProduto(id?: number) {
