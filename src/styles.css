@@ -2,3 +2,7 @@
 .container {
   min-width: 95vw;
 }
+html,
+body {
+  touch-action: manipulation;
+}
