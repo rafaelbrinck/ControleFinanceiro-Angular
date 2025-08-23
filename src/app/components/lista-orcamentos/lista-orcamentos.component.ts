@@ -175,6 +175,17 @@ export class ListaOrcamentosComponent implements OnInit {
     this.router.navigate(['/orcamento']);
   }
 
+  duplicarOrcamento(orcamento: Orcamento) {
+    this.alertaService.confirmar(
+      'Duplicar Orçamento',
+      `Deseja duplicar o orçamento para ${orcamento.cliente?.nome}?`,
+      (resposta) => {
+        this.orcamentoService.duplicarOrcamento(orcamento);
+        this.router.navigate(['/orcamento']);
+      }
+    );
+  }
+
   validarOrcamento(orcamento: Orcamento, tipo: string = 'c'): boolean {
     if (orcamento.status === 'Finalizado') {
       this.alertaService.info(

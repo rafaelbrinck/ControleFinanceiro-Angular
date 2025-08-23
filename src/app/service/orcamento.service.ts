@@ -5,7 +5,7 @@ import { supabase } from '../supabase';
 import { LoginService } from './login.service';
 import { ClientesService } from './clientes.service';
 import { AlertaService } from './alerta.service';
-import { ProdutoOrcamento } from '../models/produto';
+import { Produto, ProdutoOrcamento } from '../models/produto';
 import { Cliente } from '../models/cliente';
 import { GraficosDataService } from './grafico.service';
 
@@ -31,6 +31,16 @@ export class OrcamentoService {
     private alertaService: AlertaService,
     private graficoService: GraficosDataService
   ) {}
+
+  duplicarOrcamento(orcamento: Orcamento) {
+    var lista: ProdutoOrcamento[] = [];
+
+    orcamento.produtos?.forEach((produto) => {
+      lista.push({ ...produto });
+    });
+    this.produtosOrcamento.next(lista);
+    this.clienteOrcamento.next(orcamento.cliente!);
+  }
 
   addOrcamentoSelecionado(orcamento: Orcamento) {
     this.orcamentoSelecionado.next(orcamento);
