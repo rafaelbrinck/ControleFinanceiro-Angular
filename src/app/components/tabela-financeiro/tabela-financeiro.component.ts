@@ -16,6 +16,7 @@ import { AlertaService } from '../../service/alerta.service';
   styleUrl: './tabela-financeiro.component.css',
 })
 export class TabelaFinanceiroComponent {
+  campoPesquisa: string = 'nome';
   nomePesquisa?: string;
   lista: Transacao[] = [];
 
