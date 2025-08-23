@@ -20,7 +20,7 @@
 
       <div *ngIf="(lista | buscador:nomePesquisa).length === 0" class="alert alert-light text-center shadow-sm rounded p-4">
         <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
-        <span class="fs-5 text-muted">Nenhum produto encontrado</span>
+        <span class="fs-5 text-muted">Nenhuma transação encontrada!</span>
       </div>
 
       <div class="table-responsive" *ngIf="(lista | buscador:nomePesquisa).length > 0">
@@ -38,7 +38,8 @@
           <tbody>
             <tr *ngFor="let transacao of (lista | buscador:nomePesquisa)" class="text-center">
               <td class="text-center">{{ transacao.nome }}</td>
-              <td>{{ transacao.valor | moeda }}</td>
+              <td *ngIf="transacao.valor! > 0">{{ transacao.valor | moeda }}</td>
+              <td *ngIf="transacao.valor! == 0">-----</td>
               <td>
                 <span class="badge" [ngClass]="{
                   'bg-success': transacao.tipo === 'Entrada',

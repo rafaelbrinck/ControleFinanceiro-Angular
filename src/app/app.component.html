@@ -24,32 +24,32 @@
       <!-- Menu lateral esquerdo -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-2 text-center text-lg-start">
         <li class="nav-item">
-          <a class="nav-link fw-medium" routerLink="/inicio">
+          <a class="nav-link fw-medium" routerLink="/inicio" (click)="fecharNavbar()">
             <i class="bi bi-house-door me-1"></i> Início
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-medium" routerLink="/transacoes">
+          <a class="nav-link fw-medium" routerLink="/transacoes"  (click)="fecharNavbar()">
             <i class="bi bi-currency-exchange me-1"></i> Transações
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-medium" routerLink="/produtos">
+          <a class="nav-link fw-medium" routerLink="/produtos"  (click)="fecharNavbar()">
             <i class="bi bi-box me-1"></i> Produtos
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-medium" routerLink="/clientes">
+          <a class="nav-link fw-medium" routerLink="/clientes"  (click)="fecharNavbar()">
             <i class="bi bi-people me-1"></i> Clientes
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-medium" routerLink="/orcamento">
+          <a class="nav-link fw-medium" routerLink="/orcamento"  (click)="fecharNavbar()">
             <i class="bi bi-calculator me-1"></i> Orçamento
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-medium" routerLink="/fornecedores">
+          <a class="nav-link fw-medium" routerLink="/fornecedores"  (click)="fecharNavbar()">
             <i class="bi bi-people me-1"></i> Fornecedores
           </a>
         </li>
@@ -58,7 +58,7 @@
       <!-- Perfil e Sair -->
       <ul class="navbar-nav ms-auto align-items-center gap-3 text-center text-lg-end">
         <li class="nav-item">
-          <a class="nav-link p-0 d-flex align-items-center" routerLink="/perfil" aria-label="Perfil">
+          <a class="nav-link p-0 d-flex align-items-center" routerLink="/perfil" aria-label="Perfil"  (click)="fecharNavbar()">
             <img
               *ngIf="usuario?.logo"
               [src]="usuario?.logo"

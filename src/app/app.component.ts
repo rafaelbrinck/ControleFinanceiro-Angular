@@ -19,6 +19,8 @@ import { AlertaComponent } from './components/shared/alerta/alerta.component';
 import { AlertaService } from './service/alerta.service';
 import { OrcamentoService } from './service/orcamento.service';
 
+declare var bootstrap: any;
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -83,5 +85,15 @@ export class AppComponent implements OnInit {
 
   get estaLogado(): boolean {
     return !!this.usuario;
+  }
+
+  fecharNavbar() {
+    const navbar = document.getElementById('mainNavbar');
+    if (navbar?.classList.contains('show')) {
+      const bsCollapse = new bootstrap.Collapse(navbar, {
+        toggle: false,
+      });
+      bsCollapse.hide();
+    }
   }
 }
