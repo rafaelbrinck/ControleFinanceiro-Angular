@@ -60,10 +60,10 @@
               </td>
               <td>{{ orcamento.created_at | date: 'dd/MM/yyyy'}}</td>
               <td class="action">
-                <button class="btn btn-sm btn-outline-primary me-2" (click)="duplicarOrcamento(orcamento)">
+                <button class="btn btn-sm btn-outline-primary me-2" (click)="duplicarOrcamento(orcamento); $event.stopPropagation();">
                   <i class="bi bi-cash"></i> Duplicar
                 </button>
-                <button class="btn btn-sm btn-outline-success me-2" (click)="reenviarOrcamento(orcamento)">
+                <button class="btn btn-sm btn-outline-success me-2" (click)="reenviarOrcamento(orcamento); $event.stopPropagation()">
                   <i class="bi bi-whatsapp"></i> Reenviar
                 </button>
               </td>

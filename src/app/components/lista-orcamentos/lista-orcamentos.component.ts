@@ -180,8 +180,11 @@ export class ListaOrcamentosComponent implements OnInit {
       'Duplicar Orçamento',
       `Deseja duplicar o orçamento para ${orcamento.cliente?.nome}?`,
       (resposta) => {
-        this.orcamentoService.duplicarOrcamento(orcamento);
-        this.router.navigate(['/orcamento']);
+        if (resposta) {
+          this.orcamentoService.duplicarOrcamento(orcamento);
+          this.orcamentoSelecionado = undefined;
+          this.router.navigate(['/orcamento']);
+        }
       }
     );
   }
