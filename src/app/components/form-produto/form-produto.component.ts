@@ -45,19 +45,26 @@ export class FormProdutoComponent implements OnInit {
     this.id = +this.route.snapshot.params['id'];
     if (this.id) {
       this.botao = 'Editar';
-      // const produtoBuscado = await this.produtoService.buscarId(this.id);
+      const produtoBuscado = await this.produtoService.buscarId(this.id);
+      this.produto = produtoBuscado!;
+      if (produtoBuscado) {
+        Object.assign(this.produto, produtoBuscado);
 
-      this.produtoService.produtos$.subscribe((produtos) => {
-        this.produto = produtos.find((p) => p.id === this.id) ?? new Produto();
-      });
+        if (this.produto.valor != null) {
+          this.valorFormatado = this.produto.valor.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        }
 
-      if (this.produto.valor != null) {
-        this.valorFormatado = this.produto.valor.toLocaleString('pt-BR', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
+        this.variacaoService.variacoes$.subscribe((variacoes) => {
+          var varia = variacoes.filter((v) => v.idProd === this.produto.id);
+          this.produto.variacoes = varia;
+
+          if (varia.length > 0) {
+            this.mostrarVariacao = true;
+          }
         });
-        this.mostrarVariacao = true;
-        console.log(this.produto.variacoes);
       }
     }
   }
