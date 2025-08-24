@@ -52,14 +52,15 @@
                   </button>
                   <button
                   class="btn btn-sm btn-outline-success"
-                  *ngIf="produto.variacoes.length > 0 && expandedRow === null">
+                  *ngIf="produto.variacoes.length > 0 && expandedRow != i">
                     <i class="bi bi-arrows-angle-expand"></i>
                   </button>
                   <button
                   class="btn btn-sm btn-outline-success"
-                  *ngIf="produto.variacoes.length > 0 && expandedRow != null">
+                  *ngIf="produto.variacoes.length > 0 && expandedRow === i">
                     <i class="bi bi-arrows-angle-contract"></i>
                   </button>
+                  
                 </td>
               </tr>
 
