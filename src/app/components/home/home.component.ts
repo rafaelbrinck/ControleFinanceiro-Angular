@@ -160,18 +160,16 @@ export class HomeComponent implements OnInit {
       await this.graficoService.carregarDados();
     }
 
-    const fornecedores = await firstValueFrom(
-      this.fornecedoresService.fornecedores$
-    );
-    if (fornecedores.length === 0) {
-      await this.fornecedoresService.carregarFornecedores();
-    }
+    // const fornecedores = await firstValueFrom(
+    //   this.fornecedoresService.fornecedores$
+    // );
+    // if (fornecedores.length === 0) {
+    //   await this.fornecedoresService.carregarFornecedores();
+    // }
 
     const variacoes = await firstValueFrom(this.variacoesService.variacoes$);
-    /*
     if (variacoes.length === 0) {
       await this.variacoesService.carregarVariacoes();
     }
-    */
   }
 }

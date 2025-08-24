@@ -1,3 +1,5 @@
+import { Variacao } from './variacoes';
+
 export class Produto {
   id?: number;
   nome?: string;
@@ -5,6 +7,7 @@ export class Produto {
   categoria?: number;
   cat?: string;
   idUser?: string;
+  variacoes: Variacao[] = [];
 }
 
 export class ProdutoOrcamento {
@@ -12,4 +15,5 @@ export class ProdutoOrcamento {
   nome?: string;
   quantidade: number = 1;
   valor: number = 0;
+  variacao?: string;
 }

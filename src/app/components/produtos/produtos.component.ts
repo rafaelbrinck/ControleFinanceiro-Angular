@@ -19,12 +19,17 @@ import { AlertaService } from '../../service/alerta.service';
 export class ProdutosComponent implements OnInit {
   nomePesquisa?: string;
   listaProdutos: Produto[] = [];
+  expandedRow: number | null = null;
 
   constructor(
     private loginService: LoginService,
     private produtoService: ProdutosService,
     private alertaService: AlertaService
   ) {}
+
+  toggleExpand(index: number) {
+    this.expandedRow = this.expandedRow === index ? null : index;
+  }
 
   async ngOnInit(): Promise<void> {
     this.produtoService.produtos$.subscribe(async (produtos) => {

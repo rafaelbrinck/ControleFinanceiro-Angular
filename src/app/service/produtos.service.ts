@@ -5,6 +5,7 @@ import { Produto } from '../models/produto';
 import { supabase } from '../supabase';
 import { AlertaService } from './alerta.service';
 import { CategoriaService } from './categoria.service';
+import { VariacoesService } from './variacoes.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,8 @@ export class ProdutosService {
   constructor(
     private loginService: LoginService,
     private alertaService: AlertaService,
-    private categoriaService: CategoriaService
+    private categoriaService: CategoriaService,
+    private variacaoService: VariacoesService
   ) {}
 
   async carregarProdutos() {
@@ -40,6 +42,14 @@ export class ProdutosService {
         produto.cat = categoria ? categoria.nome : 'Categoria não encontrada';
       });
     });
+    await this.variacaoService.carregarVariacoes();
+    this.variacaoService.variacoes$.subscribe((variacoes) => {
+      data.forEach((produto: Produto) => {
+        const listVariacoes = variacoes.filter((v) => v.idProd == produto.id);
+        produto.variacoes = listVariacoes;
+      });
+    });
+
     this.produtosSubject.next(data as Produto[]);
   }
 
@@ -48,14 +58,17 @@ export class ProdutosService {
 
     if (!this.validarCampos(produto)) return;
 
-    const { error } = await supabase.from('produtos').insert([
-      {
-        nome: produto.nome,
-        valor: produto.valor,
-        categoria: produto.categoria,
-        idUser: produto.idUser,
-      },
-    ]);
+    const { data, error } = await supabase
+      .from('produtos')
+      .insert([
+        {
+          nome: produto.nome,
+          valor: produto.valor,
+          categoria: produto.categoria,
+          idUser: produto.idUser,
+        },
+      ])
+      .select();
 
     if (error) {
       console.error('Erro ao inserir produto:', error.message);
@@ -64,6 +77,27 @@ export class ProdutosService {
         'Por favor, tente novamente mais tarde.'
       );
       return false;
+    }
+
+    if (produto.variacoes.length > 0) {
+      const variacoesComIdProd = produto.variacoes.map((variacao) => ({
+        ...variacao,
+        idProd: data[0].id,
+        idUser: produto.idUser,
+      }));
+
+      variacoesComIdProd.forEach(async (variacao) => {
+        const result = await this.variacaoService.inserir(variacao);
+        if (!result) {
+          console.error('Erro ao inserir variações');
+          this.alertaService.erro(
+            'Erro ao inserir variações',
+            'Por favor, tente novamente mais tarde.'
+          );
+          return false;
+        }
+        return true;
+      });
     }
 
     await this.carregarProdutos();
@@ -134,12 +168,14 @@ export class ProdutosService {
       this.alertaService.info('Obrigatório', 'Nome do produto é obrigatório');
       return false;
     }
-    if (produto.valor == null || produto.valor <= 0) {
-      this.alertaService.info(
-        'Obrigatório',
-        'Valor do produto deve ser maior que zero'
-      );
-      return false;
+    if (produto.variacoes.length === 0) {
+      if (produto.valor == null || produto.valor <= 0) {
+        this.alertaService.info(
+          'Obrigatório',
+          'Valor do produto deve ser maior que zero'
+        );
+        return false;
+      }
     }
     return true;
   }

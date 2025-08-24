@@ -4,12 +4,21 @@
       <h2 class="mb-4 fw-bold text-center">Adicionar Produto</h2>
       <form>
         <div class="row g-4">
-          <div class="col-12 col-sm-12 col-md-6">
+          <div class="col-12 col-sm-12 col-md-8">
             <label for="descricao" class="form-label">Nome:</label>
             <input type="text" [(ngModel)]="produto.nome" name="nome" id="nome" class="form-control form-control-lg" placeholder="Nome">
           </div>
 
-          <div class="col-12 col-sm-12 col-md-6">
+          <div class="col-12 col-sm-12 col-md-4">
+            <label for="categoria" class="form-label">Categorias:</label>
+            <select name="categoria" id="categoria" class="form-select form-select-lg" [(ngModel)]="produto.categoria" (ngModelChange)="conferirCategoria($event)">
+              <option *ngFor="let categoria of(listaCategorias)" [ngValue]="categoria.id">{{categoria.nome}}</option>
+              <option [ngValue]="'nova'">Adicionar nova categoria</option>
+            </select>
+          </div>
+
+
+          <div class="col-12 col-sm-12 col-md-6" *ngIf="!mostrarVariacao">
             <label for="valor" class="form-label">Valor:</label>
             <input
               type="text"
@@ -20,12 +29,51 @@
             >
           </div>
           
-          <div class="col-12 col-sm-12 col-md-6">
-            <label for="categoria" class="form-label">Categorias:</label>
-            <select name="categoria" id="categoria" class="form-select form-select-lg" [(ngModel)]="produto.categoria" (ngModelChange)="conferirCategoria($event)">
-              <option *ngFor="let categoria of(listaCategorias)" [ngValue]="categoria.id">{{categoria.nome}}</option>
-              <option [ngValue]="'nova'">Adicionar nova categoria</option>
-            </select>
+          <div class="col-12">
+            <div class="d-flex gap-2 align-items-center justify-content-between">
+              <label for="checkbox">Variações</label>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" (click)="adicionarVariacao()">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+                <button class="btn btn-outline-danger" (click)="fecharVariacoes()" [disabled]="produto.variacoes.length === 0 && !mostrarVariacao">
+                  <i class="bi bi-trash3"></i> 
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-12" *ngIf="mostrarVariacao">
+            <div class="d-flex gap-2">
+              <input type="text" [(ngModel)]="variacao.variacao" name="nome" id="nome" class="form-control form-control-lg" placeholder="Tamanho">
+              <input
+              type="text"
+              [value]="valorFormatado"
+              (input)="mascaraValor($event)"
+              class="form-control form-control-lg"
+              placeholder="0,00"
+            >
+            </div>
+          </div>
+
+          <div class="table-responsive" *ngIf="produto.variacoes.length > 0">
+            <table class="table table-hover align-middle mb-0">
+              <tbody>
+                <tr *ngFor="let variacao of produto.variacoes" class="text-center">
+                  <td class="text-center">{{ variacao.variacao }}</td>
+                  <td>{{ variacao.valor | moeda }}</td>
+                  <td class="text-center">
+                    <button
+                      class="btn btn-sm btn-outline-danger"
+                      type="button"
+                      (click)="removerVariacao(variacao)"
+                    >
+                      <i class="bi bi-trash-fill"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         
           <div class="col-12">

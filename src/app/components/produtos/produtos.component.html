@@ -34,23 +34,44 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let produto of (listaProdutos | buscador:nomePesquisa:['nome'])" class="text-center">
-              <td class="text-center">{{ produto.nome }}</td>
-              <td>{{ produto.valor | moeda }}</td>
-              <td>{{ produto.cat }}</td>
-              <td class="text-center">
-                <a class="btn btn-sm btn-outline-primary me-2 mb-1 mb-sm-0" routerLink="/form-produto/{{ produto.id }}">
-                  <i class="bi bi-pencil-fill"></i> Editar
-                </a>
-                <button
-                  class="btn btn-sm btn-outline-danger"
-                  (click)="deletar(produto.id)"
-                  type="button"
-                >
-                  <i class="bi bi-trash-fill"></i> Deletar
-                </button>
-              </td>
-            </tr>
+            <ng-container *ngFor="let produto of (listaProdutos | buscador:nomePesquisa:['nome']); let i = index">
+              <!-- Linha do produto -->
+              <tr class="text-center" (click)="toggleExpand(i)" style="cursor: pointer;">
+                <td class="text-center">{{ produto.nome }}</td>
+                <td *ngIf="produto.variacoes.length === 0">{{ produto.valor | moeda }}</td>
+                <td *ngIf="produto.variacoes.length > 0">A partir de {{produto.variacoes[0].valor | moeda}}</td>
+                <td>{{ produto.cat }}</td>
+                <td class="text-center">
+                  <a class="btn btn-sm btn-outline-primary"
+                    routerLink="/form-produto/{{ produto.id }}">
+                    <i class="bi bi-pencil-fill"></i> Editar
+                  </a>
+                  <button class="btn btn-sm btn-outline-danger"
+                          (click)="deletar(produto.id); $event.stopPropagation()"
+                          type="button">
+                    <i class="bi bi-trash-fill"></i> Deletar
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Linha expansível para variações -->
+              <tr *ngIf="expandedRow === i" class="bg-light">
+                <td colspan="4">
+                    <div *ngIf="produto.variacoes.length > 0; else semVariacoes">
+                      <ul class="list-group list-group-flush">
+                        <li *ngFor="let variacao of produto.variacoes" class="list-group-item d-flex justify-content-between align-items-center">
+                          <span>{{ variacao.variacao }}</span>
+                          
+                          <span class="fw-bold">{{ variacao.valor | moeda }}</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <ng-template #semVariacoes>
+                      <div class="text-muted fst-italic">Nenhuma variação cadastrada</div>
+                    </ng-template>
+                </td>
+              </tr>
+            </ng-container>
           </tbody>
         </table>
       </div>

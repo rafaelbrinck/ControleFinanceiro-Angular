@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Variacoes } from '../models/variacoes';
+import { VariacoesDTO } from '../models/variacoes';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { LoginService } from './login.service';
 import { supabase } from '../supabase';
@@ -9,8 +9,8 @@ import { AlertaService } from './alerta.service';
   providedIn: 'root',
 })
 export class VariacoesService {
-  private variacoesSubject = new BehaviorSubject<Variacoes[]>([]);
-  public variacoes$: Observable<Variacoes[]> =
+  private variacoesSubject = new BehaviorSubject<VariacoesDTO[]>([]);
+  public variacoes$: Observable<VariacoesDTO[]> =
     this.variacoesSubject.asObservable();
 
   constructor(
@@ -32,10 +32,10 @@ export class VariacoesService {
       return;
     }
 
-    this.variacoesSubject.next(data as Variacoes[]);
+    this.variacoesSubject.next(data as VariacoesDTO[]);
   }
 
-  async inserir(variacao: Variacoes) {
+  async inserir(variacao: VariacoesDTO) {
     variacao.idUser = this.loginService.getUserLogado();
 
     if (!this.validarCampos(variacao)) return;
@@ -57,7 +57,7 @@ export class VariacoesService {
     return true;
   }
 
-  async editar(variacao: Variacoes) {
+  async editar(variacao: VariacoesDTO) {
     const { error } = await supabase
       .from('variacoes')
       .update({
@@ -93,7 +93,7 @@ export class VariacoesService {
     return true;
   }
 
-  private validarCampos(variacao: Variacoes): boolean {
+  private validarCampos(variacao: VariacoesDTO): boolean {
     if (!variacao.variacao || !variacao.valor || !variacao.idProd) {
       this.alertaService.erro(
         'Campos inválidos',

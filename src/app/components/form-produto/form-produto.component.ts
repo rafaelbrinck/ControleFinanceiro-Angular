@@ -2,17 +2,20 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Produto } from '../../models/produto';
+import { Variacao, VariacoesDTO } from '../../models/variacoes';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProdutosService } from '../../service/produtos.service';
 import { LoginService } from '../../service/login.service';
 import { Categoria } from '../../models/categoria';
 import { CategoriaService } from '../../service/categoria.service';
 import { AlertaService } from '../../service/alerta.service';
+import { MoedaPipe } from '../../pipes/moeda.pipe';
+import { VariacoesService } from '../../service/variacoes.service';
 
 @Component({
   selector: 'app-form-produto',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MoedaPipe],
   templateUrl: './form-produto.component.html',
   styleUrl: './form-produto.component.css',
 })
@@ -23,13 +26,17 @@ export class FormProdutoComponent implements OnInit {
   botao = 'Cadastrar';
   listaCategorias: Categoria[] = [];
 
+  mostrarVariacao: boolean = false;
+  variacao = new Variacao();
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private produtoService: ProdutosService,
     private loginService: LoginService,
     private categoriaService: CategoriaService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
+    private variacaoService: VariacoesService
   ) {}
 
   async ngOnInit() {
@@ -38,17 +45,60 @@ export class FormProdutoComponent implements OnInit {
     this.id = +this.route.snapshot.params['id'];
     if (this.id) {
       this.botao = 'Editar';
-      const produtoBuscado = await this.produtoService.buscarId(this.id);
-      if (produtoBuscado) {
-        this.produto = produtoBuscado;
-        if (this.produto.valor != null) {
-          this.valorFormatado = this.produto.valor.toLocaleString('pt-BR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          });
-        }
+      // const produtoBuscado = await this.produtoService.buscarId(this.id);
+
+      this.produtoService.produtos$.subscribe((produtos) => {
+        this.produto = produtos.find((p) => p.id === this.id) ?? new Produto();
+      });
+
+      if (this.produto.valor != null) {
+        this.valorFormatado = this.produto.valor.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+        this.mostrarVariacao = true;
+        console.log(this.produto.variacoes);
       }
     }
+  }
+
+  adicionarVariacao() {
+    if (!this.mostrarVariacao) {
+      this.mostrarVariacao = true;
+    } else {
+      this.variacao.valor = this.produto.valor;
+      if (
+        !this.variacao.variacao ||
+        this.variacao.variacao.trim() === '' ||
+        !this.variacao.valor ||
+        this.variacao.valor <= 0
+      ) {
+        this.alertaService.info(
+          'Obrigatório',
+          'Obrigatório preencher variação e valor maior do que zero!'
+        );
+        return;
+      }
+      this.variacao.variacao = this.variacao.variacao?.toLocaleUpperCase();
+      this.produto.valor = 0;
+      this.produto.variacoes.push(this.variacao);
+      this.variacao = new Variacao();
+      this.valorFormatado = '';
+    }
+  }
+  fecharVariacoes() {
+    this.mostrarVariacao = false;
+    this.variacao = new Variacao();
+    this.produto.variacoes = [];
+    this.valorFormatado = '';
+  }
+  async removerVariacao(variacao: VariacoesDTO) {
+    if (this.id) {
+      await this.variacaoService.deletar(variacao.id!);
+    }
+    this.produto.variacoes = this.produto.variacoes.filter(
+      (v) => v !== variacao
+    );
   }
 
   async salvar() {
@@ -112,12 +162,17 @@ export class FormProdutoComponent implements OnInit {
       );
       return false;
     }
-    if (!this.produto.valor || this.produto.valor <= 0) {
-      this.alertaService.info(
-        'Obrigatório',
-        'Valor deve ser maior do que zero!'
-      );
-      return false;
+    if (
+      this.produto.variacoes.length === 0 &&
+      (!this.produto.valor || this.produto.valor <= 0)
+    ) {
+      if (!this.produto.valor || this.produto.valor <= 0) {
+        this.alertaService.info(
+          'Obrigatório',
+          'Valor deve ser maior do que zero!'
+        );
+        return false;
+      }
     }
     return true;
   }
