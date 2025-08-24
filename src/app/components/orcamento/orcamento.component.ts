@@ -12,6 +12,8 @@ import { ClientesService } from '../../service/clientes.service';
 import { Orcamento } from '../../models/orcamento';
 import { OrcamentoService } from '../../service/orcamento.service';
 import { AlertaService } from '../../service/alerta.service';
+import { Variacao } from '../../models/variacoes';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-orcamento',
@@ -32,6 +34,7 @@ export class OrcamentoComponent {
   produtosOrcamento: ProdutoOrcamento[] = [];
   mostrarDetalhes = false;
   mostrarClientes = false;
+  expandedRow: number | null = null;
 
   constructor(
     private loginService: LoginService,
@@ -82,13 +85,18 @@ export class OrcamentoComponent {
     );
   }
 
-  async adicionarProduto(id?: number) {
+  async adicionarProduto(id?: number, variacao?: Variacao) {
     if (!id) return;
 
-    const produto = await this.produtoService.buscarId(id);
+    var produto = await this.produtoService.buscarId(id);
+
     if (produto) {
+      if (variacao) {
+        produto.nome = produto.nome! + ' - ' + variacao.variacao;
+        produto.valor = variacao.valor;
+      }
       const prodLista = this.produtosOrcamento.find(
-        (prod) => prod.id === produto.id
+        (prod) => prod.nome === produto?.nome
       );
       if (prodLista) {
         prodLista.quantidade = (prodLista.quantidade ?? 0) + 1;
@@ -137,6 +145,13 @@ export class OrcamentoComponent {
     const totalComTaxa = total / (1 - taxaTotal / 100);
     const totalComTaxaDesconto = totalComTaxa - this.desconto;
     return totalComTaxaDesconto;
+  }
+
+  async carregarClientes() {
+    const clientes = await firstValueFrom(this.clienteService.clientes$);
+    if (clientes.length === 0) {
+      await this.clienteService.carregarClientes();
+    }
   }
 
   removerProduto(id?: number) {
@@ -278,5 +293,9 @@ export class OrcamentoComponent {
 
   enviarOrcamentoWhatsApp(orcamento: Orcamento) {
     this.orcamentoService.enviarOrcamentoWhatsApp(orcamento);
+  }
+
+  toggleExpand(index: number) {
+    this.expandedRow = this.expandedRow === index ? null : index;
   }
 }

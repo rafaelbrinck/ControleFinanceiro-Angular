@@ -38,17 +38,53 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let produto of (listaProdutos | buscador:nomePesquisa:['nome'])" class="text-center">
-              <td>{{ produto.nome }}</td>
-              <td>{{ produto.valor | moeda }}</td>
-              <td>
-                <button
+            <ng-container *ngFor="let produto of (listaProdutos | buscador:nomePesquisa:['nome']); let i = index">
+              <!-- Linha do produto -->
+              <tr class="text-center" (click)="toggleExpand(i)" style="cursor: pointer;">
+                <td class="text-center">{{ produto.nome }}</td>
+                <td *ngIf="produto.variacoes.length === 0">{{ produto.valor | moeda }}</td>
+                <td *ngIf="produto.variacoes.length > 0">A partir de {{produto.variacoes[0].valor | moeda}}</td>
+                <td class="text-center">
+                  <button
                   class="btn btn-sm btn-outline-primary"
-                  (click)="adicionarProduto(produto.id)">
+                  (click)="adicionarProduto(produto.id); $event.stopPropagation()" *ngIf="produto.variacoes.length === 0">
                   <i class="bi bi-cart-check"></i> Adicionar
-                </button>
-              </td>
-            </tr>
+                  </button>
+                  <button
+                  class="btn btn-sm btn-outline-success"
+                  *ngIf="produto.variacoes.length > 0 && expandedRow === null">
+                    <i class="bi bi-arrows-angle-expand"></i>
+                  </button>
+                  <button
+                  class="btn btn-sm btn-outline-success"
+                  *ngIf="produto.variacoes.length > 0 && expandedRow != null">
+                    <i class="bi bi-arrows-angle-contract"></i>
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Linha expansível para variações -->
+              <tr *ngIf="expandedRow === i" class="bg-light">
+                <td colspan="4">
+                    <div *ngIf="produto.variacoes.length > 0; else semVariacoes">
+                      <ul class="list-group list-group-flush">
+                        <li *ngFor="let variacao of produto.variacoes" class="list-group-item d-flex justify-content-between align-items-center">
+                          <span>{{ variacao.variacao }}</span>
+                          <span class="fw-bold">{{ variacao.valor | moeda }}</span>
+                          <button
+                            class="btn btn-sm btn-outline-primary"
+                            (click)="adicionarProduto(produto.id, variacao); $event.stopPropagation()">
+                            <i class="bi bi-cart-check"></i> Adicionar
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                    <ng-template #semVariacoes>
+                      <div class="text-muted fst-italic">Nenhuma variação cadastrada</div>
+                    </ng-template>
+                </td>
+              </tr>
+            </ng-container>
           </tbody>
         </table>
       </div>
@@ -98,6 +134,7 @@
       </div>
 
       <div class="modal-footer">
+        
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
           Cancelar
         </button>
@@ -198,10 +235,13 @@
         <!-- Botões -->
         <div class="d-flex gap-2 justify-content-end">
           <button class="btn btn-outline-danger" (click)="limparCarrinho()">
-            <i class="bi bi-ban me-1"></i> Limpar Carrinho
+            <i class="bi bi-trash"></i> Limpar Carrinho
           </button>
-          <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalClientes">
+          <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalClientes" *ngIf="listaClientes.length > 0">
             <i class="bi bi-person-plus me-1"></i> Adicionar Cliente
+          </button>
+          <button type="button" class="btn btn-outline-warning" (click)="carregarClientes()" *ngIf="listaClientes.length === 0">
+            <i class="bi bi-person-plus me-1"></i> Carregar Clientes
           </button>
           <button class="btn btn-primary" (click)="finalizarOrcamento()">
             <i class="bi bi-send-check me-1"></i> Finalizar Orçamento
