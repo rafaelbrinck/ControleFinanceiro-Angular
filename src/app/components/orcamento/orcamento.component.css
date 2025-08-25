@@ -1,4 +1,10 @@
 .carrinho {
   max-height: 100vh;
   overflow: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.carrinho::-webkit-scrollbar {
+  display: none; /* Chrome, Safari e Edge */
 }
