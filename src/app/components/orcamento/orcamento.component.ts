@@ -295,8 +295,10 @@ export class OrcamentoComponent {
     this.orcamentoService.enviarOrcamentoWhatsApp(orcamento);
   }
 
-  toggleExpand(index: number) {
-    this.expandedRow = this.expandedRow === index ? null : index;
+  toggleExpand(index: number, prod: Produto) {
+    if (prod.variacoes.length > 0) {
+      this.expandedRow = this.expandedRow === index ? null : index;
+    }
   }
 
   toggleCarrinho() {
