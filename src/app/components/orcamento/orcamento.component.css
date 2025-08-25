@@ -1,10 +1,21 @@
-.carrinho {
-  max-height: 100vh;
-  overflow: scroll;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+.detalhes-carrinho {
+  max-height: 93vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.carrinho::-webkit-scrollbar {
-  display: none; /* Chrome, Safari e Edge */
+.lista-produtos.carrinho {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.lista-produtos.carrinho::-webkit-scrollbar {
+  display: none;
+}
+
+.resumo {
+  flex: 0 0 auto;
 }

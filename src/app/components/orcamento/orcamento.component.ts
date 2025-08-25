@@ -298,4 +298,13 @@ export class OrcamentoComponent {
   toggleExpand(index: number) {
     this.expandedRow = this.expandedRow === index ? null : index;
   }
+
+  toggleCarrinho() {
+    this.mostrarDetalhes = !this.mostrarDetalhes;
+    if (this.mostrarDetalhes) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
 }
