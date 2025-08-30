@@ -27,8 +27,10 @@ export class ProdutosComponent implements OnInit {
     private alertaService: AlertaService
   ) {}
 
-  toggleExpand(index: number) {
-    this.expandedRow = this.expandedRow === index ? null : index;
+  toggleExpand(index: number, prod: Produto) {
+    if (prod.variacoes.length > 0) {
+      this.expandedRow = this.expandedRow === index ? null : index;
+    }
   }
 
   async ngOnInit(): Promise<void> {

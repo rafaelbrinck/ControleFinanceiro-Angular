@@ -36,7 +36,7 @@
           <tbody>
             <ng-container *ngFor="let produto of (listaProdutos | buscador:nomePesquisa:['nome']); let i = index">
               <!-- Linha do produto -->
-              <tr class="text-center" (click)="toggleExpand(i)" style="cursor: pointer;">
+              <tr class="text-center" (click)="toggleExpand(i, produto)" style="cursor: pointer;">
                 <td class="text-center">{{ produto.nome }}</td>
                 <td *ngIf="produto.variacoes.length === 0">{{ produto.valor | moeda }}</td>
                 <td *ngIf="produto.variacoes.length > 0">A partir de {{produto.variacoes[0].valor | moeda}}</td>
