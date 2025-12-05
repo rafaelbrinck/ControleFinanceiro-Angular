@@ -8,7 +8,6 @@ import { Router } from '@angular/router';
 import { LoginService } from '../../service/login.service';
 import { supabase } from '../../supabase';
 import { CommonModule, NgClass } from '@angular/common';
-import { MoedaPipe } from '../../pipes/moeda.pipe';
 import { ClientesService } from '../../service/clientes.service';
 import { ProdutosService } from '../../service/produtos.service';
 import { OrcamentoService } from '../../service/orcamento.service';
@@ -20,7 +19,7 @@ import { FornecedoresService } from '../../service/fornecedores.service';
 
 @Component({
   selector: 'app-home',
-  imports: [NgClass, CommonModule, MoedaPipe, GraficosComponent],
+  imports: [NgClass, CommonModule, GraficosComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })

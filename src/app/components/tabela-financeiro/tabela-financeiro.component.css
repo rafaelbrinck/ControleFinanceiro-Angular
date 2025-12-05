@@ -1,0 +1,75 @@
+:host {
+  --primary-color: #4f46e5;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+}
+
+.max-w-800 {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Card de Transação */
+.transaction-card {
+  border-radius: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  background: #fff;
+
+  /* Hover effect no desktop */
+  @media (min-width: 768px) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+
+      /* Mostra botões de ação no hover */
+      .action-buttons {
+        opacity: 1 !important;
+      }
+    }
+  }
+}
+
+.action-buttons {
+  transition: opacity 0.2s;
+}
+
+.transaction-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+/* Search Box Unificada */
+.search-box {
+  padding: 0.5rem 0;
+
+  i {
+    font-size: 1.1rem;
+  }
+  input {
+    padding: 0;
+    font-size: 1rem;
+    &:focus {
+      box-shadow: none;
+    }
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

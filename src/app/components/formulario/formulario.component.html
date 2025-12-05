@@ -1,58 +1,118 @@
-<div class="container my-5">
-  <div class="card shadow rounded-4">
-    <div class="card-body p-5">
-      <h2 class="mb-4 fw-bold text-center">Adicionar Transação</h2>
+<div class="container my-4 max-w-700 pb-5">
+  
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+    
+    <!-- Cabeçalho -->
+    <div class="bg-primary p-4 text-center text-white position-relative overflow-hidden">
+      <div class="position-relative z-1">
+        <h3 class="fw-bold mb-1">{{ transacao.id ? 'Editar Transação' : 'Nova Transação' }}</h3>
+        <p class="mb-0 opacity-75 small">Registre suas movimentações financeiras</p>
+      </div>
+      <div class="circle-deco"></div>
+    </div>
+
+    <div class="card-body p-4 p-md-5">
       <form>
-        <div class="row g-4">
-          <div class="col-12 col-sm-12 col-md-6">
-            <label for="descricao" class="form-label">Descrição:</label>
-            <input type="text" [(ngModel)]="transacao.nome" name="descricao" id="descricao" class="form-control form-control-lg" placeholder="Descrição">
-          </div>
-
-          <div class="col-12 col-sm-12 col-md-6">
-            <label for="valor" class="form-label">Valor:</label>
-            <input
-              type="text"
-              [value]="valorFormatado"
-              (input)="mascaraValor($event)"
-              class="form-control form-control-lg"
-              placeholder="0,00"
-            >
-          </div> 
-
-          <div class="col-12 col-sm-12 col-md-6">
-            <label for="tipo" class="form-label">Tipo de Operação:</label>
-            <select name="tipo" id="tipo" [(ngModel)]="transacao.tipo" class="form-select form-select-lg">
-              <option disabled selected>Selecione...</option>
-              <option value="Entrada">Entrada</option>
-              <option value="Saida">Saída</option>
-            </select>
-          </div>
-
-          <div class="col-12 col-sm-12 col-md-6">
-            <label for="categoria" class="form-label">Categorias:</label>
-            <select name="categoria" id="categoria" class="form-select form-select-lg" [(ngModel)]="transacao.categoria" (ngModelChange)="conferirCategoria($event)">
-              <option *ngFor="let categoria of(listaCategorias)" [ngValue]="categoria.id">{{categoria.nome}}</option>
-              <option [ngValue]="'nova'">Adicionar nova categoria</option>
-            </select>
-          </div>
-
-          <div class="col-12 col-sm-12 col-md-6">
-            <label for="data" class="form-label">Data:</label>
-            <input type="date" [(ngModel)]="transacao.data" name="data" id="data" class="form-control form-control-lg">
-          </div>
-
-          <div class="col-12">
-            <div class="d-flex flex-column flex-md-row justify-content-center justify-content-md-end gap-3 mt-4">
-              <button type="submit" class="btn btn-success btn-lg px-4 w-100 w-md-auto" (click)="salvar()">
-                <i class="bi bi-check-circle me-2"></i>{{ botao }}
-              </button>
-              <button class="btn btn-secondary btn-lg px-4 w-100 w-md-auto" (click)="voltar()">
-                <i class="bi bi-arrow-left me-2"></i>Voltar
-              </button>
+        
+        <!-- SELEÇÃO DE TIPO (Visual Moderno) -->
+        <div class="mb-4">
+          <label class="d-block text-secondary small fw-bold text-uppercase mb-2">Tipo de Operação</label>
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="type-selector w-100">
+                <input type="radio" name="tipo" value="Entrada" [(ngModel)]="transacao.tipo" class="d-none">
+                <div class="selector-card income">
+                  <i class="bi bi-arrow-down-left-circle-fill fs-4 mb-1"></i>
+                  <span>Entrada</span>
+                </div>
+              </label>
+            </div>
+            <div class="col-6">
+              <label class="type-selector w-100">
+                <input type="radio" name="tipo" value="Saida" [(ngModel)]="transacao.tipo" class="d-none">
+                <div class="selector-card expense">
+                  <i class="bi bi-arrow-up-right-circle-fill fs-4 mb-1"></i>
+                  <span>Saída</span>
+                </div>
+              </label>
             </div>
           </div>
         </div>
+
+        <!-- Campos de Dados -->
+        <div class="row g-3">
+          
+          <!-- Valor (Destaque) -->
+          <div class="col-12">
+            <div class="form-floating">
+              <input 
+                type="text" 
+                class="form-control rounded-3 fs-4 fw-bold" 
+                id="valor" 
+                [value]="valorFormatado" 
+                (input)="mascaraValor($event)" 
+                placeholder="0,00"
+                [ngClass]="{'text-success': transacao.tipo === 'Entrada', 'text-danger': transacao.tipo === 'Saida'}"
+              >
+              <label for="valor">Valor (R$)</label>
+            </div>
+          </div>
+
+          <!-- Descrição -->
+          <div class="col-12">
+            <div class="form-floating">
+              <input type="text" class="form-control rounded-3" id="descricao" [(ngModel)]="transacao.nome" name="descricao" placeholder="Ex: Conta de Luz">
+              <label for="descricao">Descrição</label>
+            </div>
+          </div>
+
+          <!-- Data (com botão Hoje) -->
+          <div class="col-12 col-md-6">
+            <div class="input-group">
+              <div class="form-floating flex-grow-1">
+                <input type="date" class="form-control rounded-start-3 rounded-end-0" id="data" [(ngModel)]="transacao.data" name="data">
+                <label for="data">Data</label>
+              </div>
+              <button class="btn btn-outline-secondary px-3" type="button" (click)="transacao.data = getDataHoje()" title="Definir Hoje">
+                Hoje
+              </button>
+            </div>
+          </div>
+
+          <!-- Categoria -->
+          <div class="col-12 col-md-6">
+            <div class="form-floating">
+              <select 
+                class="form-select rounded-3" 
+                id="categoria" 
+                [(ngModel)]="transacao.categoria" 
+                (ngModelChange)="conferirCategoria($event)" 
+                name="categoria"
+              >
+                <option [ngValue]="null" disabled selected>Selecione...</option>
+                <option *ngFor="let categoria of listaCategorias" [ngValue]="categoria.id">{{categoria.nome}}</option>
+                <option [ngValue]="'nova'" class="fw-bold text-primary">+ Nova Categoria</option>
+              </select>
+              <label for="categoria">Categoria</label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="row g-2 mt-5 pt-2 border-top">
+          <div class="col-6">
+            <button type="button" class="btn btn-light btn-lg w-100 fw-medium text-secondary" (click)="voltar()">
+              Voltar
+            </button>
+          </div>
+          <div class="col-6">
+            <button type="submit" class="btn btn-success btn-lg w-100 fw-bold shadow-sm" (click)="salvar()">
+              <i class="bi bi-check-lg me-1"></i> {{ botao }}
+            </button>
+          </div>
+        </div>
+
       </form>
     </div>
   </div>

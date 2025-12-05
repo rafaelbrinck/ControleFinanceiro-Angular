@@ -17,7 +17,7 @@ import { VariacoesService } from '../../service/variacoes.service';
   standalone: true,
   imports: [CommonModule, FormsModule, MoedaPipe],
   templateUrl: './form-produto.component.html',
-  styleUrl: './form-produto.component.css',
+  styleUrl: './form-produto.component.css', // Mantenha .css ou .scss conforme seu projeto
 })
 export class FormProdutoComponent implements OnInit {
   valorFormatado: string = '';
@@ -46,84 +46,140 @@ export class FormProdutoComponent implements OnInit {
     if (this.id) {
       this.botao = 'Editar';
       const produtoBuscado = await this.produtoService.buscarId(this.id);
-      this.produto = produtoBuscado!;
-      if (produtoBuscado) {
-        Object.assign(this.produto, produtoBuscado);
 
-        if (this.produto.valor != null) {
+      if (produtoBuscado) {
+        this.produto = produtoBuscado;
+        // Garante que variacoes seja um array
+        this.produto.variacoes = this.produto.variacoes || [];
+
+        // Se tiver valor único, formata
+        if (this.produto.valor != null && this.produto.variacoes.length === 0) {
           this.valorFormatado = this.produto.valor.toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           });
         }
 
+        // Se tiver variações carregadas (dependendo de como seu backend retorna)
+        // Se precisar buscar separado:
         this.variacaoService.variacoes$.subscribe((variacoes) => {
-          var varia = variacoes.filter((v) => v.idProd === this.produto.id);
-          this.produto.variacoes = varia;
-
-          if (varia.length > 0) {
-            this.mostrarVariacao = true;
+          const varia = variacoes.filter((v) => v.idProd === this.produto.id);
+          // Só substitui se o produto não trouxe variações no buscarId
+          if (this.produto.variacoes.length === 0 && varia.length > 0) {
+            this.produto.variacoes = varia;
           }
         });
       }
     }
   }
 
-  adicionarVariacao() {
-    if (!this.mostrarVariacao) {
-      this.mostrarVariacao = true;
-    } else {
-      this.variacao.valor = this.produto.valor;
-      if (
-        !this.variacao.variacao ||
-        this.variacao.variacao.trim() === '' ||
-        !this.variacao.valor ||
-        this.variacao.valor <= 0
-      ) {
-        this.alertaService.info(
-          'Obrigatório',
-          'Obrigatório preencher variação e valor maior do que zero!'
-        );
-        return;
-      }
-      this.variacao.variacao = this.variacao.variacao?.toLocaleUpperCase();
-      this.produto.valor = 0;
-      this.produto.variacoes.push(this.variacao);
-      this.variacao = new Variacao();
-      this.valorFormatado = '';
+  // Chamado pelo botão "Confirmar Item" (A nova lógica)
+  adicionarVariacaoNaListaLocalSeHouverLogica() {
+    // 1. Validações
+    if (!this.variacao.variacao || this.variacao.variacao.trim() === '') {
+      this.alertaService.info(
+        'Atenção',
+        'Digite o nome da variação (ex: Tamanho G)'
+      );
+      return;
     }
-  }
-  fecharVariacoes() {
-    this.mostrarVariacao = false;
+
+    if (!this.variacao.valor || this.variacao.valor <= 0) {
+      this.alertaService.info(
+        'Atenção',
+        'O valor da variação deve ser maior que zero.'
+      );
+      return;
+    }
+
+    // 2. Prepara o objeto
+    this.variacao.variacao = this.variacao.variacao.toUpperCase();
+
+    // 3. Adiciona à lista local (visual)
+    this.produto.variacoes.push(this.variacao);
+
+    // 4. Limpa o form de variação para adicionar a próxima
     this.variacao = new Variacao();
-    this.produto.variacoes = [];
-    this.valorFormatado = '';
+    this.valorFormatado = ''; // Limpa o input de valor da variação
+
+    // Opcional: focar no input de nome novamente se possível
   }
-  async removerVariacao(variacao: VariacoesDTO) {
-    if (this.id) {
-      await this.variacaoService.deletar(variacao.id!);
-    }
-    this.produto.variacoes = this.produto.variacoes.filter(
-      (v) => v !== variacao
+
+  // Chamado pelo Switch ou botão "Adicionar outra variação"
+  adicionarVariacao() {
+    this.mostrarVariacao = true;
+    this.variacao = new Variacao();
+    this.valorFormatado = ''; // Limpa para o usuário digitar o valor da variação
+
+    // Ao ativar variação, zeramos o valor do produto principal para evitar confusão
+    this.produto.valor = 0;
+  }
+
+  // Chamado ao desligar o Switch
+  fecharVariacoes() {
+    this.alertaService.confirmar(
+      'Remover Variações?',
+      'Isso removerá todas as variações adicionadas. Deseja continuar?',
+      (confirmou) => {
+        if (confirmou) {
+          this.mostrarVariacao = false;
+          this.variacao = new Variacao();
+          this.produto.variacoes = []; // Limpa a lista
+          this.valorFormatado = ''; // Limpa o input
+        } else {
+          // Se cancelou, mantém o switch ligado (na view precisaria de two-way binding no switch para reverter visualmente,
+          // ou apenas não fazemos nada e o usuário clica de novo se quiser)
+        }
+      }
     );
   }
 
+  async removerVariacao(variacao: VariacoesDTO) {
+    // Se o produto já existe e a variação tem ID, deleta do banco
+    if (this.id && variacao.id) {
+      await this.variacaoService.deletar(variacao.id);
+    }
+
+    // Remove da lista local
+    this.produto.variacoes = this.produto.variacoes.filter(
+      (v) => v !== variacao
+    );
+
+    // Se removeu tudo, talvez queira voltar a mostrar o campo de adicionar?
+    if (this.produto.variacoes.length === 0) {
+      // Opcional: this.mostrarVariacao = true;
+    }
+  }
+
   async salvar() {
+    // Se tiver preenchido dados no form de variação mas esqueceu de clicar em "Confirmar Item"
+    if (
+      this.mostrarVariacao &&
+      this.variacao.variacao &&
+      this.variacao.valor &&
+      this.variacao.valor > 0
+    ) {
+      this.adicionarVariacaoNaListaLocalSeHouverLogica();
+    }
+
     if (this.validarCampos()) {
+      // Define ID do usuário
+      this.produto.idUser = this.loginService.getUserLogado();
+
       if (this.id) {
         await this.produtoService.editar(this.id, this.produto);
+
+        // Se tiver variações novas (sem ID), precisa salvá-las agora ou o backend trata?
+        // Assumindo que seu backend ao salvar o produto já salva as variações (Cascade):
         this.alertaService.sucesso('Sucesso', 'Produto editado com sucesso!');
         this.voltar();
       } else {
-        this.produto.idUser = this.loginService.getUserLogado();
         const sucesso = await this.produtoService.inserir(this.produto);
         if (sucesso) {
           this.alertaService.sucesso(
             'Sucesso',
             'Produto cadastrado com sucesso!'
           );
-          this.produto = new Produto();
-          this.valorFormatado = '';
           this.voltar();
         }
       }
@@ -136,25 +192,37 @@ export class FormProdutoComponent implements OnInit {
 
   mascaraValor(event: Event) {
     const input = event.target as HTMLInputElement;
-    const valor = input.value;
+    const valorRaw = input.value;
 
-    const numeros = valor.replace(/\D/g, '');
-    const somenteNumeros = parseFloat(numeros) / 100;
-    this.produto.valor = somenteNumeros;
-    this.valorFormatado = somenteNumeros.toLocaleString('pt-BR', {
+    const numeros = valorRaw.replace(/\D/g, '');
+    const valorNumerico = parseFloat(numeros) / 100;
+
+    // Atualiza o formato visual
+    this.valorFormatado = valorNumerico.toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
+
+    // Atualiza o modelo correto dependendo do estado
+    if (this.mostrarVariacao) {
+      // Estamos editando o valor de uma NOVA variação
+      this.variacao.valor = valorNumerico;
+    } else {
+      // Estamos editando o valor do Produto Único
+      this.produto.valor = valorNumerico;
+    }
   }
 
-  conferirCategoria(valor: string) {
+  conferirCategoria(valor: any) {
     if (valor === 'nova') {
       this.alertaService.confirmar(
         'Nova Categoria',
-        'Você selecionou a opção de nova categoria. Deseja adicionar uma nova categoria?',
+        'Deseja ir para a tela de cadastro de categorias?',
         (resultado) => {
           if (resultado) {
             this.router.navigate(['/form-categoria']);
+          } else {
+            this.produto.categoria = undefined; // Reseta seleção
           }
         }
       );
@@ -163,24 +231,32 @@ export class FormProdutoComponent implements OnInit {
 
   private validarCampos() {
     if (!this.produto.nome || this.produto.nome.trim() === '') {
-      this.alertaService.info(
-        'Obrigatório',
-        'Obrigatório preencher nome do produto!'
-      );
+      this.alertaService.info('Obrigatório', 'Preencha o nome do produto.');
       return false;
     }
-    if (
-      this.produto.variacoes.length === 0 &&
-      (!this.produto.valor || this.produto.valor <= 0)
-    ) {
+
+    if (!this.produto.categoria) {
+      this.alertaService.info('Obrigatório', 'Selecione uma categoria.');
+      return false;
+    }
+
+    // Validação de Variações vs Valor Único
+    const temVariacoes = this.produto.variacoes.length > 0;
+
+    if (temVariacoes) {
+      // Se tem variações, o valor do produto é irrelevante (ou calculado no backend)
+      return true;
+    } else {
+      // Se não tem variações, precisa do valor único
       if (!this.produto.valor || this.produto.valor <= 0) {
         this.alertaService.info(
           'Obrigatório',
-          'Valor deve ser maior do que zero!'
+          'Informe o valor do produto ou adicione variações.'
         );
         return false;
       }
     }
+
     return true;
   }
 }

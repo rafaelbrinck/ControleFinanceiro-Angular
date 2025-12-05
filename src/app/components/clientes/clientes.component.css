@@ -1,0 +1,124 @@
+:host {
+  --primary-color: #4f46e5;
+  --bg-color: #f8fafc;
+}
+
+.max-w-800 {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Search Box */
+.search-box {
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: box-shadow 0.2s;
+
+  &:focus-within {
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+  }
+
+  i {
+    font-size: 1.1rem;
+  }
+  input {
+    padding: 0;
+    font-size: 1rem;
+    &:focus {
+      box-shadow: none;
+    }
+  }
+}
+
+/* Card Cliente */
+.client-card {
+  border-radius: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  background: #fff;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.client-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Modal Styling */
+.client-avatar-lg {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid #fff;
+}
+
+.circle-deco {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 70%
+  );
+  top: -50px;
+  right: -30px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mt-n5 {
+  margin-top: -3rem !important;
+}
+
+.backdrop-blur {
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

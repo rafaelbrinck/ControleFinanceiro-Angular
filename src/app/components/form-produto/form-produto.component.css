@@ -1,0 +1,60 @@
+:host {
+  --primary-color: #4f46e5;
+}
+
+.max-w-700 {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Decoração do Header */
+.circle-deco {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 70%
+  );
+  top: -50px;
+  right: -30px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Inputs Modernos */
+.form-floating > .form-control,
+.form-floating > .form-select {
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  &:focus {
+    background-color: #fff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  }
+}
+
+.tracking-wide {
+  letter-spacing: 1px;
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}
+
+/* Animações */
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

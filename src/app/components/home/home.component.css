@@ -1,99 +1,205 @@
-/* Cards com sombra leve, bordas arredondadas e transição para hover */
-.card {
-  border-radius: 0.75rem; /* cantos mais arredondados */
-  box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
-  cursor: default;
+/* =========================================
+   VARIÁVEIS LOCAIS (CSS Standard)
+   ========================================= */
+:host {
+  --primary-color: #4f46e5;
+  --primary-dark: #4338ca;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --card-bg: #ffffff;
+  --bg-page: #f8fafc;
 }
 
-.card-hover {
-  cursor: pointer;
+/* =========================================
+     ESTILOS PRINCIPAIS
+     ========================================= */
+
+.max-w-700 {
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-.card-hover:hover {
-  box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
-  transform: translateY(-4px);
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
-}
-
-/* Bordas mais arredondadas nas tabelas para harmonizar */
-.table-responsive > table {
-  border-radius: 0.75rem;
+/* --- 1. Wallet Card (O Cartão Roxo) --- */
+.wallet-card {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-dark)
+  );
+  border-radius: 24px;
+  padding: 1.5rem 2rem;
+  color: white;
+  position: relative;
   overflow: hidden;
-  border-collapse: separate !important;
-  border-spacing: 0;
-  box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
+  box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-/* Cabeçalho da tabela com cor de fundo clara e texto centralizado */
-.table thead.table-light th {
-  background-color: #f8f9fa;
-  color: #495057;
-  text-align: center;
-  font-weight: 600;
-  border-bottom: 2px solid #dee2e6;
+.wallet-content {
+  position: relative;
+  z-index: 2;
 }
 
-/* Linhas da tabela com alinhamento central e hover leve */
-.table tbody tr {
-  text-align: center;
-  transition: background-color 0.15s ease;
-}
-
-.table tbody tr:hover {
-  background-color: #f1f3f5;
-}
-
-/* Botão de fechar detalhes com margem e cores suaves */
-.btn-outline-secondary {
+.wallet-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
   font-weight: 500;
-  padding: 0.25rem 0.6rem;
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
-/* Ajuste no título e subtítulo para textos mais leves e alinhados */
-h1.fw-bold,
-h2.fw-bold,
-h5.fw-bold {
-  font-weight: 700 !important;
+.wallet-balance {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: -1px;
 }
 
-.text-muted {
-  font-weight: 400;
-  color: #6c757d !important;
+/* Decoração de círculos no fundo do cartão */
+.circle-deco-1 {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
+  top: -50px;
+  right: -50px;
+  border-radius: 50%;
+  z-index: 1;
 }
 
-/* Cards de métricas com texto centralizado e títulos com espaço */
-.card-body h6 {
+.circle-deco-2 {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 70%
+  );
+  bottom: -30px;
+  left: -20px;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* --- 2. Action Cards (Entrada/Saída) --- */
+.action-card {
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.action-card:active {
+  transform: scale(0.98);
+}
+
+@media (min-width: 768px) {
+  .action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.icon-box {
+  width: 45px;
+  height: 45px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta .label {
   font-size: 0.85rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-bottom: 0.25rem;
-  color: #6c757d;
+  color: #64748b;
+  font-weight: 500;
 }
 
-/* Ícones com espaçamento e cor consistente */
-.bi {
-  vertical-align: -0.125em;
-  margin-right: 0.3rem;
+.meta .value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* --- 3. Listas (Transações e Categorias) --- */
+.list-group-item {
+  transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+  background-color: #f8fafc;
+}
+
+/* Ícone redondo ao lado da transação */
+.transaction-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 1.1rem;
+  flex-shrink: 0; /* Impede o ícone de amassar */
 }
 
-/* Fundo sutil para bg-success-subtle e bg-danger-subtle */
-.bg-success-subtle {
-  background-color: #d1e7dd !important;
+/* Estado Vazio */
+.empty-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
 }
 
-.bg-danger-subtle {
-  background-color: #f8d7da !important;
+/* --- 4. Animações --- */
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
 }
 
-/* Ajuste para espaçamento interno dos cards principais */
-.card-body.py-4 {
-  padding-top: 1.5rem !important;
-  padding-bottom: 1.5rem !important;
+.delay-1 {
+  animation-delay: 0.1s;
 }
 
-/* Ajuste para o container do app-graficos dentro do home */
-.mt-5 {
-  margin-top: 3rem !important;
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

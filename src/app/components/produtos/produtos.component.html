@@ -1,80 +1,108 @@
-<div class="container my-5">
-  <div class="card shadow rounded-4">
-    <div class="card-body p-4">
-      <h2 class="mb-4 fw-bold text-center">Tabela de Produtos</h2>
+<div class="container my-4 max-w-800 pb-5">
+  
+  <!-- Cabeçalho e Busca -->
+  <div class="d-flex flex-column gap-3 mb-4">
+    <div class="d-flex justify-content-between align-items-center px-2">
+      <div>
+        <h4 class="fw-bold text-dark mb-0">Meus Produtos</h4>
+        <small class="text-muted">{{ (listaProdutos | buscador:nomePesquisa:['nome']).length }} itens cadastrados</small>
+      </div>
+      <button class="btn btn-primary rounded-pill shadow-sm d-flex align-items-center gap-2" routerLink="/form-produto/">
+        <i class="bi bi-plus-lg"></i> <span class="d-none d-sm-inline">Novo</span>
+      </button>
+    </div>
 
-      <div class="input-group mb-4 shadow-sm">
-        <span class="input-group-text bg-white border-end-0">
-          <i class="bi bi-search text-secondary"></i>
-        </span>
-        <input
-          type="text"
-          [(ngModel)]="nomePesquisa"
-          id="nomePesquisa"
-          class="form-control form-control-lg border-start-0"
-          placeholder="Digite para pesquisar..."
-          aria-label="Pesquisar transações"
-        >
-        <button type="submit" class="btn btn-success btn-lg px-4 w-md-auto" routerLink="/form-produto/"><i class="bi bi-check-circle me-2"></i>Inserir</button>
+    <!-- Barra de Busca Estilizada -->
+    <div class="search-box shadow-sm">
+      <i class="bi bi-search text-muted"></i>
+      <input 
+        type="text" 
+        class="form-control border-0 bg-transparent" 
+        [(ngModel)]="nomePesquisa" 
+        placeholder="Buscar por nome..."
+      >
+    </div>
+  </div>
+
+  <!-- Estado Vazio -->
+  <div *ngIf="(listaProdutos | buscador:nomePesquisa:['nome']).length === 0" class="text-center py-5 fade-in">
+    <div class="bg-light rounded-circle d-inline-flex p-4 mb-3 text-secondary">
+      <i class="bi bi-box-seam fs-1"></i>
+    </div>
+    <h5 class="fw-bold text-secondary">Nenhum produto encontrado</h5>
+    <p class="text-muted small">Tente buscar outro termo ou cadastre um novo.</p>
+  </div>
+
+  <!-- Lista de Cards (Substitui a Tabela) -->
+  <div class="d-flex flex-column gap-3" *ngIf="(listaProdutos | buscador:nomePesquisa:['nome']).length > 0">
+    
+    <div 
+      class="card product-card border-0 shadow-sm" 
+      *ngFor="let produto of (listaProdutos | buscador:nomePesquisa:['nome']); let i = index"
+      [class.expanded]="expandedRow === i"
+    >
+      <!-- Cabeçalho do Card (Sempre visível) -->
+      <div class="card-body p-3 d-flex align-items-center justify-content-between" (click)="toggleExpand(i, produto)">
+        
+        <div class="d-flex align-items-center gap-3 overflow-hidden">
+          <!-- Ícone/Avatar do Produto -->
+          <div class="product-icon bg-light text-primary">
+            <i class="bi bi-box-seam-fill"></i>
+          </div>
+          
+          <!-- Info Principal -->
+          <div class="text-truncate">
+            <h6 class="mb-0 fw-bold text-dark text-truncate">{{ produto.nome }}</h6>
+            <div class="d-flex align-items-center gap-2 mt-1">
+              <span class="badge bg-secondary-subtle text-secondary fw-normal px-2 py-1 rounded-2" style="font-size: 0.75rem;">
+                {{ produto.cat }}
+              </span>
+              <span class="text-muted small" *ngIf="produto.variacoes.length > 0">
+                {{ produto.variacoes.length }} variações
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preço e Seta -->
+        <div class="d-flex align-items-center gap-3">
+          <div class="text-end">
+            <span class="d-block fw-bold text-success fs-6">
+              <span *ngIf="produto.variacoes.length > 0" class="text-muted small fw-normal me-1">a partir de</span>
+              {{ (produto.variacoes.length > 0 ? produto.variacoes[0].valor : produto.valor) | moeda }}
+            </span>
+          </div>
+          <i class="bi bi-chevron-down text-muted transition-icon" [class.rotate]="expandedRow === i"></i>
+        </div>
+
       </div>
 
-      <div *ngIf="(listaProdutos | buscador:nomePesquisa:['nome']).length === 0" class="alert alert-light text-center shadow-sm rounded p-4">
-        <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
-        <span class="fs-5 text-muted">Nenhum produto encontrado</span>
-      </div>
+      <!-- Área Expandida (Detalhes e Ações) -->
+      <div class="card-footer border-0 bg-light-subtle p-0 overflow-hidden" [class.show]="expandedRow === i" *ngIf="expandedRow === i">
+        <div class="p-3">
+          
+          <!-- Lista de Variações -->
+          <div *ngIf="produto.variacoes.length > 0" class="mb-3 bg-white rounded-3 border p-2">
+            <h6 class="text-muted small fw-bold px-2 pt-1 mb-2">VARIAÇÕES</h6>
+            <div *ngFor="let variacao of produto.variacoes" class="d-flex justify-content-between align-items-center p-2 border-bottom last-border-none">
+              <span class="text-dark">{{ variacao.variacao }}</span>
+              <span class="fw-bold text-dark">{{ variacao.valor | moeda }}</span>
+            </div>
+          </div>
 
-      <div class="table-responsive" *ngIf="(listaProdutos | buscador:nomePesquisa:['nome']).length > 0">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light text-center">
-            <tr>
-              <th scope="col" class="text-center">NOME</th>
-              <th scope="col" class="text-center">VALOR</th>
-              <th scope="col" class="text-center">CATEGORIA</th>
-              <th scope="col" class="text-center">AÇÃO</th>
-            </tr>
-          </thead>
-          <tbody>
-            <ng-container *ngFor="let produto of (listaProdutos | buscador:nomePesquisa:['nome']); let i = index">
-              <!-- Linha do produto -->
-              <tr class="text-center" (click)="toggleExpand(i, produto)" style="cursor: pointer;">
-                <td class="text-center">{{ produto.nome }}</td>
-                <td *ngIf="produto.variacoes.length === 0">{{ produto.valor | moeda }}</td>
-                <td *ngIf="produto.variacoes.length > 0">A partir de {{produto.variacoes[0].valor | moeda}}</td>
-                <td>{{ produto.cat }}</td>
-                <td class="text-center">
-                  <a class="btn btn-sm btn-outline-primary"
-                    routerLink="/form-produto/{{ produto.id }}">
-                    <i class="bi bi-pencil-fill"></i> Editar
-                  </a>
-                  <button class="btn btn-sm btn-outline-danger"
-                          (click)="deletar(produto.id); $event.stopPropagation()"
-                          type="button">
-                    <i class="bi bi-trash-fill"></i> Deletar
-                  </button>
-                </td>
-              </tr>
+          <!-- Botões de Ação -->
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary flex-grow-1" routerLink="/form-produto/{{ produto.id }}">
+              <i class="bi bi-pencil-fill me-2"></i> Editar
+            </a>
+            <button class="btn btn-outline-danger flex-grow-1" (click)="deletar(produto.id); $event.stopPropagation()">
+              <i class="bi bi-trash-fill me-2"></i> Excluir
+            </button>
+          </div>
 
-              <!-- Linha expansível para variações -->
-              <tr *ngIf="expandedRow === i" class="bg-light">
-                <td colspan="4">
-                    <div *ngIf="produto.variacoes.length > 0; else semVariacoes">
-                      <ul class="list-group list-group-flush">
-                        <li *ngFor="let variacao of produto.variacoes" class="list-group-item d-flex justify-content-between align-items-center">
-                          <span>{{ variacao.variacao }}</span>
-                          
-                          <span class="fw-bold">{{ variacao.valor | moeda }}</span>
-                        </li>
-                      </ul>
-                    </div>
-                    <ng-template #semVariacoes>
-                      <div class="text-muted fst-italic">Nenhuma variação cadastrada</div>
-                    </ng-template>
-                </td>
-              </tr>
-            </ng-container>
-          </tbody>
-        </table>
+        </div>
       </div>
     </div>
+
   </div>
 </div>

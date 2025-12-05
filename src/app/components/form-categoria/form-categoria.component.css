@@ -1,0 +1,118 @@
+:host {
+  --primary-color: #4f46e5;
+  --success-color: #10b981;
+}
+
+.max-w-700 {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* --- SELETORES DE TIPO --- */
+.type-selector {
+  cursor: pointer;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  /* Estilo Selecionado Transação */
+  input[value="Transacao"]:checked + .selector-card.transaction {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: var(--success-color);
+    color: var(--success-color);
+    box-shadow: 0 0 0 1px var(--success-color);
+  }
+
+  /* Estilo Selecionado Produto */
+  input[value="Produto"]:checked + .selector-card.product {
+    background-color: rgba(79, 70, 229, 0.1);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 0 0 1px var(--primary-color);
+  }
+}
+
+.selector-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  height: 80px;
+
+  &:hover {
+    background: #fff;
+    border-color: #cbd5e1;
+  }
+}
+
+/* --- LISTA --- */
+.category-item {
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateX(5px); /* Efeito sutil de slide ao passar o mouse */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+  }
+}
+
+.icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.delete-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #fee2e2;
+    color: #ef4444;
+  }
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}
+
+/* Inputs Modernos */
+.form-floating > .form-control {
+  border: 1px solid #e2e8f0;
+  &:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  }
+}
+
+/* Animação */
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

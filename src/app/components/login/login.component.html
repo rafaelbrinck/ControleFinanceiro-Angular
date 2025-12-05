@@ -1,135 +1,145 @@
-<div class="container my-5" *ngIf="registrar == false">
-  <div class="card shadow rounded-4">
-    <div class="card-body p-4 p-md-5">
-      <h2 class="mb-4 fw-bold text-primary text-center">Login</h2>
-
-      <form>
-        <div class="row g-3">
-          <div class="col-12">
-            <label for="nome" class="form-label">E-mail:</label>
-            <input
-              type="text"
-              [(ngModel)]="usuario.username"
-              name="nome"
-              id="nome"
-              class="form-control form-control-lg"
-              placeholder="E-mail"
-              required
-            >
-          </div>
-          <div class="col-12">
-            <label for="password" class="form-label">Senha:</label>
-            <input
-              type="password"
-              [(ngModel)]="usuario.password"
-              name="password"
-              id="password"
-              class="form-control form-control-lg"
-              placeholder="***********"
-              required
-            >
-          </div>
-
-          <div class="col-12 d-flex flex-column flex-sm-row justify-content-sm-end gap-2 mt-4">
-            <button
-              type="submit"
-              class="btn btn-success btn-lg px-4"
-              (click)="logar()"
-            >
-              <i class="bi bi-check-circle me-2"></i>Logar
-            </button>
-            <button
-              type="button"
-              class="btn btn-secondary btn-lg px-4"
-              (click)="registrar = true"
-            >
-              <i class="bi bi-house-door-fill me-2"></i>Registrar
-            </button>
-          </div> 
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light-gradient p-3">
+  
+  <!-- Container Principal com largura limitada para não esticar em desktops -->
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden login-card">
+    <div class="row g-0">
+      
+      <!-- Lado Esquerdo (Decorativo - Opcional, mas dá um charme) -->
+      <!-- Em mobile ele some (d-none) e fica só no desktop (d-md-block) -->
+      <div class="col-md-5 d-none d-md-block bg-primary-gradient position-relative">
+        <div class="position-absolute top-50 start-50 translate-middle text-center text-white p-4">
+          <i class="bi bi-coin display-1 mb-3"></i>
+          <h3 class="fw-bold">{{ registrar ? 'Junte-se a nós!' : 'Bem-vindo de volta!' }}</h3>
+          <p class="small opacity-75">Gerencie suas finanças com facilidade e estilo.</p>
         </div>
-      </form>
-    </div>
-  </div>
-</div>
+      </div>
 
-
-
-<!-- ÁREA DE REGISTRO DE USUÁRIOS -->
-<div class="container my-5" *ngIf="registrar == true">
-  <div class="card shadow rounded-4">
-    <div class="card-body p-4 p-md-5">
-      <h2 class="mb-4 fw-bold text-primary text-center">Registrar</h2>
-
-      <form>
-        <div class="row g-3">
-          <div class="col-12">
-            <label for="nome" class="form-label">E-mail:</label>
-            <input
-              type="text"
-              [(ngModel)]="usuario.username"
-              name="nome"
-              id="nome"
-              class="form-control form-control-lg"
-              placeholder="E-mail"
-              required
-            >
-          </div>
-          <div class="col-12">
-            <label for="nome" class="form-label">Nome:</label>
-            <input
-              type="text"
-              [(ngModel)]="usuario.nome"
-              name="nome"
-              id="nome"
-              class="form-control form-control-lg"
-              placeholder="Nome"
-              required
-            >
-          </div>
+      <!-- Lado Direito (Formulário) -->
+      <div class="col-md-7">
+        <div class="card-body p-4 p-md-5">
           
-          <div class="col-12">
-            <label for="password" class="form-label">Senha:</label>
-            <input
-              type="password"
-              [(ngModel)]="usuario.password"
-              name="password"
-              id="password"
-              class="form-control form-control-lg"
-              placeholder="***********"
-              required
-            >
-          </div>
-          <div class="col-12">
-            <label for="password" class="form-label">Repetir Senha:</label>
-            <input
-              type="password"
-              [(ngModel)]="usuario.validaPassword"
-              name="password"
-              id="password"
-              class="form-control form-control-lg"
-              placeholder="***********"
-              required
-            >
+          <!-- Cabeçalho Mobile (Só aparece se o lado esquerdo sumir) -->
+          <div class="text-center mb-4 d-md-none">
+            <div class="icon-circle bg-primary-subtle text-primary mb-2 mx-auto">
+              <i class="bi bi-person-fill fs-3"></i>
+            </div>
+            <h2 class="fw-bold text-dark">{{ registrar ? 'Criar Conta' : 'Acessar Conta' }}</h2>
           </div>
 
-          <div class="col-12 d-flex flex-column flex-sm-row justify-content-sm-end gap-2 mt-4">
-            <button
-              type="submit"
-              class="btn btn-success btn-lg px-4"
-              (click)="inserir()"
-            >
-              <i class="bi bi-check-circle me-2"></i>Salvar
+          <!-- Cabeçalho Desktop -->
+          <h2 class="fw-bold text-primary mb-4 d-none d-md-block">
+            {{ registrar ? 'Criar Conta' : 'Login' }}
+          </h2>
+
+          <!-- FORMULÁRIO DE LOGIN -->
+          <form *ngIf="!registrar" class="fade-in-up">
+            <div class="form-floating mb-3">
+              <input 
+                type="text" 
+                class="form-control rounded-3" 
+                id="loginEmail" 
+                placeholder="nome@exemplo.com"
+                [(ngModel)]="usuario.username" 
+                name="username"
+                required>
+              <label for="loginEmail">E-mail</label>
+            </div>
+
+            <div class="form-floating mb-4">
+              <input 
+                type="password" 
+                class="form-control rounded-3" 
+                id="loginPass" 
+                placeholder="Senha"
+                [(ngModel)]="usuario.password" 
+                name="password"
+                required>
+              <label for="loginPass">Senha</label>
+            </div>
+
+            <!-- Botão Principal (Full Width) -->
+            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 mb-3 shadow-sm hover-elevate" (click)="logar()">
+              Entrar
             </button>
-            <button
-              type="button"
-              class="btn btn-secondary btn-lg px-4"
-              (click)="registrar = false"
-            >
-              <i class="bi bi-house-door-fill me-2"></i>Voltar
+
+            <!-- Link para trocar de tela (Mais limpo que um botão secundário gigante) -->
+            <div class="text-center">
+              <span class="text-muted small">Não tem uma conta?</span>
+              <a role="button" class="text-primary fw-bold text-decoration-none ms-1" (click)="registrar = true">
+                Registre-se agora
+              </a>
+            </div>
+          </form>
+
+          <!-- FORMULÁRIO DE REGISTRO -->
+          <form *ngIf="registrar" class="fade-in-up">
+            <div class="form-floating mb-3">
+              <input 
+                type="text" 
+                class="form-control rounded-3" 
+                id="regNome" 
+                placeholder="Seu Nome"
+                [(ngModel)]="usuario.nome" 
+                name="nome"
+                required>
+              <label for="regNome">Nome Completo</label>
+            </div>
+
+            <div class="form-floating mb-3">
+              <input 
+                type="email" 
+                class="form-control rounded-3" 
+                id="regEmail" 
+                placeholder="nome@exemplo.com"
+                [(ngModel)]="usuario.username" 
+                name="username"
+                required>
+              <label for="regEmail">E-mail</label>
+            </div>
+
+            <div class="row g-2 mb-4">
+              <div class="col-6">
+                <div class="form-floating">
+                  <input 
+                    type="password" 
+                    class="form-control rounded-3" 
+                    id="regPass" 
+                    placeholder="Senha"
+                    [(ngModel)]="usuario.password" 
+                    name="password"
+                    required>
+                  <label for="regPass">Senha</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-floating">
+                  <input 
+                    type="password" 
+                    class="form-control rounded-3" 
+                    id="regPassConf" 
+                    placeholder="Repetir"
+                    [(ngModel)]="usuario.validaPassword" 
+                    name="validaPassword"
+                    required>
+                  <label for="regPassConf">Confirmar</label>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 mb-3 shadow-sm hover-elevate" (click)="inserir()">
+              Cadastrar
             </button>
-          </div>
+
+            <div class="text-center">
+              <span class="text-muted small">Já possui conta?</span>
+              <a role="button" class="text-primary fw-bold text-decoration-none ms-1" (click)="registrar = false">
+                Fazer Login
+              </a>
+            </div>
+          </form>
+
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </div>

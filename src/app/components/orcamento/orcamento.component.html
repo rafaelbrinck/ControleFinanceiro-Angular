@@ -1,259 +1,238 @@
-<!-- Produtos disponíveis -->
-<div class="container my-5">
-  <div class="card shadow rounded-4">
-    <div class="card-body p-4">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold mb-0">Produtos</h2>
-        <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" (click)="paginaOrcamentos()">
-          <i class="bi bi-tags-fill"></i> Orçamentos
-        </button>
-      </div>
-
-
-      <div class="input-group mb-4 shadow-sm">
-        <span class="input-group-text bg-white border-end-0">
-          <i class="bi bi-search text-secondary"></i>
-        </span>
-        <input
-          type="text"
-          [(ngModel)]="nomePesquisa"
-          id="nomePesquisa"
-          class="form-control form-control-lg border-start-0"
-          placeholder="Digite para pesquisar..."
-        >
-      </div>
-
-      <div *ngIf="(listaProdutos | buscador:nomePesquisa:['nome']).length === 0" class="alert alert-light text-center shadow-sm rounded p-4">
-        <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
-        <span class="fs-5 text-muted">Nenhum produto encontrado</span>
-      </div>
-
-      <div class="table-responsive" *ngIf="(listaProdutos | buscador:nomePesquisa:['nome']).length > 0">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light text-center">
-            <tr>
-              <th class="text-center">NOME</th>
-              <th class="text-center">VALOR</th>
-              <th class="text-center">AÇÃO</th>
-            </tr>
-          </thead>
-          <tbody>
-            <ng-container *ngFor="let produto of (listaProdutos | buscador:nomePesquisa:['nome']); let i = index">
-              <!-- Linha do produto -->
-              <tr class="text-center" (click)="toggleExpand(i, produto)" style="cursor: pointer;">
-                <td class="text-center">{{ produto.nome }}</td>
-                <td *ngIf="produto.variacoes.length === 0">{{ produto.valor | moeda }}</td>
-                <td *ngIf="produto.variacoes.length > 0">A partir de {{produto.variacoes[0].valor | moeda}}</td>
-                <td class="text-center">
-                  <button
-                  class="btn btn-sm btn-outline-primary"
-                  (click)="adicionarProduto(produto.id); $event.stopPropagation()" *ngIf="produto.variacoes.length === 0">
-                  <i class="bi bi-cart-check"></i> Adicionar
-                  </button>
-                  <button
-                  class="btn btn-sm btn-outline-success"
-                  *ngIf="produto.variacoes.length > 0 && expandedRow != i">
-                    <i class="bi bi-arrows-angle-expand"></i>
-                  </button>
-                  <button
-                  class="btn btn-sm btn-success"
-                  *ngIf="produto.variacoes.length > 0 && expandedRow === i">
-                    <i class="bi bi-arrows-angle-contract"></i>
-                  </button>
-                  
-                </td>
-              </tr>
-
-              <!-- Linha expansível para variações -->
-              <tr *ngIf="expandedRow === i" class="bg-light">
-                <td colspan="4">
-                    <div *ngIf="produto.variacoes.length > 0; else semVariacoes">
-                      <ul class="list-group list-group-flush">
-                        <li *ngFor="let variacao of produto.variacoes" class="list-group-item d-flex justify-content-between align-items-center">
-                          <span>{{ variacao.variacao }}</span>
-                          <span class="fw-bold">{{ variacao.valor | moeda }}</span>
-                          <button
-                            class="btn btn-sm btn-outline-primary"
-                            (click)="adicionarProduto(produto.id, variacao); $event.stopPropagation()">
-                            <i class="bi bi-cart-check"></i> Adicionar
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                    <ng-template #semVariacoes>
-                      <div class="text-muted fst-italic">Nenhuma variação cadastrada</div>
-                    </ng-template>
-                </td>
-              </tr>
-            </ng-container>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal de Seleção de Cliente -->
-<div class="modal fade" id="modalClientes" tabindex="-1" aria-labelledby="modalClientesLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg">
-    <div class="modal-content rounded-4 shadow">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold text-primary" id="modalClientesLabel">
-          <i class="bi bi-person-lines-fill me-2"></i> Selecionar Cliente
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-
-      <div class="modal-body">
-        <div class="input-group mb-3 shadow-sm">
-          <span class="input-group-text bg-white border-end-0">
-            <i class="bi bi-search text-secondary"></i>
-          </span>
-          <input
-            type="text"
-            [(ngModel)]="clientePesquisa"
-            class="form-control border-start-0"
-            placeholder="Buscar cliente por nome...">
-        </div>
-
-        <div *ngIf="(listaClientes | buscador:clientePesquisa:['nome']).length === 0" class="text-center text-muted">
-          <i class="bi bi-person-x fs-4"></i>
-          <p class="mt-2">Nenhum cliente encontrado</p>
-        </div>
-
-        <ul class="list-group" *ngIf="(listaClientes | buscador:clientePesquisa:['nome']).length > 0">
-          <li
-          *ngFor="let cliente of (listaClientes | buscador:clientePesquisa:['nome'])"
-          class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-          style="cursor: pointer;" (click)="adicionarCliente(cliente)">
-          
-              <span>{{ cliente.nome }}</span>
-              <i class="bi bi-check-circle-fill text-success" *ngIf="clienteSelecionado?.id === cliente.id"></i>
-              <i class="bi bi-check-circle text-success" *ngIf="clienteSelecionado?.id != cliente.id"></i>
-            </li>
-        </ul>
-      </div>
-
-      <div class="modal-footer">
-        
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-          Cancelar
-        </button>
-        <button type="button" class="btn btn-primary" [disabled]="!clienteSelecionado" data-bs-dismiss="modal">
-          Confirmar Cliente
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="fixed-bottom bg-white border-top shadow-lg">
-  <div class="container py-2">
-    <div class="d-flex justify-content-between align-items-center"
-         (click)="toggleCarrinho()"
-         style="cursor: pointer;">
+<div class="container my-4 max-w-800 pb-5 mb-5">
+  
+  <!-- Cabeçalho e Navegação -->
+  <div class="d-flex flex-column gap-3 mb-4">
+    <div class="d-flex justify-content-between align-items-center px-2">
       <div>
-        <i class="bi bi-cart3 me-2"></i>
-        <strong>{{ totalProdutosCarrinho }} produto(s)</strong>
+        <h4 class="fw-bold text-dark mb-0">Novo Orçamento</h4>
+        <small class="text-muted">Selecione os produtos abaixo</small>
       </div>
-      <div class="fw-semibold text-primary">
-        Total: {{ total | currency:'BRL' }}
-        <i class="bi" [ngClass]="mostrarDetalhes ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
-      </div>
+      <button class="btn btn-outline-primary rounded-pill shadow-sm" (click)="paginaOrcamentos()">
+        <i class="bi bi-list-check me-1"></i> Ver Lista
+      </button>
     </div>
 
-    <!-- Detalhes do Carrinho -->
-    <div *ngIf="mostrarDetalhes" class="mt-3 border-top pt-3 detalhes-carrinho">
-      <div class="lista-produtos carrinho">
-        <div *ngFor="let produto of produtosOrcamento"
-             class="d-flex justify-content-between align-items-center mb-3 px-1">
-          <button
-            class="btn btn-sm btn-outline-danger d-flex align-items-center"
-            (click)="removerProduto(produto.id)"
-            title="Remover produto">
-            <i class="bi bi-trash"></i>
-          </button>
-          <div class="flex-grow-1 px-3">
-            <div class="fw-semibold">{{ produto.nome }}</div>
-            <div class="text-muted small">{{ produto.quantidade }} x {{ produto.valor | currency:'BRL' }}</div>
+    <!-- Barra de Busca -->
+    <div class="search-box shadow-sm bg-white">
+      <i class="bi bi-search text-muted"></i>
+      <input 
+        type="text" 
+        class="form-control border-0 bg-transparent" 
+        [(ngModel)]="nomePesquisa" 
+        placeholder="Buscar produto..."
+      >
+    </div>
+  </div>
+
+  <!-- Estado Vazio -->
+  <div *ngIf="(listaProdutos | buscador:nomePesquisa:['nome']).length === 0" class="text-center py-5 fade-in">
+    <div class="bg-light rounded-circle d-inline-flex p-4 mb-3 text-secondary">
+      <i class="bi bi-search fs-1"></i>
+    </div>
+    <h5 class="fw-bold text-secondary">Nenhum produto encontrado</h5>
+  </div>
+
+  <!-- Lista de Produtos (Cards) -->
+  <div class="d-flex flex-column gap-3">
+    <div 
+      class="card product-card border-0 shadow-sm" 
+      *ngFor="let produto of (listaProdutos | buscador:nomePesquisa:['nome']); let i = index"
+      [class.expanded]="expandedRow === i"
+      (click)="toggleExpand(i, produto)"
+    >
+      <div class="card-body p-3 d-flex align-items-center justify-content-between">
+        
+        <!-- Info Produto -->
+        <div class="d-flex align-items-center gap-3 overflow-hidden flex-grow-1">
+          <div class="product-icon bg-primary-subtle text-primary">
+            <i class="bi bi-box-seam-fill"></i>
           </div>
-          <div class="fw-medium text-end text-success">
-            {{ produto.quantidade * produto.valor | currency:'BRL' }}
+          <div class="text-truncate">
+            <h6 class="mb-0 fw-bold text-dark text-truncate">{{ produto.nome }}</h6>
+            <div class="d-flex align-items-center gap-2 mt-1">
+              <span class="text-success fw-bold">
+                {{ (produto.variacoes.length > 0 ? produto.variacoes[0].valor : produto.valor) | moeda }}
+                <small *ngIf="produto.variacoes.length > 0" class="text-muted fw-normal ms-1">inicial</small>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ações (Botão Adicionar ou Expandir) -->
+        <div class="ms-2">
+          <!-- Se NÃO tem variação: Botão Adicionar direto -->
+          <button 
+            *ngIf="produto.variacoes.length === 0" 
+            class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm d-flex align-items-center gap-1"
+            (click)="adicionarProduto(produto.id); $event.stopPropagation()"
+          >
+            <i class="bi bi-plus-lg"></i> <span class="d-none d-sm-inline">Add</span>
+          </button>
+
+          <!-- Se TEM variação: Seta para expandir -->
+          <div *ngIf="produto.variacoes.length > 0" class="btn btn-light btn-sm rounded-circle text-primary">
+            <i class="bi bi-chevron-down transition-icon" [class.rotate]="expandedRow === i"></i>
           </div>
         </div>
       </div>
-      <!-- Resumo do Orçamento -->
-      <div class="mt-4 border-top pt-3 resumo">
-        <!-- Frete -->
-        <div class="mb-2 d-flex justify-content-between align-items-center w-100">
-          <label class="fw-semibold mb-1 me-2" for="frete">Frete:</label>
-          <div class="input-group input-group-sm" style="max-width: 160px;">
-            <span class="input-group-text">R$</span>
-            <input
-              type="text"
-              class="form-control text-end"
-              id="frete"
-              [value]="freteFormatado"
-              (input)="mascaraValor($event, 'frete')"
-              placeholder="0,00"
-            />
-          </div>
-        </div>
 
-        <!-- Desconto -->
-        <div class="mb-2 d-flex justify-content-between align-items-center w-100">
-          <label class="fw-semibold mb-1 me-2" for="desconto">Desconto:</label>
-          <div class="input-group input-group-sm" style="max-width: 160px;">
-            <span class="input-group-text">R$</span>
-            <input
-              type="text"
-              class="form-control text-end"
-              id="desconto"
-              [value]="descontoFormatado"
-              (input)="mascaraValor($event, 'desconto')"
-              placeholder="0,00"
-            />
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-between mb-2">
-          <span class="fw-semibold">Valor total:</span>
-          <span class="fw-bold text-primary">{{ total | currency:'BRL' }}</span>
-        </div>
-
-        <div class="d-flex align-items-start justify-content-between mb-3">
-          <span class="fw-semibold">Parcelado (5x sem juros):</span>
-          <div class="flex-grow-1 px-3 text-end" style="margin-right: -16px;">
-            <div class="fw-semibold text-success">
-              {{ totalParcelamento | currency:'BRL' }}
-            </div>
-            <div class="text-muted small">
-              {{ (totalParcelamento / 5) | currency:'BRL' }} x 5
+      <!-- Área de Variações -->
+      <div class="card-footer border-0 bg-light-subtle p-0 overflow-hidden" [class.show]="expandedRow === i" *ngIf="expandedRow === i">
+        <div class="p-2">
+          <div class="bg-white rounded-3 border">
+            <div *ngFor="let variacao of produto.variacoes" class="d-flex justify-content-between align-items-center p-3 border-bottom last-border-none">
+              <span class="fw-medium text-dark">{{ variacao.variacao }}</span>
+              <div class="d-flex align-items-center gap-3">
+                <span class="fw-bold text-dark">{{ variacao.valor | moeda }}</span>
+                <button 
+                  class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                  (click)="adicionarProduto(produto.id, variacao); $event.stopPropagation()"
+                >
+                  Adicionar
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div class="d-flex justify-content-between mb-2" *ngIf="clienteSelecionado.nome">
-          <span class="fw-semibold">Cliente:</span>
-          <span class="fw-bold text-primary">{{ clienteSelecionado.nome }}</span>
-        </div>
-
-        <div class="d-flex gap-2 justify-content-end">
-          <button class="btn btn-outline-danger" (click)="limparCarrinho()">
-            <i class="bi bi-trash"></i> Limpar Carrinho
-          </button>
-          <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalClientes" *ngIf="listaClientes.length > 0">
-            <i class="bi bi-person-plus me-1"></i> Adicionar Cliente
-          </button>
-          <button type="button" class="btn btn-outline-warning" (click)="carregarClientes()" *ngIf="listaClientes.length === 0">
-            <i class="bi bi-person-plus me-1"></i> Carregar Clientes
-          </button>
-          <button class="btn btn-primary" (click)="finalizarOrcamento()">
-            <i class="bi bi-send-check me-1"></i> Finalizar Orçamento
-          </button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ========================================== -->
+<!-- BOTTOM SHEET (Carrinho Moderno) -->
+<!-- ========================================== -->
+<div class="bottom-sheet-container shadow-lg" [class.expanded]="mostrarDetalhes">
+  
+  <!-- Header (Sempre visível) -->
+  <div class="sheet-header p-3 d-flex justify-content-between align-items-center bg-white border-top cursor-pointer" (click)="toggleCarrinho()">
+    <div class="d-flex align-items-center gap-3">
+      <div class="cart-icon-badge">
+        <i class="bi bi-cart3"></i>
+        <span class="badge-count" *ngIf="totalProdutosCarrinho > 0">{{ totalProdutosCarrinho }}</span>
+      </div>
+      <div>
+        <small class="d-block text-muted" style="font-size: 0.75rem;">TOTAL ESTIMADO</small>
+        <h5 class="mb-0 fw-bold text-primary">{{ total | currency:'BRL' }}</h5>
+      </div>
+    </div>
+    
+    <div class="d-flex align-items-center gap-2 text-secondary">
+      <span class="small fw-medium">{{ mostrarDetalhes ? 'Recolher' : 'Ver Detalhes' }}</span>
+      <i class="bi bi-chevron-up transition-icon" [class.rotate]="mostrarDetalhes"></i>
+    </div>
+  </div>
+
+  <!-- Corpo (Visível ao expandir) -->
+  <div class="sheet-body bg-white">
+    <div class="container pb-3">
+      
+      <!-- Lista de Itens no Carrinho -->
+      <div class="cart-items-list mb-3" *ngIf="produtosOrcamento.length > 0">
+        <div *ngFor="let item of produtosOrcamento" class="cart-item py-2 border-bottom d-flex justify-content-between align-items-center">
+          <div class="flex-grow-1">
+            <div class="fw-bold text-dark">{{ item.nome }}</div>
+            <div class="text-muted small">{{ item.quantidade }}x {{ item.valor | currency:'BRL' }}</div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="fw-bold text-success">{{ (item.quantidade || 0) * (item.valor || 0) | currency:'BRL' }}</span>
+            <button class="btn btn-sm btn-light text-danger rounded-circle" (click)="removerProduto(item.id)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="produtosOrcamento.length === 0" class="text-center py-4 text-muted">
+        <i class="bi bi-cart-x fs-1 opacity-50"></i>
+        <p class="mt-2 mb-0">Seu carrinho está vazio</p>
+      </div>
+
+      <!-- Inputs de Valores (Frete/Desconto) -->
+      <div class="row g-2 mb-3 bg-light p-3 rounded-4">
+        <div class="col-6">
+          <label class="small fw-bold text-muted mb-1">Frete</label>
+          <div class="input-group input-group-sm bg-white rounded-3 shadow-sm overflow-hidden border-0">
+            <span class="input-group-text border-0 bg-transparent text-muted">R$</span>
+            <input type="text" class="form-control border-0 text-end fw-bold" [value]="freteFormatado" (input)="mascaraValor($event, 'frete')" placeholder="0,00">
+          </div>
+        </div>
+        <div class="col-6">
+          <label class="small fw-bold text-muted mb-1">Desconto</label>
+          <div class="input-group input-group-sm bg-white rounded-3 shadow-sm overflow-hidden border-0">
+            <span class="input-group-text border-0 bg-transparent text-muted">R$</span>
+            <input type="text" class="form-control border-0 text-end fw-bold text-danger" [value]="descontoFormatado" (input)="mascaraValor($event, 'desconto')" placeholder="0,00">
+          </div>
+        </div>
+      </div>
+
+      <!-- Parcelamento Info -->
+      <div class="d-flex justify-content-between align-items-center px-2 mb-3">
+        <span class="text-muted small">Em 5x sem juros de:</span>
+        <span class="fw-bold text-dark">{{ (totalParcelamento / 5) | currency:'BRL' }}</span>
+      </div>
+
+      <!-- Seleção de Cliente -->
+      <div class="card border-primary border-opacity-25 bg-primary-subtle mb-3" (click)="listaClientes.length > 0 ? null : carregarClientes()" [attr.data-bs-toggle]="listaClientes.length > 0 ? 'modal' : null" [attr.data-bs-target]="listaClientes.length > 0 ? '#modalClientes' : null" style="cursor: pointer;">
+        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3">
+            <div class="bg-white text-primary rounded-circle p-2 d-flex shadow-sm">
+              <i class="bi bi-person-fill"></i>
+            </div>
+            <div class="text-truncate">
+              <small class="d-block text-primary-emphasis opacity-75" style="font-size: 0.7rem;">CLIENTE SELECIONADO</small>
+              <span class="fw-bold text-primary text-truncate d-block" style="max-width: 200px;">
+                {{ clienteSelecionado.nome || 'Toque para selecionar' }}
+              </span>
+            </div>
+          </div>
+          <i class="bi bi-chevron-right text-primary opacity-50"></i>
+        </div>
+      </div>
+
+      <!-- Ações Finais -->
+      <div class="d-grid gap-2">
+        <button class="btn btn-success btn-lg shadow fw-bold" (click)="finalizarOrcamento()">
+          <i class="bi bi-whatsapp me-2"></i> Finalizar e Enviar
+        </button>
+        <button class="btn btn-link text-danger text-decoration-none btn-sm" (click)="limparCarrinho()">
+          Esvaziar Carrinho
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Mantive o Modal de Clientes igual pois é funcional, apenas adicionei classes de arredondamento no container pai se precisar -->
+<div class="modal fade" id="modalClientes" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-bottom-0 pb-0">
+        <h5 class="modal-title fw-bold">Selecionar Cliente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group mb-3 bg-light rounded-3 px-2 border">
+            <i class="bi bi-search text-muted align-self-center mx-2"></i>
+            <input type="text" [(ngModel)]="clientePesquisa" class="form-control border-0 bg-transparent shadow-none" placeholder="Buscar...">
+        </div>
+        
+        <div class="list-group list-group-flush">
+            <button 
+                *ngFor="let cliente of (listaClientes | buscador:clientePesquisa:['nome'])"
+                class="list-group-item list-group-item-action py-3 d-flex justify-content-between align-items-center border-bottom-0 rounded-3 mb-1"
+                (click)="adicionarCliente(cliente)"
+                [class.bg-primary-subtle]="clienteSelecionado.id === cliente.id"
+            >
+                <span class="fw-medium">{{ cliente.nome }}</span>
+                <i class="bi bi-check-circle-fill text-primary" *ngIf="clienteSelecionado.id === cliente.id"></i>
+            </button>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0 pt-0">
+        <button type="button" class="btn btn-primary w-100 rounded-pill" data-bs-dismiss="modal" [disabled]="!clienteSelecionado.id">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,86 +1,124 @@
-<div class="my-4">
-  <!-- Título geral -->
-  <div class="text-center mb-4">
-    <h1 class="fw-bold">Painel de Vendas</h1>
-    <p class="text-muted">Resumo de clientes, produtos e status de orçamentos</p>
+<div class="container-fluid px-0">
+  
+  <!-- Título da Seção -->
+  <div class="mb-4 px-2">
+    <h4 class="fw-bold text-dark mb-1">Performance de Vendas</h4>
+    <p class="text-muted small mb-0">Visão geral dos seus resultados</p>
   </div>
 
-  <!-- Cards de métricas -->
+  <!-- Card Destaque: Total em Vendas -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden total-sales-card">
+    <div class="card-body text-center py-4 position-relative z-1">
+      <span class="badge bg-white text-success shadow-sm mb-2 rounded-pill px-3 py-2">
+        <i class="bi bi-graph-up-arrow me-1"></i> Receita Total
+      </span>
+      <h1 class="display-4 fw-bold text-white mb-0 tracking-tight">
+        {{ totalVendas | currency:'BRL':'symbol':'1.0-0' }}
+      </h1>
+      <p class="text-white text-opacity-75 small mt-1">Acumulado do período</p>
+    </div>
+    <!-- Efeito de fundo abstrato -->
+    <div class="bg-deco"></div>
+  </div>
+
+  <!-- Grid de Status (Métricas Rápidas) -->
   <div class="row g-3 mb-4">
+    <!-- Orçamentos -->
     <div class="col-6 col-md-3">
-      <div class="card text-center shadow-sm border-0 card-hover">
-        <div class="card-body">
-          <h6 class="text-muted mb-1">Orçamentos</h6>
-          <h3 class="fw-bold text-primary">{{ totalOrcamento }}</h3>
+      <div class="stat-card">
+        <div class="icon-box bg-primary-subtle text-primary">
+          <i class="bi bi-file-earmark-text-fill"></i>
+        </div>
+        <div class="mt-2">
+          <h3 class="fw-bold mb-0 text-dark">{{ totalOrcamento }}</h3>
+          <small class="text-muted fw-medium">Orçamentos</small>
         </div>
       </div>
     </div>
+
+    <!-- Finalizados -->
     <div class="col-6 col-md-3">
-      <div class="card text-center shadow-sm border-0 card-hover">
-        <div class="card-body">
-          <h6 class="text-muted mb-1">Finalizados</h6>
-          <h3 class="fw-bold text-success">{{ orcamentosFinalizados }}</h3>
+      <div class="stat-card">
+        <div class="icon-box bg-success-subtle text-success">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="mt-2">
+          <h3 class="fw-bold mb-0 text-dark">{{ orcamentosFinalizados }}</h3>
+          <small class="text-muted fw-medium">Fechados</small>
         </div>
       </div>
     </div>
+
+    <!-- Pendentes -->
     <div class="col-6 col-md-3">
-      <div class="card text-center shadow-sm border-0 card-hover">
-        <div class="card-body">
-          <h6 class="text-muted mb-1">Pendentes</h6>
-          <h3 class="fw-bold text-warning">{{ orcamentosPendentes }}</h3>
+      <div class="stat-card">
+        <div class="icon-box bg-warning-subtle text-warning">
+          <i class="bi bi-clock-fill"></i>
+        </div>
+        <div class="mt-2">
+          <h3 class="fw-bold mb-0 text-dark">{{ orcamentosPendentes }}</h3>
+          <small class="text-muted fw-medium">Em análise</small>
         </div>
       </div>
     </div>
+
+    <!-- Cancelados -->
     <div class="col-6 col-md-3">
-      <div class="card text-center shadow-sm border-0  card-hover">
-        <div class="card-body">
-          <h6 class="text-muted mb-1">Cancelados</h6>
-          <h3 class="fw-bold text-danger">{{ orcamentosCancelados }}</h3>
+      <div class="stat-card">
+        <div class="icon-box bg-danger-subtle text-danger">
+          <i class="bi bi-x-circle-fill"></i>
+        </div>
+        <div class="mt-2">
+          <h3 class="fw-bold mb-0 text-dark">{{ orcamentosCancelados }}</h3>
+          <small class="text-muted fw-medium">Perdidos</small>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Valor total de vendas -->
-  <div class="card shadow-sm border-0 mb-4 card-hover">
-    <div class="card-body text-center">
-      <h5 class="text-muted mb-1">Total em Vendas</h5>
-      <h2 class="fw-bold text-success">
-        {{ totalVendas | currency:'BRL' }}
-      </h2>
-    </div>
-  </div>
-
-  <!-- Gráficos lado a lado -->
+  <!-- Gráficos -->
   <div class="row g-4">
+    <!-- Gráfico 1 -->
     <div class="col-md-6">
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white text-center">
-          <h5 class="mb-0">Vendas por Cliente</h5>
-        </div>
-        <div class="card-body">
-          <canvas baseChart
-            [data]="chartClientesData"
-            [options]="chartOptions"
-            chartType="bar">
-          </canvas>
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="fw-bold text-dark m-0">Vendas por Cliente</h6>
+            <button class="btn btn-sm btn-light rounded-circle text-muted">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+          </div>
+          <div class="chart-wrapper">
+            <canvas baseChart
+              [data]="chartClientesData"
+              [options]="chartOptions"
+              chartType="bar">
+            </canvas>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Gráfico 2 -->
     <div class="col-md-6">
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-danger text-white text-center">
-          <h5 class="mb-0">Vendas por Produto</h5>
-        </div>
-        <div class="card-body">
-          <canvas baseChart
-            [data]="chartProdutosData"
-            [options]="chartOptions"
-            chartType="bar">
-          </canvas>
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="fw-bold text-dark m-0">Vendas por Produto</h6>
+            <button class="btn btn-sm btn-light rounded-circle text-muted">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+          </div>
+          <div class="chart-wrapper">
+            <canvas baseChart
+              [data]="chartProdutosData"
+              [options]="chartOptions"
+              chartType="bar">
+            </canvas>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
 </div>

@@ -1,3 +1,89 @@
-.tipo {
-  margin-right: 20px;
+:host {
+  --primary-color: #4f46e5;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+}
+
+.max-w-700 {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.circle-deco {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 70%
+  );
+  top: -50px;
+  right: -30px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* --- SELETORES DE TIPO (Cards Radio) --- */
+.type-selector {
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  /* Estado Selecionado: ENTRADA */
+  input[value="Entrada"]:checked + .selector-card.income {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: var(--success-color);
+    color: var(--success-color);
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+  }
+
+  /* Estado Selecionado: SAÍDA */
+  input[value="Saida"]:checked + .selector-card.expense {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+  }
+}
+
+.selector-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #64748b;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  height: 90px;
+}
+
+/* Inputs Flutuantes Modernos */
+.form-floating > .form-control,
+.form-floating > .form-select {
+  border: 1px solid #e2e8f0;
+  background-color: #fff;
+
+  &:focus {
+    background-color: #fff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  }
+}
+
+/* Ajuste específico para o botão "Hoje" */
+.input-group .btn-outline-secondary {
+  border-color: #e2e8f0;
+  &:hover {
+    background-color: #f8fafc;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
 }

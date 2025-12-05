@@ -1,133 +1,154 @@
-<div class="container my-4 max-w-700">
+<div class="container my-4 pb-5 max-w-700">
 
-  <!-- Título geral -->
-  <div class="text-center mb-4">
-    <h1 class="fw-bold">Painel de Transações</h1>
-    <p class="text-muted">Resumo de entradas, saídas, categorias e detalhes</p>
+  <!-- 1. Cabeçalho de Boas-vindas (Opcional, mas humaniza) -->
+  <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+    <div>
+      <h2 class="fw-bold mb-0 text-dark">Visão Geral</h2>
+      <p class="text-muted small mb-0">Suas finanças em dia</p>
+    </div>
+    <!-- Se quiser adicionar um botão de filtro de data aqui futuramente -->
+    <!-- <button class="btn btn-light btn-sm rounded-circle shadow-sm"><i class="bi bi-calendar"></i></button> -->
   </div>
 
-  <!-- Resultado principal -->
-  <div class="card shadow-sm border-0 mb-4" 
-       [ngClass]="relatorio.resultado >= 0 ? 'bg-success-subtle' : 'bg-danger-subtle'">
-    <div class="card-body text-center py-4">
-      <h6 class="text-uppercase text-muted mb-1">Resultado</h6>
-      <h2 class="fw-bold" 
-          [ngClass]="relatorio.resultado >= 0 ? 'text-success' : 'text-danger'">
+  <!-- 2. Card de Saldo (Estilo Carteira Digital) -->
+  <div class="wallet-card mb-4 fade-in-up">
+    <div class="wallet-content">
+      <span class="wallet-label">Saldo Atual</span>
+      <h1 class="wallet-balance">
         {{ relatorio.resultado | currency:'BRL' }}
-      </h2>
+      </h1>
+      <div class="wallet-footer">
+        <span class="badge bg-white bg-opacity-25 fw-normal">
+          <i class="bi bi-shield-check me-1"></i> Protegido
+        </span>
+      </div>
     </div>
+    <!-- Elementos decorativos de fundo -->
+    <div class="circle-deco-1"></div>
+    <div class="circle-deco-2"></div>
   </div>
 
-  <!-- Cards de entradas e saídas -->
-  <div class="row g-3 mb-4">
-    <div class="col-6 col-md-6">
-      <div class="card shadow-sm border-0 text-center card-hover h-100" (click)="mostrarCategorias = false; exibirDetalhes('Entrada')">
-        <div class="card-body">
-          <h6 class="text-muted mb-1">
-            <i class="bi bi-arrow-down-circle-fill text-success me-1"></i> Entradas
-          </h6>
-          <h3 class="fw-bold text-success">{{ relatorio.entradas | currency:'BRL'}}</h3>
+  <!-- 3. Cards de Resumo (Entradas e Saídas) -->
+  <div class="row g-3 mb-4 fade-in-up delay-1">
+    <div class="col-6">
+      <div 
+        class="action-card card-income" 
+        (click)="mostrarCategorias = false; exibirDetalhes('Entrada')"
+        role="button"
+        tabindex="0">
+        <div class="icon-box bg-success-subtle text-success">
+          <i class="bi bi-arrow-down-left"></i>
+        </div>
+        <div class="meta">
+          <span class="label">Entradas</span>
+          <span class="value text-success">{{ relatorio.entradas | currency:'BRL'}}</span>
         </div>
       </div>
     </div>
 
-    <div class="col-6 col-md-6">
-      <div class="card shadow-sm border-0 text-center card-hover h-100" (click)="mostrarCategorias = false; exibirDetalhes('Saida')">
-        <div class="card-body">
-          <h6 class="text-muted mb-1">
-            <i class="bi bi-arrow-up-circle-fill text-danger me-1"></i> Saídas
-          </h6>
-          <h3 class="fw-bold text-danger">{{ relatorio.saidas | currency: 'BRL'}}</h3>
+    <div class="col-6">
+      <div 
+        class="action-card card-expense" 
+        (click)="mostrarCategorias = false; exibirDetalhes('Saida')"
+        role="button"
+        tabindex="0">
+        <div class="icon-box bg-danger-subtle text-danger">
+          <i class="bi bi-arrow-up-right"></i>
+        </div>
+        <div class="meta">
+          <span class="label">Saídas</span>
+          <span class="value text-danger">{{ relatorio.saidas | currency: 'BRL'}}</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Listagem de transações -->
-  <div *ngIf="mostrarDetalhes" class="card shadow-sm border-0 rounded-4 mb-4">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold text-primary m-0">Detalhes de {{ tipoDetalhe }}s</h5>
-        <button class="btn btn-sm btn-outline-secondary" (click)="fecharDetalhes()">Fechar</button>
-      </div>
+  <!-- 4. Área de Detalhes (Lista Moderna em vez de Tabela) -->
+  <div *ngIf="mostrarDetalhes" class="section-container mb-4 fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+      <h5 class="fw-bold text-dark m-0">{{ tipoDetalhe }}s Recentes</h5>
+      <button class="btn btn-sm btn-light rounded-pill px-3 text-secondary border" (click)="fecharDetalhes()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
 
-      <div *ngIf="transacoesFiltradas.length === 0" class="alert alert-light text-center rounded">
-        <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
-        Nenhuma transação encontrada
+    <!-- Estado Vazio -->
+    <div *ngIf="transacoesFiltradas.length === 0" class="empty-state text-center py-5">
+      <div class="empty-icon bg-light text-secondary mx-auto mb-3">
+        <i class="bi bi-inbox"></i>
       </div>
+      <p class="text-muted fw-medium">Nenhuma transação encontrada</p>
+    </div>
 
-      <div class="table-responsive" *ngIf="transacoesFiltradas.length > 0">
-        <table class="table table-hover align-middle">
-          <thead class="table-light text-center">
-            <tr>
-              <th>Descrição</th>
-              <th>Valor</th>
-              <th>Categoria</th>
-              <th>Data</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let transacao of transacoesFiltradas" class="text-center">
-              <td>{{ transacao.nome }}</td>
-              <td>{{ transacao.valor | moeda }}</td>
-              <td>{{ transacao.cat }}</td>
-              <td>{{ transacao.data | date:'dd/MM/yyyy' }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Lista de Transações (Mobile Friendly) -->
+    <div class="list-group shadow-sm rounded-4 border-0 overflow-hidden" *ngIf="transacoesFiltradas.length > 0">
+      <div *ngFor="let transacao of transacoesFiltradas" class="list-group-item border-0 d-flex align-items-center py-3 px-3">
+        
+        <!-- Ícone da Categoria (Gerado dinamicamente ou fixo) -->
+        <div class="transaction-icon me-3" [ngClass]="tipoDetalhe === 'Entrada' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+          <i class="bi" [ngClass]="tipoDetalhe === 'Entrada' ? 'bi-arrow-down-left' : 'bi-bag'"></i>
+        </div>
+
+        <!-- Info Principal -->
+        <div class="flex-grow-1">
+          <h6 class="mb-0 fw-semibold text-dark">{{ transacao.nome }}</h6>
+          <small class="text-muted">{{ transacao.cat }} • {{ transacao.data | date:'dd MMM' }}</small>
+        </div>
+
+        <!-- Valor -->
+        <div class="text-end">
+          <span class="d-block fw-bold" [ngClass]="tipoDetalhe === 'Entrada' ? 'text-success' : 'text-danger'">
+            {{ tipoDetalhe === 'Entrada' ? '+' : '-' }} {{ transacao.valor | currency:'BRL':'symbol':'1.2-2' }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Categorias -->
+  <!-- 5. Área de Categorias -->
   <div class="mb-4">
-    <div class="card shadow-sm border-0 card-hover text-center" (click)="exibirCategorias()">
-      <div class="card-body">
-        <h5 class="text-primary mb-0">
-          <i class="bi bi-tags-fill me-2"></i> Categorias
-        </h5>
-      </div>
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden" (click)="exibirCategorias()" role="button">
+        <div class="card-body d-flex align-items-center justify-content-between p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-box bg-primary-subtle text-primary">
+                    <i class="bi bi-tags-fill"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold text-dark">Categorias</h6>
+                    <small class="text-muted">Gerencie seus grupos</small>
+                </div>
+            </div>
+            <i class="bi bi-chevron-right text-muted"></i>
+        </div>
     </div>
   </div>
 
-  <div *ngIf="mostrarCategorias" class="card shadow-sm border-0 rounded-4 mb-4">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold text-primary m-0">Detalhes de Categorias</h5>
-        <button class="btn btn-sm btn-outline-secondary" (click)="fecharDetalhes()">Fechar</button>
-      </div>
+  <!-- Lista de Categorias (Expandida) -->
+  <div *ngIf="mostrarCategorias" class="section-container mb-4 fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+      <h5 class="fw-bold text-dark m-0">Suas Categorias</h5>
+      <button class="btn btn-sm btn-light rounded-pill px-3 text-secondary border" (click)="fecharDetalhes()">Fechar</button>
+    </div>
 
-      <div *ngIf="categorias.length === 0" class="alert alert-light text-center rounded">
-        <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
-        Nenhuma categoria encontrada
-      </div>
-
-      <div class="table-responsive" *ngIf="categorias.length > 0">
-        <table class="table table-hover align-middle">
-          <thead class="table-light text-center">
-            <tr>
-              <th>Nome</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let categoria of categorias" class="text-center">
-              <td>{{ categoria.nome }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="text-end mt-3">
-        <button class="btn btn-primary" (click)="navegarParaCategorias()">
-          <i class="bi bi-gear-fill me-1"></i> Gerenciar Categorias
+    <div class="list-group shadow-sm rounded-4 border-0 overflow-hidden">
+        <div *ngFor="let categoria of categorias" class="list-group-item border-0 py-3 px-3 d-flex align-items-center justify-content-between">
+            <span class="fw-medium">{{ categoria.nome }}</span>
+            <i class="bi bi-hash text-muted"></i>
+        </div>
+        
+        <!-- Botão de Ação no final da lista -->
+        <button class="list-group-item list-group-item-action border-0 py-3 text-center text-primary fw-bold bg-light" (click)="navegarParaCategorias()">
+            <i class="bi bi-gear-fill me-2"></i> Gerenciar Todas
         </button>
-      </div>
     </div>
   </div>
 
-  <!-- Gráficos orçamentos (componente já estilizado) -->
-  <div class="mt-5">
-    <app-graficos></app-graficos>
+  <!-- 6. Gráficos -->
+  <div class="mt-4">
+    <h5 class="fw-bold text-dark px-2 mb-3">Análise Mensal</h5>
+    <div class="card border-0 shadow-sm rounded-4 p-3">
+        <app-graficos></app-graficos>
+    </div>
   </div>
 
 </div>

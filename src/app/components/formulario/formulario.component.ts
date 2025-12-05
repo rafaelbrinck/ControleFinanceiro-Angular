@@ -132,4 +132,8 @@ export class FormularioComponent implements OnInit {
     }
     return true;
   }
+
+  getDataHoje(): string {
+    return new Date().toISOString().split('T')[0];
+  }
 }

@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ChartData, ChartOptions } from 'chart.js';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js'; // Importei tipos mais fortes
 import { CommonModule } from '@angular/common';
 import { NgChartsModule } from 'ng2-charts';
 import { GraficosDataService, Venda } from '../../../service/grafico.service';
@@ -11,11 +11,12 @@ import { OrcamentoService } from '../../../service/orcamento.service';
   standalone: true,
   imports: [CommonModule, NgChartsModule],
   templateUrl: './graficos.component.html',
-  styleUrls: ['./graficos.component.css'],
+  styleUrls: ['./graficos.component.css'], // Ajustei para .scss se você estiver usando, se for css mantenha .css
 })
 export class GraficosComponent implements OnInit {
-  chartClientesData!: ChartData<'bar'>;
-  chartProdutosData!: ChartData<'bar'>;
+  // Inicializei com dados vazios para evitar erro no template antes do carregamento
+  public chartClientesData: ChartData<'bar'> = { labels: [], datasets: [] };
+  public chartProdutosData: ChartData<'bar'> = { labels: [], datasets: [] };
 
   totalOrcamento: number = 0;
   orcamentosFinalizados: number = 0;
@@ -23,13 +24,51 @@ export class GraficosComponent implements OnInit {
   orcamentosPendentes: number = 0;
   totalVendas: number = 0;
 
-  chartOptions: ChartOptions = {
+  // --- A MÁGICA VISUAL (Configurações corrigidas) ---
+  public chartOptions: ChartConfiguration['options'] = {
     responsive: true,
+    maintainAspectRatio: false, // CRUCIAL: Deixa o CSS controlar a altura
     plugins: {
-      legend: { position: 'top' },
-      title: {
-        display: true,
-        text: 'Relatório de Vendas',
+      legend: {
+        display: false, // Removemos a legenda padrão pois já tem título no card
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        padding: 12,
+        cornerRadius: 8,
+        displayColors: false,
+        callbacks: {
+          label: (context) => ` Qtd: ${context.raw}`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          font: { family: "'Inter', sans-serif", size: 11 },
+          color: '#64748b',
+          maxTicksLimit: 6, // Limita labels para não sobrepor
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: '#f1f5f9',
+        },
+        ticks: {
+          color: '#94a3b8',
+          maxTicksLimit: 5,
+          stepSize: 1,
+        },
+      },
+    },
+    elements: {
+      bar: {
+        borderRadius: 6, // Barras arredondadas
+        borderSkipped: 'bottom',
       },
     },
   };
@@ -40,7 +79,14 @@ export class GraficosComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Lógica de Orçamentos (Mantida intacta)
     this.orcamentoService.orcamento$.subscribe((orcamentos) => {
+      // Reseta contadores para evitar soma duplicada se o observable emitir de novo
+      this.orcamentosCancelados = 0;
+      this.orcamentosPendentes = 0;
+      this.orcamentosFinalizados = 0;
+      this.totalVendas = 0;
+
       orcamentos.forEach((orcamento) => {
         if (orcamento.status === 'Cancelado') {
           this.orcamentosCancelados++;
@@ -59,6 +105,7 @@ export class GraficosComponent implements OnInit {
       this.totalOrcamento = qtd;
     });
 
+    // Lógica de Vendas e Gráficos
     this.graficosDataService.vendas$.subscribe((vendas) => {
       const clientesResumo = this.organizarPorCliente(vendas);
       const produtosResumo = this.organizarPorProduto(vendas);
@@ -126,9 +173,11 @@ export class GraficosComponent implements OnInit {
       labels,
       datasets: [
         {
-          label: 'Quantidade total de compras feitas',
+          label: 'Compras',
           data,
-          backgroundColor: 'rgba(54, 162, 235, 0.7)',
+          // Cor Azul Indigo (Combinando com o tema)
+          backgroundColor: '#6366f1',
+          hoverBackgroundColor: '#4f46e5',
         },
       ],
     };
@@ -142,9 +191,11 @@ export class GraficosComponent implements OnInit {
       labels,
       datasets: [
         {
-          label: 'Quantidade vendida',
+          label: 'Vendas',
           data,
-          backgroundColor: 'rgba(255, 99, 132, 0.7)',
+          // Cor Rosa/Roxo (Para diferenciar do outro gráfico)
+          backgroundColor: '#ec4899',
+          hoverBackgroundColor: '#db2777',
         },
       ],
     };

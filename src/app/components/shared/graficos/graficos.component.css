@@ -1,18 +1,79 @@
-.container {
-  max-width: 600px;
+/* Variáveis de apoio */
+:host {
+  --primary-color: #4f46e5;
+  --success-color: #10b981;
 }
 
-h2 {
-  font-weight: 700;
-  margin-bottom: 1rem;
+/* --- Card Total de Vendas (Hero) --- */
+.total-sales-card {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  position: relative;
+  border: none;
 }
 
-.card {
+.bg-deco {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      circle at 10% 20%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 20%
+    ),
+    radial-gradient(
+      circle at 90% 80%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 20%
+    );
+  pointer-events: none;
+}
+
+.tracking-tight {
+  letter-spacing: -2px;
+}
+
+/* --- Stat Cards (Métricas pequenas) --- */
+.stat-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.25rem;
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:active {
+  transform: scale(0.98);
+}
+
+.icon-box {
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
 }
 
-.card-hover:hover {
-  box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
-  transform: translateY(-4px);
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
+/* --- Ajuste dos Gráficos --- */
+.chart-wrapper {
+  position: relative;
+  height: 300px; /* Altura fixa para evitar pulos no layout */
+  width: 100%;
+}
+
+/* Responsividade e Hover no Desktop */
+@media (min-width: 768px) {
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
 }

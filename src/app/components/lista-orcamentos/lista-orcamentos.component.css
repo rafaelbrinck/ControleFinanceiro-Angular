@@ -1,0 +1,116 @@
+:host {
+  --primary-color: #4f46e5;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+}
+
+.max-w-800 {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Card de Orçamento */
+.budget-card {
+  border-radius: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  background: #fff;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @media (min-width: 992px) {
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05) !important;
+    }
+  }
+}
+
+/* Status Pills (Badges Modernos) */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 50rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+
+  &.status-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+  }
+
+  &.status-pending {
+    background-color: rgba(79, 70, 229, 0.1);
+    color: var(--primary-color);
+  }
+
+  &.status-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+  }
+}
+
+/* Backdrop do Modal para focar atenção */
+.backdrop-blur {
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+/* Radio Buttons Customizados para Pagamento */
+.payment-radio {
+  cursor: pointer;
+
+  input:checked + .payment-card {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+  }
+
+  input:disabled + .payment-card {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.payment-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  background: white;
+  color: #64748b;
+
+  &:hover:not(:disabled) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+  }
+}
+
+.last-border-none:last-child {
+  border-bottom: none !important;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

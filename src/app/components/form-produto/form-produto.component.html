@@ -1,92 +1,143 @@
-<div class="container my-5">
-  <div class="card shadow rounded-4">
-    <div class="card-body p-5">
-      <h2 class="mb-4 fw-bold text-center">Adicionar Produto</h2>
+<div class="container my-4 max-w-700 pb-5">
+  
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+    
+    <!-- Cabeçalho Visual -->
+    <div class="bg-primary p-4 text-center text-white position-relative overflow-hidden">
+      <div class="position-relative z-1">
+        <h3 class="fw-bold mb-1">{{ produto.id ? 'Editar Produto' : 'Novo Produto' }}</h3>
+        <p class="mb-0 opacity-75 small">Preencha as informações abaixo</p>
+      </div>
+      <!-- Decoração de fundo -->
+      <div class="circle-deco"></div>
+    </div>
+
+    <div class="card-body p-4 p-md-5">
       <form>
-        <div class="row g-4">
-          <div class="col-12 col-sm-12 col-md-8">
-            <label for="descricao" class="form-label">Nome:</label>
-            <input type="text" [(ngModel)]="produto.nome" name="nome" id="nome" class="form-control form-control-lg" placeholder="Nome">
-          </div>
-
-          <div class="col-12 col-sm-12 col-md-4">
-            <label for="categoria" class="form-label">Categorias:</label>
-            <select name="categoria" id="categoria" class="form-select form-select-lg" [(ngModel)]="produto.categoria" (ngModelChange)="conferirCategoria($event)">
-              <option *ngFor="let categoria of(listaCategorias)" [ngValue]="categoria.id">{{categoria.nome}}</option>
-              <option [ngValue]="'nova'">Adicionar nova categoria</option>
-            </select>
-          </div>
-
-
-          <div class="col-12 col-sm-12 col-md-6" *ngIf="!mostrarVariacao">
-            <label for="valor" class="form-label">Valor:</label>
-            <input
-              type="text"
-              [value]="valorFormatado"
-              (input)="mascaraValor($event)"
-              class="form-control form-control-lg"
-              placeholder="0,00"
-            >
-          </div>
-          
-          <div class="col-12">
-            <div class="d-flex gap-2 align-items-center justify-content-between">
-              <label for="checkbox">Variações</label>
-              <div class="d-flex gap-2">
-                <button class="btn btn-outline-primary" (click)="adicionarVariacao()">
-                  <i class="bi bi-plus-lg"></i>
-                </button>
-                <button class="btn btn-outline-danger" (click)="fecharVariacoes()" [disabled]="produto.variacoes.length === 0 && !mostrarVariacao">
-                  <i class="bi bi-trash3"></i> 
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="col-12" *ngIf="mostrarVariacao">
-            <div class="d-flex gap-2">
-              <input type="text" [(ngModel)]="variacao.variacao" name="nome" id="nome" class="form-control form-control-lg" placeholder="Tamanho">
-              <input
-              type="text"
-              [value]="valorFormatado"
-              (input)="mascaraValor($event)"
-              class="form-control form-control-lg"
-              placeholder="0,00"
-            >
-            </div>
-          </div>
-
-          <div class="table-responsive" *ngIf="produto.variacoes.length > 0">
-            <table class="table table-hover align-middle mb-0">
-              <tbody>
-                <tr *ngFor="let variacao of produto.variacoes" class="text-center">
-                  <td class="text-center">{{ variacao.variacao }}</td>
-                  <td>{{ variacao.valor | moeda }}</td>
-                  <td class="text-center">
-                    <button
-                      class="btn btn-sm btn-outline-danger"
-                      type="button"
-                      (click)="removerVariacao(variacao)"
-                    >
-                      <i class="bi bi-trash-fill"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         
-          <div class="col-12">
-            <div class="d-flex flex-column flex-md-row justify-content-center justify-content-md-end gap-3 mt-4">
-              <button type="submit" class="btn btn-success btn-lg px-4 w-100 w-md-auto" (click)="salvar()">
-                <i class="bi bi-check-circle me-2"></i>{{botao}}
-              </button>
-              <button class="btn btn-secondary btn-lg px-4 w-100 w-md-auto" (click)="voltar()">
-                <i class="bi bi-arrow-left me-2"></i>Voltar
-              </button>
-            </div>
+        <!-- Seção 1: Dados Básicos -->
+        <h6 class="text-primary fw-bold text-uppercase small mb-3 tracking-wide">Informações Gerais</h6>
+        
+        <div class="form-floating mb-3">
+          <input 
+            type="text" 
+            class="form-control rounded-3" 
+            id="nomeProduto" 
+            [(ngModel)]="produto.nome" 
+            name="nome" 
+            placeholder="Ex: Camiseta Básica"
+          >
+          <label for="nomeProduto">Nome do Produto</label>
+        </div>
+
+        <div class="form-floating mb-4">
+          <select 
+            class="form-select rounded-3" 
+            id="categoriaSelect" 
+            [(ngModel)]="produto.categoria" 
+            (ngModelChange)="conferirCategoria($event)" 
+            name="categoria"
+          >
+            <option [ngValue]="null" disabled selected>Selecione...</option>
+            <option *ngFor="let categoria of listaCategorias" [ngValue]="categoria.id">{{categoria.nome}}</option>
+            <option [ngValue]="'nova'" class="fw-bold text-primary">+ Nova Categoria</option>
+          </select>
+          <label for="categoriaSelect">Categoria</label>
+        </div>
+
+        <!-- Seção 2: Preço e Variações -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-primary fw-bold text-uppercase small mb-0 tracking-wide">Precificação</h6>
+          
+          <!-- Toggle switch para Variações -->
+          <div class="form-check form-switch">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              role="switch" 
+              id="variacaoSwitch"
+              [checked]="mostrarVariacao || produto.variacoes.length > 0"
+              (change)="mostrarVariacao ? fecharVariacoes() : adicionarVariacao()"
+            >
+            <label class="form-check-label small fw-medium text-muted" for="variacaoSwitch">Tem variações?</label>
           </div>
         </div>
+
+        <!-- Campo de Valor Único (Só aparece se NÃO tiver variações) -->
+        <div class="form-floating mb-4 fade-in" *ngIf="!mostrarVariacao && produto.variacoes.length === 0">
+          <input 
+            type="text" 
+            class="form-control rounded-3 fs-5 fw-bold text-success" 
+            id="valorUnico" 
+            [value]="valorFormatado" 
+            (input)="mascaraValor($event)" 
+            placeholder="0,00"
+          >
+          <label for="valorUnico">Valor (R$)</label>
+        </div>
+
+        <!-- Área de Gestão de Variações -->
+        <div class="bg-light rounded-4 p-3 mb-4 border border-dashed fade-in" *ngIf="mostrarVariacao || produto.variacoes.length > 0">
+          
+          <!-- Lista de Variações Existentes -->
+          <div class="mb-3" *ngIf="produto.variacoes.length > 0">
+            <div *ngFor="let v of produto.variacoes; let i = index" class="d-flex align-items-center gap-2 mb-2 bg-white p-2 rounded shadow-sm">
+              <div class="flex-grow-1">
+                <small class="d-block text-muted" style="font-size: 0.7rem;">NOME</small>
+                <span class="fw-medium">{{ v.variacao }}</span>
+              </div>
+              <div class="text-end px-2 border-start">
+                <small class="d-block text-muted" style="font-size: 0.7rem;">VALOR</small>
+                <span class="fw-bold text-success">{{ v.valor | moeda }}</span>
+              </div>
+              <button class="btn btn-sm btn-light text-danger ms-1" (click)="removerVariacao(v)">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Campos para Adicionar Nova Variação -->
+          <div *ngIf="mostrarVariacao" class="bg-white p-3 rounded-3 shadow-sm border border-primary-subtle">
+            <h6 class="small fw-bold text-dark mb-2">Adicionar Variação</h6>
+            <div class="row g-2">
+              <div class="col-7">
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="variacao.variacao" name="nomeVar" placeholder="Ex: Tamanho G">
+              </div>
+              <div class="col-5">
+                <input type="text" class="form-control form-control-sm" [value]="valorFormatado" (input)="mascaraValor($event)" placeholder="R$ 0,00">
+              </div>
+            </div>
+            <!-- Nota: O botão de "Salvar" lá embaixo vai salvar tudo, mas aqui seria ideal ter um botão "Adicionar à lista" se a lógica for adicionar em memória antes de salvar no banco. 
+                 Se o seu backend espera a variação já no objeto produto, o botão Salvar principal resolve. 
+                 Se a lógica for "Adicionar variação à lista em memória", sugiro um botão pequeno aqui: -->
+             <div class="mt-2 text-end">
+                <button class="btn btn-sm btn-primary" (click)="adicionarVariacaoNaListaLocalSeHouverLogica()">
+                  <i class="bi bi-plus-lg"></i> Confirmar Item
+                </button>
+             </div>
+          </div>
+          
+          <!-- Botão para abrir o form de variação se ele estiver fechado mas já existirem variações -->
+          <button *ngIf="!mostrarVariacao && produto.variacoes.length > 0" class="btn btn-outline-primary btn-sm w-100 border-dashed" (click)="adicionarVariacao()">
+            <i class="bi bi-plus-circle me-1"></i> Adicionar outra variação
+          </button>
+
+        </div>
+
+        <!-- Botões de Ação (Sticky Bottom no Mobile) -->
+        <div class="row g-2 mt-4 pt-2 border-top">
+          <div class="col-6">
+            <button type="button" class="btn btn-light btn-lg w-100 fw-medium text-secondary" (click)="voltar()">
+              Voltar
+            </button>
+          </div>
+          <div class="col-6">
+            <button type="button" class="btn btn-success btn-lg w-100 fw-bold shadow-sm" (click)="salvar()">
+              <i class="bi bi-check-lg me-1"></i> Salvar
+            </button>
+          </div>
+        </div>
+
       </form>
     </div>
   </div>

@@ -1,72 +1,135 @@
-<div class="container my-5">
-  <div class="card shadow rounded-4">
-    <div class="card-body p-5">
-      <h2 class="mb-4 fw-bold text-center">Adicionar Cliente</h2>
+<div class="container my-4 max-w-700 pb-5">
+  
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+    
+    <!-- Cabeçalho Visual -->
+    <div class="bg-primary p-4 text-center text-white position-relative overflow-hidden">
+      <div class="position-relative z-1">
+        <h3 class="fw-bold mb-1">{{ cliente.id ? 'Editar Cliente' : 'Novo Cliente' }}</h3>
+        <p class="mb-0 opacity-75 small">Preencha os dados cadastrais</p>
+      </div>
+      <div class="circle-deco"></div>
+    </div>
+
+    <div class="card-body p-4 p-md-5">
       <form>
-        <div class="mb-4 border-bottom pb-2">
-          <h5 class="fw-semibold text-secondary">Dados Pessoais</h5>
-        </div>
-        <div class="row g-4 mb-5">
-          <div class="col-md-3">
-            <label for="cpf" class="form-label">CPF:</label>
-            <input type="text" [(ngModel)]="cliente.cpf" name="cpf" id="cpf" class="form-control form-control-lg" placeholder="CPF" (input)="mascaraCpf($event)" [value]="cpfFormatado" maxlength="14">
-          </div>
-          <div class="col-md-9">
-            <label for="nome" class="form-label">Nome:</label>
-            <input type="text" [(ngModel)]="cliente.nome" name="nome" id="nome" class="form-control form-control-lg" placeholder="Nome">
-          </div>
-          <div class="col-md-6">
-            <label for="telefone" class="form-label">Telefone:</label>
-            <input type="text" [(ngModel)]="cliente.telefone" name="telefone" id="telefone" class="form-control form-control-lg"  (input)="mascaraTelefone($event)" [value]="telefoneFormatado" placeholder="(00) 00000-0000" maxlength="15">
-          </div>
-          <div class="col-md-6">
-            <label for="insta" class="form-label">Insta:</label>
-            <input type="text" [(ngModel)]="cliente.instaUser" name="insta" id="insta" class="form-control form-control-lg" placeholder="@" maxlength="30"  (input)="mascaraInstagram($event)" [value]="instagramFormatado" >
+        
+        <!-- SEÇÃO: Dados Pessoais -->
+        <div class="mb-4">
+          <h6 class="text-primary fw-bold text-uppercase small mb-3 tracking-wide border-bottom pb-2">
+            <i class="bi bi-person-badge me-1"></i> Dados Pessoais
+          </h6>
+          
+          <div class="row g-3">
+            <div class="col-12 col-md-8">
+              <div class="form-floating">
+                <input type="text" class="form-control rounded-3" id="nome" [(ngModel)]="cliente.nome" name="nome" placeholder="Nome Completo">
+                <label for="nome">Nome Completo</label>
+              </div>
+            </div>
+            
+            <div class="col-12 col-md-4">
+              <div class="form-floating">
+                <input type="text" class="form-control rounded-3" id="cpf" [(ngModel)]="cliente.cpf" name="cpf" (input)="mascaraCpf($event)" [value]="cpfFormatado" maxlength="14" placeholder="CPF">
+                <label for="cpf">CPF</label>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <div class="form-floating">
+                <input type="text" class="form-control rounded-3" id="telefone" [(ngModel)]="cliente.telefone" name="telefone" (input)="mascaraTelefone($event)" [value]="telefoneFormatado" maxlength="15" placeholder="Telefone">
+                <label for="telefone">Telefone / WhatsApp</label>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <div class="form-floating">
+                <div class="input-group has-validation">
+                  <span class="input-group-text bg-light border-end-0 text-muted">&#64;</span>
+                  <div class="form-floating flex-grow-1">
+                    <input type="text" class="form-control rounded-end-3 border-start-0" id="insta" [(ngModel)]="cliente.instaUser" name="insta" (input)="mascaraInstagram($event)" [value]="instagramFormatado" maxlength="30" placeholder="Instagram">
+                    <label for="insta">Instagram (sem &#64;)</label>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="mt-5 mb-3 border-bottom pb-2">
-          <h5 class="fw-semibold text-secondary">Endereço</h5>
-        </div>
-        <div class="row g-4">
-          <div class="col-md-4">
-            <label for="cep" class="form-label">CEP:</label>
-            <input type="text" [(ngModel)]="cliente.cep" name="cep" id="cep" class="form-control form-control-lg" placeholder="CEP"  (input)="mascaraCep($event)" [value]="cepFormatado" (blur)="buscarCep()" maxlength="8">
-          </div>
-          <div class="col-md-8">
-            <label for="endereco" class="form-label">Endereço:</label>
-            <input type="text" [(ngModel)]="cliente.endereco" name="endereco" id="endereco" class="form-control form-control-lg" placeholder="Endereço" [disabled]="enderecoDesativado">
-          </div>
-          <div class="col-md-4">
-            <label for="endNumero" class="form-label">Número:</label>
-            <input type="text" [(ngModel)]="cliente.endNumero" name="endNumero" id="endNumero" class="form-control form-control-lg" placeholder="Número">
-          </div>
-          <div class="col-md-8">
-            <label for="endComplemento" class="form-label">Complemento:</label>
-            <input type="text" [(ngModel)]="cliente.endComplemento" name="endComplemento" id="endComplemento" class="form-control form-control-lg" placeholder="Complemento">
-          </div>
-          <div class="col-md-4">
-            <label for="bairro" class="form-label">Bairro:</label>
-            <input type="text" [(ngModel)]="cliente.bairro" name="bairro" id="bairro" class="form-control form-control-lg" placeholder="Bairro" [disabled]="enderecoDesativado">
-          </div>
-          <div class="col-md-4">
-            <label for="cidade" class="form-label">Cidade:</label>
-            <input type="text" [(ngModel)]="cliente.cidade" name="cidade" id="cidade" class="form-control form-control-lg" placeholder="Cidade" [disabled]="enderecoDesativado">
-          </div>
-          <div class="col-md-2">
-            <label for="uf" class="form-label">UF:</label>
-            <input type="text" [(ngModel)]="cliente.uf" name="uf" id="uf" class="form-control form-control-lg" placeholder="UF" [disabled]="enderecoDesativado">
+        <!-- SEÇÃO: Endereço -->
+        <div class="mb-4">
+          <h6 class="text-primary fw-bold text-uppercase small mb-3 tracking-wide border-bottom pb-2">
+            <i class="bi bi-geo-alt me-1"></i> Endereço
+          </h6>
+          
+          <div class="row g-3">
+            <div class="col-6 col-md-4">
+              <div class="form-floating">
+                <input type="text" class="form-control rounded-3" id="cep" [(ngModel)]="cliente.cep" name="cep" (input)="mascaraCep($event)" [value]="cepFormatado" (blur)="buscarCep()" maxlength="9" placeholder="CEP">
+                <label for="cep">CEP</label>
+                <!-- Spinner pequeno de carregamento se quiser implementar dps -->
+                <!-- <div class="spinner-border spinner-border-sm text-primary position-absolute top-50 end-0 translate-middle-y me-3" role="status"></div> -->
+              </div>
+            </div>
+
+            <div class="col-12 col-md-8">
+              <div class="form-floating">
+                <input type="text" class="form-control rounded-3 bg-light" id="endereco" [(ngModel)]="cliente.endereco" name="endereco" placeholder="Logradouro" [disabled]="enderecoDesativado">
+                <label for="endereco">Logradouro (Rua, Av...)</label>
+              </div>
+            </div>
+
+            <div class="col-4 col-md-3">
+              <div class="form-floating">
+                <input type="text" class="form-control rounded-3" id="endNumero" [(ngModel)]="cliente.endNumero" name="endNumero" placeholder="Nº">
+                <label for="endNumero">Número</label>
+              </div>
+            </div>
+
+            <div class="col-8 col-md-5">
+              <div class="form-floating">
+                <input type="text" class="form-control rounded-3" id="bairro" [(ngModel)]="cliente.bairro" name="bairro" placeholder="Bairro" [disabled]="enderecoDesativado">
+                <label for="bairro">Bairro</label>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-floating">
+                <input type="text" class="form-control rounded-3" id="endComplemento" [(ngModel)]="cliente.endComplemento" name="endComplemento" placeholder="Comp">
+                <label for="endComplemento">Complemento</label>
+              </div>
+            </div>
+
+            <div class="col-8 col-md-9">
+              <div class="form-floating">
+                <input type="text" class="form-control rounded-3 bg-light" id="cidade" [(ngModel)]="cliente.cidade" name="cidade" placeholder="Cidade" [disabled]="enderecoDesativado">
+                <label for="cidade">Cidade</label>
+              </div>
+            </div>
+
+            <div class="col-4 col-md-3">
+              <div class="form-floating">
+                <input type="text" class="form-control rounded-3 bg-light" id="uf" [(ngModel)]="cliente.uf" name="uf" placeholder="UF" [disabled]="enderecoDesativado">
+                <label for="uf">UF</label>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="d-flex flex-column flex-md-row justify-content-center justify-content-md-end gap-3 mt-5">
-          <button type="submit" class="btn btn-success btn-lg px-4 w-100 w-md-auto" (click)="salvar()">
-            <i class="bi bi-check-circle me-2"></i>{{botao}}
-          </button>
-          <button type="button" class="btn btn-secondary btn-lg px-4 w-100 w-md-auto" (click)="voltar()">
-            <i class="bi bi-arrow-left me-2"></i>Voltar
-          </button>
+        <!-- Botões de Ação -->
+        <div class="row g-2 mt-5 pt-2 border-top">
+          <div class="col-6">
+            <button type="button" class="btn btn-light btn-lg w-100 fw-medium text-secondary" (click)="voltar()">
+              Voltar
+            </button>
+          </div>
+          <div class="col-6">
+            <button type="submit" class="btn btn-success btn-lg w-100 fw-bold shadow-sm" (click)="salvar()">
+              <i class="bi bi-check-lg me-1"></i> {{ botao }}
+            </button>
+          </div>
         </div>
+
       </form>
     </div>
   </div>
