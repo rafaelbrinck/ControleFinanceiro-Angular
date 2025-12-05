@@ -28,7 +28,7 @@ export class ProdutosComponent implements OnInit {
   ) {}
 
   toggleExpand(index: number, prod: Produto) {
-    if (prod.variacoes.length > 0) {
+    if (prod.variacoes.length >= 0) {
       this.expandedRow = this.expandedRow === index ? null : index;
     }
   }
