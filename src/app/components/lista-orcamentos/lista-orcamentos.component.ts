@@ -121,21 +121,22 @@ export class ListaOrcamentosComponent implements OnInit {
             console.error('Erro ao registrar transação');
             return false;
           }
+          if (orcamento.frete > 0) {
+            const transacaoFrete: Transacao = {
+              nome: `Frete do orçamento #${orcamento.id}`,
+              valor: orcamento.frete || 0,
+              tipo: 'Saida',
+              categoria: categoriaVenda.id,
+              data: new Date(),
+            };
 
-          const transacaoFrete: Transacao = {
-            nome: `Frete do orçamento #${orcamento.id}`,
-            valor: orcamento.frete || 0,
-            tipo: 'Saida',
-            categoria: categoriaVenda.id,
-            data: new Date(),
-          };
-
-          const sucessoTransacaoFrete = await this.transacaoService.inserir(
-            transacaoFrete
-          );
-          if (!sucessoTransacaoFrete) {
-            console.error('Erro ao registrar transação Frete');
-            return false;
+            const sucessoTransacaoFrete = await this.transacaoService.inserir(
+              transacaoFrete
+            );
+            if (!sucessoTransacaoFrete) {
+              console.error('Erro ao registrar transação Frete');
+              return false;
+            }
           }
 
           this.fecharModal();
@@ -212,5 +213,20 @@ export class ListaOrcamentosComponent implements OnInit {
       return false;
     }
     return true;
+  }
+
+  get calculoGanchos() {
+    let total = 0;
+    this.orcamentoSelecionado?.produtos?.forEach((prod) => {
+      let totalProdQtd = 0;
+      if (prod.quantidade > 1) {
+        totalProdQtd = prod.qtd_gancho! * prod.quantidade;
+        total += totalProdQtd;
+      } else {
+        total += prod.qtd_gancho!;
+      }
+    });
+
+    return total;
   }
 }

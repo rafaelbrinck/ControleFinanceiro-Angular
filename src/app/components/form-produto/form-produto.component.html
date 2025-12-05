@@ -39,10 +39,21 @@
             name="categoria"
           >
             <option [ngValue]="null" disabled selected>Selecione...</option>
-            <option *ngFor="let categoria of listaCategorias" [ngValue]="categoria.id">{{categoria.nome}}</option>
+            <option *ngFor="let categoria of listaCategorias" [ngValue]="categoria.id" [(ngModel)]="produto.categoria">{{categoria.nome}}</option>
             <option [ngValue]="'nova'" class="fw-bold text-primary">+ Nova Categoria</option>
           </select>
           <label for="categoriaSelect">Categoria</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input 
+            type="number" 
+            class="form-control rounded-3" 
+            id="qtdGancho" 
+            [(ngModel)]="produto.qtd_gancho" 
+            name="nome" 
+            placeholder="1"
+          >
+          <label for="qtdGancho">Quantidade Ganchos</label>
         </div>
 
         <!-- Seção 2: Preço e Variações -->

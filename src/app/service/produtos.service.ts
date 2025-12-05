@@ -66,6 +66,7 @@ export class ProdutosService {
           valor: produto.valor,
           categoria: produto.categoria,
           idUser: produto.idUser,
+          qtd_gancho: produto.qtd_gancho,
         },
       ])
       .select();

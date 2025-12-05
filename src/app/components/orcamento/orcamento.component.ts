@@ -106,6 +106,7 @@ export class OrcamentoComponent {
           nome: produto.nome,
           valor: produto.valor ?? 0,
           quantidade: 1,
+          qtd_gancho: produto.qtd_gancho,
         };
         this.produtosOrcamento.push(prod);
         this.orcamentoService.addProdutos(this.produtosOrcamento);
@@ -145,6 +146,20 @@ export class OrcamentoComponent {
     const totalComTaxa = total / (1 - taxaTotal / 100);
     const totalComTaxaDesconto = totalComTaxa - this.desconto;
     return totalComTaxaDesconto;
+  }
+
+  get calculoGanchos() {
+    var totalGanchos = 0;
+    this.produtosOrcamento.forEach((prod) => {
+      var calculo = 0;
+      if (prod.quantidade > 1) {
+        calculo = prod.qtd_gancho! * prod.quantidade;
+        totalGanchos += calculo;
+      } else {
+        totalGanchos += prod.qtd_gancho || 0;
+      }
+    });
+    return totalGanchos;
   }
 
   async carregarClientes() {

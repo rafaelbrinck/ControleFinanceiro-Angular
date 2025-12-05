@@ -239,7 +239,13 @@ export class FormProdutoComponent implements OnInit {
       this.alertaService.info('Obrigatório', 'Selecione uma categoria.');
       return false;
     }
-
+    if (!this.produto.qtd_gancho || this.produto.qtd_gancho < 0) {
+      this.alertaService.info(
+        'Obrigatório',
+        'A quantidade de ganchos não pode ser menor que 0.'
+      );
+      return false;
+    }
     // Validação de Variações vs Valor Único
     const temVariacoes = this.produto.variacoes.length > 0;
 
