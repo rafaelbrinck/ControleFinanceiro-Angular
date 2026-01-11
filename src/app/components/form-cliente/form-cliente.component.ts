@@ -68,10 +68,6 @@ export class FormClienteComponent implements OnInit {
       this.alertaService.info('Campo Obrigatório', 'O nome é obrigatório!');
       return false;
     }
-    if (!this.cliente.telefone) {
-      this.alertaService.info('Campo Obrigatório', 'O telefone é obrigatório!');
-      return false;
-    }
     return true;
   }
 
