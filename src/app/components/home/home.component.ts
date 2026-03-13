@@ -16,10 +16,11 @@ import { firstValueFrom } from 'rxjs';
 import { GraficosComponent } from '../shared/graficos/graficos.component';
 import { GraficosDataService } from '../../service/grafico.service';
 import { FornecedoresService } from '../../service/fornecedores.service';
+import { FormsModule } from '@angular/forms'; // <-- Importante para o [(ngModel)] funcionar
 
 @Component({
   selector: 'app-home',
-  imports: [NgClass, CommonModule, GraficosComponent],
+  imports: [NgClass, CommonModule, GraficosComponent, FormsModule], // <-- Adicionado FormsModule
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
@@ -33,6 +34,10 @@ export class HomeComponent implements OnInit {
   mostrarDetalhes: boolean = false;
   tipoDetalhe: 'Entrada' | 'Saida' | undefined;
 
+  // Variáveis para o filtro de datas
+  dataInicio: string = '';
+  dataFim: string = '';
+
   constructor(
     private transacaoService: TransacaoService,
     private categoriaService: CategoriaService,
@@ -43,10 +48,12 @@ export class HomeComponent implements OnInit {
     private router: Router,
     private loginService: LoginService,
     private graficoService: GraficosDataService,
-    private fornecedoresService: FornecedoresService
+    private fornecedoresService: FornecedoresService,
   ) {}
 
   async ngOnInit(): Promise<void> {
+    this.definirMesAtualComoPadrao();
+
     const userId = this.loginService.getUserLogado();
 
     if (userId) {
@@ -60,13 +67,48 @@ export class HomeComponent implements OnInit {
     this.transacaoService.transacoes$.subscribe((transacoes) => {
       transacoes.forEach((transacao) => {
         const categoria = this.categorias.find(
-          (cat) => cat.id === transacao.categoria
+          (cat) => cat.id === transacao.categoria,
         );
         transacao.cat = categoria ? categoria.nome : 'Categoria não encontrada';
       });
       this.listaTransacoes = transacoes;
     });
   }
+
+  // --- MÉTODOS DE DATA ---
+
+  definirMesAtualComoPadrao() {
+    const dataAtual = new Date();
+    // Primeiro dia do mês atual
+    const primeiroDia = new Date(
+      dataAtual.getFullYear(),
+      dataAtual.getMonth(),
+      1,
+    );
+    // Último dia do mês atual
+    const ultimoDia = new Date(
+      dataAtual.getFullYear(),
+      dataAtual.getMonth() + 1,
+      0,
+    );
+
+    this.dataInicio = this.formatarDataParaInput(primeiroDia);
+    this.dataFim = this.formatarDataParaInput(ultimoDia);
+  }
+
+  formatarDataParaInput(data: Date): string {
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`; // Formato YYYY-MM-DD exigido pelo input type="date"
+  }
+
+  async aplicarFiltro() {
+    // Quando o usuário muda as datas na tela, chama a edge function novamente
+    await this.carregarRelatorioViaEdge();
+  }
+
+  // --- RESTANTE DOS MÉTODOS ---
 
   exibirDetalhes(tipo: 'Entrada' | 'Saida') {
     if (this.tipoDetalhe === tipo && this.mostrarDetalhes) {
@@ -77,12 +119,9 @@ export class HomeComponent implements OnInit {
       this.mostrarDetalhes = true;
     }
   }
+
   exibirCategorias() {
-    if (this.mostrarCategorias) {
-      this.mostrarCategorias = false;
-    } else {
-      this.mostrarCategorias = true;
-    }
+    this.mostrarCategorias = !this.mostrarCategorias;
   }
 
   fecharDetalhes() {
@@ -92,23 +131,36 @@ export class HomeComponent implements OnInit {
   }
 
   get transacoesFiltradas(): Transacao[] {
-    return this.listaTransacoes.filter(
-      (transacao) => transacao.tipo === this.tipoDetalhe
-    );
+    return this.listaTransacoes.filter((transacao) => {
+      const isTipoCorreto = transacao.tipo === this.tipoDetalhe;
+      // Compara as datas (string com string YYYY-MM-DD funciona perfeitamente)
+      const isDentroDoPeriodo =
+        (!this.dataInicio || transacao.data! >= this.dataInicio) &&
+        (!this.dataFim || transacao.data! <= this.dataFim);
+
+      return isTipoCorreto && isDentroDoPeriodo;
+    });
   }
 
   async carregarRelatorioViaEdge() {
     try {
       const idUser = this.loginService.getUserLogado();
-      const { data, error } = await supabase.functions.invoke('relatorio', {
-        body: { userId: idUser },
-      });
+      const { data, error } = await supabase.functions.invoke(
+        'relatorio-filtrado',
+        {
+          body: {
+            userId: idUser,
+            dataInicio: this.dataInicio, // Agora passamos as datas
+            dataFim: this.dataFim,
+          },
+        },
+      );
 
       if (error) {
         console.error('Erro da função:', error);
         alert(
           'Erro ao carregar relatório via função: ' +
-            (error.message || JSON.stringify(error))
+            (error.message || JSON.stringify(error)),
         );
         return;
       }
@@ -158,13 +210,6 @@ export class HomeComponent implements OnInit {
     if (graficoVendas.length === 0) {
       await this.graficoService.carregarDados();
     }
-
-    // const fornecedores = await firstValueFrom(
-    //   this.fornecedoresService.fornecedores$
-    // );
-    // if (fornecedores.length === 0) {
-    //   await this.fornecedoresService.carregarFornecedores();
-    // }
 
     const variacoes = await firstValueFrom(this.variacoesService.variacoes$);
     if (variacoes.length === 0) {

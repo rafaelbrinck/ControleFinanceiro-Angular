@@ -1,12 +1,28 @@
 <div class="container-fluid px-0">
   
-  <!-- Título da Seção -->
-  <div class="mb-4 px-2">
-    <h4 class="fw-bold text-dark mb-1">Performance de Vendas</h4>
-    <p class="text-muted small mb-0">Visão geral dos seus resultados</p>
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 px-2 gap-3">
+    <div>
+      <h4 class="fw-bold text-dark mb-1">Performance de Vendas</h4>
+      <p class="text-muted small mb-0">Visão geral dos resultados no período</p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 bg-white p-2 rounded-pill shadow-sm border">
+      <input 
+        type="date" 
+        class="form-control form-control-sm border-0 bg-transparent shadow-none" 
+        [(ngModel)]="dataInicio" 
+        (change)="aplicarFiltro()">
+      
+      <span class="text-muted small fw-bold px-1">até</span>
+      
+      <input 
+        type="date" 
+        class="form-control form-control-sm border-0 bg-transparent shadow-none" 
+        [(ngModel)]="dataFim" 
+        (change)="aplicarFiltro()">
+    </div>
   </div>
 
-  <!-- Card Destaque: Total em Vendas -->
   <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden total-sales-card">
     <div class="card-body text-center py-4 position-relative z-1">
       <span class="badge bg-white text-success shadow-sm mb-2 rounded-pill px-3 py-2">
@@ -15,15 +31,12 @@
       <h1 class="display-4 fw-bold text-white mb-0 tracking-tight">
         {{ totalVendas | currency:'BRL':'symbol':'1.0-0' }}
       </h1>
-      <p class="text-white text-opacity-75 small mt-1">Acumulado do período</p>
+      <p class="text-white text-opacity-75 small mt-1">Acumulado do período selecionado</p>
     </div>
-    <!-- Efeito de fundo abstrato -->
     <div class="bg-deco"></div>
   </div>
 
-  <!-- Grid de Status (Métricas Rápidas) -->
   <div class="row g-3 mb-4">
-    <!-- Orçamentos -->
     <div class="col-6 col-md-3">
       <div class="stat-card">
         <div class="icon-box bg-primary-subtle text-primary">
@@ -36,7 +49,6 @@
       </div>
     </div>
 
-    <!-- Finalizados -->
     <div class="col-6 col-md-3">
       <div class="stat-card">
         <div class="icon-box bg-success-subtle text-success">
@@ -49,7 +61,6 @@
       </div>
     </div>
 
-    <!-- Pendentes -->
     <div class="col-6 col-md-3">
       <div class="stat-card">
         <div class="icon-box bg-warning-subtle text-warning">
@@ -62,7 +73,6 @@
       </div>
     </div>
 
-    <!-- Cancelados -->
     <div class="col-6 col-md-3">
       <div class="stat-card">
         <div class="icon-box bg-danger-subtle text-danger">
@@ -76,9 +86,7 @@
     </div>
   </div>
 
-  <!-- Gráficos -->
   <div class="row g-4">
-    <!-- Gráfico 1 -->
     <div class="col-md-6">
       <div class="card border-0 shadow-sm rounded-4 h-100">
         <div class="card-body p-4">
@@ -99,7 +107,6 @@
       </div>
     </div>
 
-    <!-- Gráfico 2 -->
     <div class="col-md-6">
       <div class="card border-0 shadow-sm rounded-4 h-100">
         <div class="card-body p-4">

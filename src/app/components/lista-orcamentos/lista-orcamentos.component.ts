@@ -84,7 +84,9 @@ export class ListaOrcamentosComponent implements OnInit {
       `Deseja finalizar o orçamento para ${orcamento.cliente?.nome}?`,
       async (resposta: boolean) => {
         if (resposta) {
-          if (!this.validarOrcamento(orcamento, 'f')) return false;
+          if (orcamento.status != 'Aguardando Pagamento') {
+            if (!this.validarOrcamento(orcamento, 'f')) return false;
+          }
           if (
             orcamento.formaPagamento == 'Boleto' &&
             orcamento.status !== 'Aguardando Pagamento'
