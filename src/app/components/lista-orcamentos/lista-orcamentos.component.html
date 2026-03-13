@@ -66,25 +66,29 @@
 
         <!-- Linha Principal: Cliente e Valor -->
         <div class="d-flex justify-content-between align-items-start mb-3">
-          <div class="me-2">
-            <h6 class="fw-bold text-dark mb-0 text-break">{{ orcamento.cliente?.nome || 'Cliente não identificado' }}</h6>
-            <span class="status-pill mt-2" [ngClass]="{
-              'status-success': orcamento.status === 'Finalizado',
-              'status-pending': orcamento.status === 'Aberto',
-              'status-danger': orcamento.status === 'Cancelado'
-            }">
-              <i class="bi me-1" [ngClass]="{
-                'bi-check-circle-fill': orcamento.status === 'Finalizado',
-                'bi-clock-fill': orcamento.status === 'Aberto',
-                'bi-x-circle-fill': orcamento.status === 'Cancelado'
-              }"></i>
-              {{ orcamento.status }}
-            </span>
-          </div>
-          <div class="text-end">
-            <span class="d-block fw-bold fs-5 text-primary">{{ orcamento.valor | currency:'BRL' }}</span>
-          </div>
-        </div>
+  <div class="me-2">
+    <h6 class="fw-bold text-dark mb-0 text-break">{{ orcamento.cliente?.nome || 'Cliente não identificado' }}</h6>
+    
+    <span class="badge rounded-pill mt-2 py-2 px-3 d-inline-flex align-items-center fw-normal fw-bold" [ngClass]="{
+      'text-bg-success': orcamento.status === 'Finalizado',
+      'text-bg-primary': orcamento.status === 'Aberto',
+      'text-bg-danger': orcamento.status === 'Cancelado',
+      'text-bg-warning': orcamento.status === 'Aguardando Pagamento'
+    }">
+      <i class="bi me-2 fs-6" [ngClass]="{
+        'bi-check-circle-fill': orcamento.status === 'Finalizado',
+        'bi-clock-fill': orcamento.status === 'Aberto',
+        'bi-x-circle-fill': orcamento.status === 'Cancelado',
+        'bi-wallet-fill': orcamento.status === 'Aguardando Pagamento'
+      }"></i>
+      {{ orcamento.status }}
+    </span>
+    
+  </div>
+  <div class="text-end">
+    <span class="d-block fw-bold fs-5 text-primary">{{ orcamento.valor | currency:'BRL' }}</span>
+  </div>
+</div>
 
         <!-- Ações Rápidas (Rodapé do Card) -->
         <div class="d-flex gap-2 pt-3 border-top mt-2">
@@ -193,9 +197,21 @@
                 <div class="payment-card">Dinheiro</div>
               </label>
             </div>
+            <div class="col-4">
+              <label class="payment-radio w-100">
+                <input type="radio" name="pagamento" value="Boleto" [(ngModel)]="orcamentoSelecionado.formaPagamento" [disabled]="orcamentoSelecionado.status !== 'Aberto'" class="d-none">
+                <div class="payment-card">Boleto</div>
+              </label>
+            </div>
           </div>
         </div>
-
+        <div class="mb-3" *ngIf="orcamentoSelecionado.formaPagamento === 'Boleto'">
+          <h6 class="text-secondary small fw-bold mb-2 ps-1">DATA DO PAGAMENTO</h6>
+          <div class="row g-2">
+              <label class="w-100">
+                <input type="date" name="" id="" [(ngModel)]="orcamentoSelecionado.dt_boleto" [disabled]="orcamentoSelecionado.status !== 'Aberto'" class="form-control payment-card">
+              </label>
+            </div>
       </div>
 
       <!-- Footer Actions -->
@@ -208,6 +224,7 @@
             <i class="bi bi-x-lg"></i> Cancelar
           </button>
         </div>
+        <button class="btn btn-success w-100 text-white" (click)="finalizarOrcamento(orcamentoSelecionado)" *ngIf="orcamentoSelecionado.status === 'Aguardando Pagamento'">Finalizar Pagamento</button>
         <button class="btn btn-light w-100 text-muted" (click)="fecharModal()">Fechar Detalhes</button>
       </div>
     </div>

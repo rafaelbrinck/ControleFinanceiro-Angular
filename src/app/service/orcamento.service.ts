@@ -29,7 +29,7 @@ export class OrcamentoService {
     private injector: Injector,
     private clienteService: ClientesService,
     private alertaService: AlertaService,
-    private graficoService: GraficosDataService
+    private graficoService: GraficosDataService,
   ) {}
 
   duplicarOrcamento(orcamento: Orcamento) {
@@ -78,7 +78,7 @@ export class OrcamentoService {
       .subscribe((clientes) => {
         data.forEach((orcamento) => {
           orcamento.cliente = clientes.find(
-            (cliente) => cliente.id === orcamento.idCliente
+            (cliente) => cliente.id === orcamento.idCliente,
           ) || { nome: 'Cliente não encontrado', cpf: '' };
           orcamento.nomeCliente =
             orcamento.cliente?.nome || 'Cliente não encontrado';
@@ -109,7 +109,7 @@ export class OrcamentoService {
       console.error('Erro ao inserir orçamento:', error.message);
       this.alertaService.erro(
         'Erro ao inserir orçamento',
-        'Por favor, tente novamente mais tarde.'
+        'Por favor, tente novamente mais tarde.',
       );
       return false;
     }
@@ -128,6 +128,7 @@ export class OrcamentoService {
         status: orcamento.status,
         formaPagamento: orcamento.formaPagamento,
         updated_at: orcamento.updated_at,
+        dt_boleto: orcamento.dt_boleto,
       })
       .eq('id', orcamento.id)
       .eq('idUser', userId);
@@ -136,7 +137,7 @@ export class OrcamentoService {
       console.error('Erro ao editar orçamento:', error.message);
       this.alertaService.erro(
         'Erro ao editar orçamento',
-        'Por favor, tente novamente mais tarde.'
+        'Por favor, tente novamente mais tarde.',
       );
       return false;
     }
@@ -193,7 +194,7 @@ export class OrcamentoService {
         (p) =>
           `• ${p.quantidade}x ${p.nome} - R$ ${(p.valor ?? 0)
             .toFixed(2)
-            .replace('.', ',')}`
+            .replace('.', ',')}`,
       )
       .join('\n');
 
@@ -238,7 +239,7 @@ export class OrcamentoService {
 
     const telefone = cliente?.telefone!.replace(/\D/g, ''); // remove símbolos
     const url = `https://api.whatsapp.com/send?phone=55${telefone}&text=${encodeURIComponent(
-      mensagem
+      mensagem,
     )}`;
 
     window.open(url, '_blank');

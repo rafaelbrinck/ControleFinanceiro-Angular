@@ -15,7 +15,7 @@ export class TransacaoService {
 
   constructor(
     private loginService: LoginService,
-    private categoriaService: CategoriaService
+    private categoriaService: CategoriaService,
   ) {}
 
   async carregarTransacoes(): Promise<void> {
@@ -23,7 +23,8 @@ export class TransacaoService {
     const { data, error } = await supabase
       .from('transacao')
       .select('*')
-      .eq('idUser', userId);
+      .eq('idUser', userId)
+      .order('data', { ascending: false });
 
     if (error) {
       console.error('Erro ao listar transações:', error.message);
@@ -35,7 +36,7 @@ export class TransacaoService {
       this.categoriaService.categorias$.subscribe((categorias) => {
         data.forEach((transacao) => {
           const categoria = categorias.find(
-            (cat) => cat.id === transacao.categoria
+            (cat) => cat.id === transacao.categoria,
           );
           transacao.cat = categoria
             ? categoria.nome

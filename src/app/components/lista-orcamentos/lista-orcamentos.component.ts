@@ -30,12 +30,12 @@ export class ListaOrcamentosComponent implements OnInit {
     private router: Router,
     private transacaoService: TransacaoService,
     private alertaService: AlertaService,
-    private categoriaService: CategoriaService
+    private categoriaService: CategoriaService,
   ) {}
 
   async ngOnInit(): Promise<void> {
     this.orcamentoService.orcamentoSelecionado$.subscribe(
-      (orcamento) => (this.orcamentoSelecionado = orcamento ?? undefined)
+      (orcamento) => (this.orcamentoSelecionado = orcamento ?? undefined),
     );
     this.orcamentoService.orcamento$.subscribe(async (orcamentos) => {
       if (orcamentos.length == 0) {
@@ -56,12 +56,12 @@ export class ListaOrcamentosComponent implements OnInit {
           this.orcamentoService.enviarOrcamentoWhatsApp(orcamento);
           this.alertaService.sucesso(
             'Orçamento Reenviado',
-            `O orçamento para ${orcamento.cliente?.nome} foi reenviado com sucesso.`
+            `O orçamento para ${orcamento.cliente?.nome} foi reenviado com sucesso.`,
           );
           return true;
         }
         return false;
-      }
+      },
     );
   }
 
@@ -85,21 +85,33 @@ export class ListaOrcamentosComponent implements OnInit {
       async (resposta: boolean) => {
         if (resposta) {
           if (!this.validarOrcamento(orcamento, 'f')) return false;
-          orcamento.status = 'Finalizado';
+          if (
+            orcamento.formaPagamento == 'Boleto' &&
+            orcamento.status !== 'Aguardando Pagamento'
+          ) {
+            orcamento.status = 'Aguardando Pagamento';
+          } else {
+            orcamento.status = 'Finalizado';
+          }
           orcamento.updated_at = new Date();
           const sucesso = await this.orcamentoService.atualizar(orcamento);
           if (!sucesso) {
             this.alertaService.erro(
               'Erro ao Finalizar Orçamento',
-              'Ocorreu um erro ao finalizar o orçamento. Tente novamente.'
+              'Ocorreu um erro ao finalizar o orçamento. Tente novamente.',
             );
             return false;
+          }
+          // Só orçamento finalizado guarda transação
+          if (orcamento.status != 'Finalizado') {
+            this.fecharModal();
+            return true;
           }
           const categoriaVenda = await this.categoriaService.retornarVenda();
           if (!categoriaVenda) {
             this.alertaService.erro(
               'Erro',
-              "erro ao buscar categoria de vendas. Verifique se a categoria 'Vendas' está cadastrada."
+              "erro ao buscar categoria de vendas. Verifique se a categoria 'Vendas' está cadastrada.",
             );
             return false;
           }
@@ -114,9 +126,8 @@ export class ListaOrcamentosComponent implements OnInit {
             data: new Date(),
           };
 
-          const sucessoTransacao = await this.transacaoService.inserir(
-            transacao
-          );
+          const sucessoTransacao =
+            await this.transacaoService.inserir(transacao);
           if (!sucessoTransacao) {
             console.error('Erro ao registrar transação');
             return false;
@@ -130,9 +141,8 @@ export class ListaOrcamentosComponent implements OnInit {
               data: new Date(),
             };
 
-            const sucessoTransacaoFrete = await this.transacaoService.inserir(
-              transacaoFrete
-            );
+            const sucessoTransacaoFrete =
+              await this.transacaoService.inserir(transacaoFrete);
             if (!sucessoTransacaoFrete) {
               console.error('Erro ao registrar transação Frete');
               return false;
@@ -143,7 +153,7 @@ export class ListaOrcamentosComponent implements OnInit {
           return true;
         }
         return false;
-      }
+      },
     );
   }
 
@@ -160,7 +170,7 @@ export class ListaOrcamentosComponent implements OnInit {
           if (!sucesso) {
             this.alertaService.erro(
               'Erro ao Cancelar Orçamento',
-              'Ocorreu um erro ao cancelar o orçamento. Tente novamente.'
+              'Ocorreu um erro ao cancelar o orçamento. Tente novamente.',
             );
             return false;
           }
@@ -168,7 +178,7 @@ export class ListaOrcamentosComponent implements OnInit {
           return true;
         }
         return false;
-      }
+      },
     );
   }
 
@@ -186,29 +196,46 @@ export class ListaOrcamentosComponent implements OnInit {
           this.orcamentoSelecionado = undefined;
           this.router.navigate(['/orcamento']);
         }
-      }
+      },
     );
   }
 
   validarOrcamento(orcamento: Orcamento, tipo: string = 'c'): boolean {
+    if (orcamento.formaPagamento === 'Boleto' && !orcamento.dt_boleto) {
+      this.alertaService.info(
+        'Data do Boleto Não Informada',
+        'Você precisa informar a data do boleto antes de finalizar o orçamento.',
+      );
+      return false;
+    }
+    if (
+      orcamento.dt_boleto &&
+      new Date(orcamento.dt_boleto).getDate() < new Date().getDate()
+    ) {
+      this.alertaService.info(
+        'Boleto com Data no Passado',
+        'O boleto deste orçamento está com data no passado.',
+      );
+      return false;
+    }
     if (orcamento.status === 'Finalizado') {
       this.alertaService.info(
         'Orçamento Finalizado',
-        'Este orçamento já foi finalizado.'
+        'Este orçamento já foi finalizado.',
       );
       return false;
     }
     if (orcamento.status === 'Cancelado') {
       this.alertaService.info(
         'Orçamento Cancelado',
-        'Este orçamento já foi cancelado.'
+        'Este orçamento já foi cancelado.',
       );
       return false;
     }
     if (tipo != 'c' && !orcamento.formaPagamento) {
       this.alertaService.info(
         'Forma de Pagamento Não Selecionada',
-        'Você precisa selecionar a forma de pagamento antes de finalizar o orçamento.'
+        'Você precisa selecionar a forma de pagamento antes de finalizar o orçamento.',
       );
       return false;
     }

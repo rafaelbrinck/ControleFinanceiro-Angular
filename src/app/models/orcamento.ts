@@ -7,12 +7,18 @@ export class Orcamento {
   produtos?: ProdutoOrcamento[];
   valorCredito: number = 0;
   valor: number = 0;
-  status?: 'Aberto' | 'Pago' | 'Finalizado' | 'Cancelado';
-  formaPagamento?: 'Pix' | 'Dinheiro' | 'Crédito';
+  status?:
+    | 'Aberto'
+    | 'Pago'
+    | 'Finalizado'
+    | 'Cancelado'
+    | 'Aguardando Pagamento';
+  formaPagamento?: 'Pix' | 'Dinheiro' | 'Crédito' | 'Boleto';
   idUser?: string;
   nomeCliente?: string;
   created_at?: Date;
   updated_at?: Date;
   frete: number = 0;
   desconto: number = 0;
+  dt_boleto?: Date;
 }
