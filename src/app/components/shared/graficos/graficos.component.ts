@@ -88,6 +88,64 @@ export class GraficosComponent implements OnInit {
     });
   }
 
+  aplicarFiltro() {
+    // 1. Filtra Orçamentos pelo período
+    const orcamentosFiltrados = this.todosOrcamentos.filter((o) => {
+      // Tenta pegar o updated_at, se não tiver, pega o created_at
+      const dataOrc = o.updated_at
+        ? String(o.updated_at).substring(0, 10)
+        : o.created_at
+          ? String(o.created_at).substring(0, 10)
+          : null;
+
+      if (!dataOrc) return true; // Se não tiver data de jeito nenhum, deixa passar
+
+      return (
+        (!this.dataInicio || dataOrc >= this.dataInicio) &&
+        (!this.dataFim || dataOrc <= this.dataFim)
+      );
+    });
+
+    // Reseta contadores
+    this.orcamentosCancelados = 0;
+    this.orcamentosPendentes = 0;
+    this.orcamentosFinalizados = 0;
+    this.totalVendas = 0;
+    this.totalOrcamento = orcamentosFiltrados.length;
+
+    orcamentosFiltrados.forEach((orcamento) => {
+      if (orcamento.status === 'Cancelado') this.orcamentosCancelados++;
+      if (
+        orcamento.status === 'Aberto' ||
+        orcamento.status === 'Aguardando Pagamento'
+      )
+        this.orcamentosPendentes++;
+      if (orcamento.status === 'Finalizado') {
+        this.orcamentosFinalizados++;
+        this.totalVendas += orcamento.valor || 0;
+      }
+    });
+
+    // A MÁGICA AQUI: Gera o gráfico de Clientes direto da lista de Orçamentos filtrada
+    this.prepararGraficoClientesCorrigido(orcamentosFiltrados);
+
+    // 2. Filtra Vendas (Agora APENAS para o Gráfico de Produtos)
+    const vendasFiltradas = this.todasVendas.filter((v) => {
+      const dataVenda = (v as any).updated_at
+        ? String((v as any).updated_at).substring(0, 10)
+        : null;
+      if (!dataVenda) return false;
+
+      return (
+        (!this.dataInicio || dataVenda >= this.dataInicio) &&
+        (!this.dataFim || dataVenda <= this.dataFim)
+      );
+    });
+
+    const produtosResumo = this.organizarPorProduto(vendasFiltradas);
+    this.prepararGraficoProdutos(produtosResumo);
+  }
+
   // --- MÉTODOS DE DATA E FILTRO ---
 
   definirMesAtualComoPadrao() {
@@ -114,87 +172,52 @@ export class GraficosComponent implements OnInit {
     return `${ano}-${mes}-${dia}`;
   }
 
-  aplicarFiltro() {
-    // 1. Filtra Orçamentos
-    const orcamentosFiltrados = this.todosOrcamentos.filter((o) => {
-      // Ajuste 'created_at' para o nome exato do seu campo de data no banco, se necessário
-      const dataOrc = o.updated_at ? String(o.updated_at).substring(0, 10) : '';
-      return (
-        (!this.dataInicio || dataOrc >= this.dataInicio) &&
-        (!this.dataFim || dataOrc <= this.dataFim)
-      );
-    });
-
-    // Reseta contadores
-    this.orcamentosCancelados = 0;
-    this.orcamentosPendentes = 0;
-    this.orcamentosFinalizados = 0;
-    this.totalVendas = 0;
-    this.totalOrcamento = orcamentosFiltrados.length; // Usa o tamanho da lista filtrada
-
-    orcamentosFiltrados.forEach((orcamento) => {
-      if (orcamento.status === 'Cancelado') {
-        this.orcamentosCancelados++;
-      }
-      // Incluído o "Aguardando Pagamento" junto com os abertos
-      if (
-        orcamento.status === 'Aberto' ||
-        orcamento.status === 'Aguardando Pagamento'
-      ) {
-        this.orcamentosPendentes++;
-      }
-      if (orcamento.status === 'Finalizado') {
-        this.orcamentosFinalizados++;
-        this.totalVendas += orcamento.valor || 0;
-      }
-    });
-
-    // 2. Filtra Vendas para os Gráficos
-    const vendasFiltradas = this.todasVendas.filter((v) => {
-      // Ajuste 'created_at' se a sua view/tabela de vendas usar outro campo de data
-      const dataVenda = (v as any).created_at
-        ? String((v as any).created_at).substring(0, 10)
-        : '';
-      // Se a query não trouxer data, deixamos passar para não quebrar o gráfico
-      if (!dataVenda) return true;
-
-      return (
-        (!this.dataInicio || dataVenda >= this.dataInicio) &&
-        (!this.dataFim || dataVenda <= this.dataFim)
-      );
-    });
-
-    // Recalcula os gráficos com os dados filtrados
-    const clientesResumo = this.organizarPorCliente(vendasFiltradas);
-    const produtosResumo = this.organizarPorProduto(vendasFiltradas);
-
-    this.prepararGraficoClientes(clientesResumo);
-    this.prepararGraficoProdutos(produtosResumo);
-  }
-
   // --- MÉTODOS DE ORGANIZAÇÃO DE GRÁFICOS (Mantidos) ---
 
-  organizarPorCliente(vendas: Venda[]): ClienteResumo[] {
-    const mapaClientes = new Map<number, ClienteResumo>();
-    vendas.forEach((venda) => {
-      let cliente = mapaClientes.get(venda.cliente_id);
-      if (!cliente) {
-        cliente = {
-          cliente_id: venda.cliente_id,
-          cliente_nome: venda.cliente_nome,
-          total_compras: venda.total_compras,
-          total_produtos_vendidos: 0,
-          produtos: [],
-        };
-        mapaClientes.set(venda.cliente_id, cliente);
+  prepararGraficoClientesCorrigido(orcamentos: any[]) {
+    // Pegamos apenas os orçamentos que viraram vendas (Finalizados)
+    const orcamentosFinalizados = orcamentos.filter(
+      (o) => o.status === 'Finalizado',
+    );
+
+    // Usamos um Map para agrupar as compras por Cliente
+    const mapaClientes = new Map<
+      number,
+      { nome: string; qtdPedidos: number }
+    >();
+
+    orcamentosFinalizados.forEach((orc) => {
+      const id = orc.idCliente;
+      // Puxa o nome do cliente que já vem junto do orçamento
+      const nome = orc.cliente?.nome || 'Cliente ' + id;
+
+      if (!mapaClientes.has(id)) {
+        mapaClientes.set(id, { nome: nome, qtdPedidos: 0 });
       }
-      cliente.produtos.push({
-        produto_nome: venda.produto_nome,
-        total_vendido: venda.total_vendido,
-      });
-      cliente.total_produtos_vendidos += venda.total_vendido;
+
+      // Adiciona exatamente 1 pedido, independente de quantos produtos tem dentro dele!
+      mapaClientes.get(id)!.qtdPedidos += 1;
     });
-    return Array.from(mapaClientes.values());
+
+    // Ordena do cliente que comprou mais vezes para o que comprou menos
+    const clientesOrdenados = Array.from(mapaClientes.values()).sort(
+      (a, b) => b.qtdPedidos - a.qtdPedidos,
+    );
+
+    const labels = clientesOrdenados.map((c) => c.nome.split(' ')[0]); // Pega só o primeiro nome
+    const data = clientesOrdenados.map((c) => c.qtdPedidos);
+
+    this.chartClientesData = {
+      labels,
+      datasets: [
+        {
+          label: 'Total de Compras (Pedidos)',
+          data,
+          backgroundColor: '#6366f1',
+          hoverBackgroundColor: '#4f46e5',
+        },
+      ],
+    };
   }
 
   organizarPorProduto(vendas: Venda[]): ProdutoResumo[] {
@@ -210,28 +233,6 @@ export class GraficosComponent implements OnInit {
     return Array.from(mapaProdutos.values()).sort(
       (a, b) => b.total_vendido - a.total_vendido,
     );
-  }
-
-  prepararGraficoClientes(clientes: ClienteResumo[]) {
-    const clientesOrdenados = clientes.sort(
-      (a, b) => b.total_compras - a.total_compras,
-    );
-    const labels = clientesOrdenados.map((c) =>
-      c.cliente_nome ? c.cliente_nome.split(' ')[0] : 'Cliente',
-    );
-    const data = clientesOrdenados.map((c) => c.total_compras);
-
-    this.chartClientesData = {
-      labels,
-      datasets: [
-        {
-          label: 'Compras',
-          data,
-          backgroundColor: '#6366f1',
-          hoverBackgroundColor: '#4f46e5',
-        },
-      ],
-    };
   }
 
   prepararGraficoProdutos(produtos: ProdutoResumo[]) {

@@ -9,6 +9,7 @@ export interface Venda {
   cliente_id: number;
   cliente_nome: string;
   total_compras: number;
+  updated_at: string; // <-- A propriedade nova para o filtro funcionar!
 }
 
 @Injectable({
@@ -23,7 +24,8 @@ export class GraficosDataService {
   async carregarDados() {
     const userId = this.loginService.getUserLogado();
 
-    const { data, error } = await supabase.rpc('get_vendas_e_clientes', {
+    // <-- Chamando a função NOVA aqui
+    const { data, error } = await supabase.rpc('get_vendas_com_data', {
       p_user_id: userId,
     });
 
@@ -38,7 +40,8 @@ export class GraficosDataService {
       return;
     }
 
-    this.vendasSubject.next(data);
+    // Passamos os dados garantindo que eles seguem a interface Venda
+    this.vendasSubject.next(data as Venda[]);
   }
 
   async atualizarDados() {
