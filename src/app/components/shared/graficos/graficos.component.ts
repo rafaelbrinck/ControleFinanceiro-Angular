@@ -6,11 +6,12 @@ import { FormsModule } from '@angular/forms'; // <-- Importado para o filtro de 
 import { GraficosDataService, Venda } from '../../../service/grafico.service';
 import { ClienteResumo, ProdutoResumo } from '../../../models/relatorios';
 import { OrcamentoService } from '../../../service/orcamento.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-graficos',
   standalone: true,
-  imports: [CommonModule, NgChartsModule, FormsModule], // <-- Adicionado FormsModule
+  imports: [CommonModule, NgChartsModule, FormsModule, RouterLink], // <-- Adicionado FormsModule
   templateUrl: './graficos.component.html',
   styleUrls: ['./graficos.component.css'],
 })
