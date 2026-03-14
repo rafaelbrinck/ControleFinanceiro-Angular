@@ -95,7 +95,7 @@
           <button class="btn btn-sm btn-light flex-grow-1 text-primary fw-medium" (click)="duplicarOrcamento(orcamento); $event.stopPropagation()">
             <i class="bi bi-files me-1"></i> Duplicar
           </button>
-          <button class="btn btn-sm btn-light flex-grow-1 text-success fw-medium" (click)="reenviarOrcamento(orcamento); $event.stopPropagation()">
+          <button class="btn btn-sm btn-light flex-grow-1 text-success fw-medium" *ngIf="orcamento.cliente?.telefone" (click)="reenviarOrcamento(orcamento); $event.stopPropagation()">
             <i class="bi bi-whatsapp me-1"></i> Enviar
           </button>
         </div>
@@ -225,7 +225,10 @@
           </button>
         </div>
         <button class="btn btn-success w-100 text-white" (click)="finalizarOrcamento(orcamentoSelecionado)" *ngIf="orcamentoSelecionado.status === 'Aguardando Pagamento'">Finalizar Pagamento</button>
-        <button class="btn btn-light w-100 text-muted" (click)="fecharModal()">Fechar Detalhes</button>
+        
+        <!-- <button class="btn btn-outline-primary w-100" [routerLink]="['/recibo', orcamentoSelecionado.id]">
+          <i class="bi bi-printer"></i> Imprimir Recibo
+        </button> -->
       </div>
     </div>
   </div>

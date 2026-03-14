@@ -22,6 +22,7 @@ export class GraficosComponent implements OnInit {
   orcamentosFinalizados: number = 0;
   orcamentosCancelados: number = 0;
   orcamentosPendentes: number = 0;
+  orcamentosAbertos: number = 0;
   totalVendas: number = 0;
 
   // Variáveis do Filtro de Datas
@@ -107,6 +108,7 @@ export class GraficosComponent implements OnInit {
     });
 
     // Reseta contadores
+    this.orcamentosAbertos = 0;
     this.orcamentosCancelados = 0;
     this.orcamentosPendentes = 0;
     this.orcamentosFinalizados = 0;
@@ -115,11 +117,11 @@ export class GraficosComponent implements OnInit {
 
     orcamentosFiltrados.forEach((orcamento) => {
       if (orcamento.status === 'Cancelado') this.orcamentosCancelados++;
-      if (
-        orcamento.status === 'Aberto' ||
-        orcamento.status === 'Aguardando Pagamento'
-      )
+      if (orcamento.status === 'Aguardando Pagamento')
         this.orcamentosPendentes++;
+      if (orcamento.status === 'Aberto') {
+        this.orcamentosAbertos++;
+      }
       if (orcamento.status === 'Finalizado') {
         this.orcamentosFinalizados++;
         this.totalVendas += orcamento.valor || 0;
