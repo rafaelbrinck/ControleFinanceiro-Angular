@@ -42,7 +42,7 @@ export class OrcamentoComponent {
     private clienteService: ClientesService,
     private orcamentoService: OrcamentoService,
     private alertaService: AlertaService,
-    private router: Router
+    private router: Router,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -81,7 +81,7 @@ export class OrcamentoComponent {
           this.produtosOrcamento = [];
           this.clienteSelecionado = new Cliente();
         }
-      }
+      },
     );
   }
 
@@ -96,7 +96,7 @@ export class OrcamentoComponent {
         produto.valor = variacao.valor;
       }
       const prodLista = this.produtosOrcamento.find(
-        (prod) => prod.nome === produto?.nome
+        (prod) => prod.nome === produto?.nome,
       );
       if (prodLista) {
         prodLista.quantidade = (prodLista.quantidade ?? 0) + 1;
@@ -118,7 +118,7 @@ export class OrcamentoComponent {
     return (
       this.produtosOrcamento.reduce(
         (soma, p) => soma + (p.quantidade ?? 0),
-        0
+        0,
       ) || 0
     );
   }
@@ -127,7 +127,7 @@ export class OrcamentoComponent {
     const total =
       this.produtosOrcamento.reduce(
         (soma, p) => soma + (p.quantidade ?? 0) * (p.valor ?? 0),
-        0
+        0,
       ) || 0;
 
     const totalComDesconto = total - this.desconto;
@@ -140,7 +140,7 @@ export class OrcamentoComponent {
     const total =
       this.produtosOrcamento.reduce(
         (soma, p) => soma + (p.quantidade ?? 0) * (p.valor ?? 0),
-        0
+        0,
       ) + this.frete || 0;
     const taxaTotal = 4.98 + 8.66;
     const totalComTaxa = total / (1 - taxaTotal / 100);
@@ -175,7 +175,7 @@ export class OrcamentoComponent {
     const prodLista = this.produtosOrcamento.find((prod) => prod.id === id);
     if (prodLista?.quantidade == 1) {
       this.produtosOrcamento = this.produtosOrcamento.filter(
-        (p) => p.id !== id
+        (p) => p.id !== id,
       );
     } else {
       prodLista!.quantidade = (prodLista!.quantidade ?? 0) - 1;
@@ -209,23 +209,25 @@ export class OrcamentoComponent {
         this.desconto = 0;
         this.alertaService.sucesso(
           'Orçamento Finalizado',
-          'O orçamento foi salvo com sucesso!'
+          'O orçamento foi salvo com sucesso!',
         );
-        this.alertaService.confirmar(
-          'Deseja enviar o orçamento pelo WhatsApp?',
-          'Você pode enviar o orçamento para o cliente via WhatsApp.',
-          (resultado) => {
-            if (resultado) {
-              this.enviarOrcamentoWhatsApp(orcamento);
+        if (orcamento.cliente?.telefone) {
+          this.alertaService.confirmar(
+            'Deseja enviar o orçamento pelo WhatsApp?',
+            'Você pode enviar o orçamento para o cliente via WhatsApp.',
+            (resultado) => {
+              if (resultado) {
+                this.enviarOrcamentoWhatsApp(orcamento);
+                this.paginaOrcamentos();
+              }
               this.paginaOrcamentos();
-            }
-            this.paginaOrcamentos();
-          }
-        );
+            },
+          );
+        }
       } else {
         this.alertaService.erro(
           'Erro ao Finalizar Orçamento',
-          'Ocorreu um erro ao finalizar o orçamento. Tente novamente.'
+          'Ocorreu um erro ao finalizar o orçamento. Tente novamente.',
         );
       }
     });
@@ -234,14 +236,14 @@ export class OrcamentoComponent {
     if (this.produtosOrcamento.length === 0) {
       this.alertaService.info(
         'Orçamento Vazio',
-        'Você precisa adicionar pelo menos um produto ao orçamento.'
+        'Você precisa adicionar pelo menos um produto ao orçamento.',
       );
       return false;
     }
     if (!this.clienteSelecionado.id) {
       this.alertaService.info(
         'Cliente Não Selecionado',
-        'Você precisa selecionar um cliente para o orçamento.'
+        'Você precisa selecionar um cliente para o orçamento.',
       );
       this.mostrarClientes = true;
       return false;
@@ -249,28 +251,21 @@ export class OrcamentoComponent {
     if (this.frete < 0) {
       this.alertaService.info(
         'Frete Inválido',
-        'O valor do frete não pode ser negativo.'
+        'O valor do frete não pode ser negativo.',
       );
       return false;
     }
     if (this.desconto < 0) {
       this.alertaService.info(
         'Desconto Inválido',
-        'O valor do desconto não pode ser negativo.'
+        'O valor do desconto não pode ser negativo.',
       );
       return false;
     }
     if (this.total < 0) {
       this.alertaService.info(
         'Valor Total Inválido',
-        'O valor total do orçamento não pode ser negativo.'
-      );
-      return false;
-    }
-    if (!this.clienteSelecionado.telefone) {
-      this.alertaService.info(
-        'Telefone Obrigatório',
-        'O telefone do cliente é obrigatório para enviar o orçamento. Por favor, preencha o telefone do cliente.'
+        'O valor total do orçamento não pode ser negativo.',
       );
       return false;
     }

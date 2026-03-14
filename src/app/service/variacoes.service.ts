@@ -15,7 +15,7 @@ export class VariacoesService {
 
   constructor(
     private loginService: LoginService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
   ) {}
 
   async carregarVariacoes() {
@@ -24,7 +24,8 @@ export class VariacoesService {
     const { data, error } = await supabase
       .from('variacoes')
       .select('*')
-      .eq('idUser', userId);
+      .eq('idUser', userId)
+      .order('valor', { ascending: true });
 
     if (error) {
       console.error('Erro ao carregar variações:', error.message);
@@ -97,7 +98,7 @@ export class VariacoesService {
     if (!variacao.variacao || !variacao.valor || !variacao.idProd) {
       this.alertaService.erro(
         'Campos inválidos',
-        'Por favor, preencha todos os campos obrigatórios.'
+        'Por favor, preencha todos os campos obrigatórios.',
       );
       return false;
     }
