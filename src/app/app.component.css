@@ -1,0 +1,82 @@
+/* --- HEADER GERAL --- */
+.app-header {
+  height: 70px;
+  z-index: 1030;
+}
+
+/* --- ESTILOS DESKTOP --- */
+.nav-link-desktop {
+  text-decoration: none;
+  color: #6c757d;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  transition: color 0.2s ease-in-out;
+  border-bottom: 2px solid transparent;
+}
+
+.nav-link-desktop:hover {
+  color: #6366f1;
+}
+
+.active-desktop {
+  color: #6366f1;
+  font-weight: 600;
+  border-bottom: 2px solid #6366f1;
+}
+
+/* --- ESTILOS MOBILE (BOTTOM NAV) --- */
+.bottom-nav {
+  height: 65px;
+  z-index: 1030;
+  /* padding-bottom: env(safe-area-inset-bottom); Ajuda em iPhones sem botão home */
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-item-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #a1a1aa; /* Ícone inativo um pouco mais claro */
+  width: 100%;
+  height: 100%;
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-item-mobile i {
+  font-size: 1.35rem;
+  margin-bottom: 2px;
+  transition: transform 0.2s;
+}
+
+.nav-item-mobile span {
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+/* A Mágica do Ícone Ativo no App */
+.nav-item-mobile.active {
+  color: #6366f1;
+}
+
+.nav-item-mobile.active i {
+  transform: translateY(-2px); /* Dá um pequeno pulinho pra cima */
+}
+
+/* --- ESPAÇAMENTO DO CONTEÚDO PRINCIPAL --- */
+/* Isso garante que o topo e o rodapé não cubram o conteúdo das telas */
+.main-content.is-logged-in {
+  padding-top: 85px; /* Espaço para o header */
+  padding-bottom: 85px; /* Espaço para a Bottom Nav no mobile */
+}
+
+/* Quando estiver em telas grandes (Desktop), removemos o espaço do rodapé */
+@media (min-width: 992px) {
+  .main-content.is-logged-in {
+    padding-bottom: 20px;
+  }
+}
