@@ -1,0 +1,23 @@
+{
+  "name": "Controle Financeiro",
+  "short_name": "Finanças",
+  "theme_color": "#6366f1",
+  "background_color": "#f8f9fa",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "./",
+  "icons": [
+    {
+      "src": "icons/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
+}

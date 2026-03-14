@@ -19,6 +19,11 @@ import { AlertaComponent } from './components/shared/alerta/alerta.component';
 import { AlertaService } from './service/alerta.service';
 import { OrcamentoService } from './service/orcamento.service';
 
+// 1. Importações do PWA adicionadas aqui
+
+import { filter } from 'rxjs/operators';
+import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
+
 declare var bootstrap: any;
 
 @Component({
@@ -49,7 +54,8 @@ export class AppComponent implements OnInit {
     private router: Router,
     private loginService: LoginService,
     private alertaService: AlertaService,
-    private orcamentoService: OrcamentoService
+    private orcamentoService: OrcamentoService,
+    private swUpdate: SwUpdate, // 2. SwUpdate injetado no construtor
   ) {}
 
   ngAfterViewInit(): void {
@@ -57,6 +63,27 @@ export class AppComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    // 3. Lógica do PWA: Fica escutando atualizações da Vercel
+    if (this.swUpdate.isEnabled) {
+      this.swUpdate.versionUpdates
+        .pipe(
+          filter(
+            (evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY',
+          ),
+        )
+        .subscribe(() => {
+          // Mantive o confirm nativo do navegador pois ele trava a tela e força a resposta do usuário,
+          // mas você pode trocar pelo seu 'alertaService' no futuro se preferir um visual mais limpo.
+          if (
+            confirm(
+              'Nova versão do sistema disponível! Deseja atualizar agora?',
+            )
+          ) {
+            window.location.reload();
+          }
+        });
+    }
+
     // ✅ Restaura sessão se existir ao carregar o app
     await this.loginService.restaurarSessao();
     this.usuario = await this.loginService.getUser();
