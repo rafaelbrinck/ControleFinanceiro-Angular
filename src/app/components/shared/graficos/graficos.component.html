@@ -11,7 +11,7 @@
         type="date" 
         class="form-control form-control-sm border-0 bg-transparent shadow-none" 
         [(ngModel)]="dataInicio" 
-        (change)="aplicarFiltro()">
+        (change)="aplicarFiltro('all')">
       
       <span class="text-muted small fw-bold px-1">até</span>
       
@@ -19,7 +19,7 @@
         type="date" 
         class="form-control form-control-sm border-0 bg-transparent shadow-none" 
         [(ngModel)]="dataFim" 
-        (change)="aplicarFiltro()">
+        (change)="aplicarFiltro('all')">
     </div>
   </div>
 
@@ -45,6 +45,27 @@
         <div class="mt-2">
           <h3 class="fw-bold mb-0 text-dark">{{ totalOrcamento }}</h3>
           <small class="text-muted fw-medium">Orçamentos</small>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="orcamentosVencidos > 0" class="col-6 col-md-3 fade-in" [routerLink]="['/lista-orcamentos']">
+      <div class="stat-card bg-danger border-0 position-relative h-100 alert-pulse">
+        
+        <span class="position-absolute top-0 end-0 mt-2 me-2">
+          <span class="spinner-grow spinner-grow-sm text-white opacity-75" style="width: 0.8rem; height: 0.8rem;" role="status"></span>
+        </span>
+
+        <div class="icon-box bg-white text-danger shadow-sm">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="mt-2">
+          <h3 class="fw-bold mb-0 text-white">
+            {{ orcamentosVencidos }}
+          </h3>
+          <small class="fw-bold text-white text-opacity-75">
+            Vencidos
+          </small>
         </div>
       </div>
     </div>

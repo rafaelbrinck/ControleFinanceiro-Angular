@@ -24,6 +24,7 @@ export class GraficosComponent implements OnInit {
   orcamentosCancelados: number = 0;
   orcamentosPendentes: number = 0;
   orcamentosAbertos: number = 0;
+  orcamentosVencidos: number = 0;
   totalVendas: number = 0;
 
   // Variáveis do Filtro de Datas
@@ -80,73 +81,86 @@ export class GraficosComponent implements OnInit {
     // Carrega e guarda os Orçamentos originais
     this.orcamentoService.orcamento$.subscribe((orcamentos) => {
       this.todosOrcamentos = orcamentos;
-      this.aplicarFiltro(); // Aplica o filtro logo que os dados chegam
+      this.aplicarFiltro('orcamentos'); // Aplica o filtro logo que os dados chegam
     });
 
     // Carrega e guarda as Vendas originais
     this.graficosDataService.vendas$.subscribe((vendas) => {
       this.todasVendas = vendas;
-      this.aplicarFiltro(); // Aplica o filtro logo que os dados chegam
+      this.aplicarFiltro('vendas'); // Aplica o filtro logo que os dados chegam
     });
   }
 
-  aplicarFiltro() {
-    // 1. Filtra Orçamentos pelo período
-    const orcamentosFiltrados = this.todosOrcamentos.filter((o) => {
-      // Tenta pegar o updated_at, se não tiver, pega o created_at
-      const dataOrc = o.updated_at
-        ? String(o.updated_at).substring(0, 10)
-        : o.created_at
-          ? String(o.created_at).substring(0, 10)
+  aplicarFiltro(chartType: 'all' | 'vendas' | 'orcamentos') {
+    if (chartType === 'orcamentos' || chartType === 'all') {
+      // 1. Filtra Orçamentos pelo período
+      const orcamentosFiltrados = this.todosOrcamentos.filter((o) => {
+        // Tenta pegar o updated_at, se não tiver, pega o created_at
+        const dataOrc = o.updated_at
+          ? String(o.updated_at).substring(0, 10)
+          : o.created_at
+            ? String(o.created_at).substring(0, 10)
+            : null;
+
+        if (!dataOrc) return true; // Se não tiver data de jeito nenhum, deixa passar
+
+        return (
+          (!this.dataInicio || dataOrc >= this.dataInicio) &&
+          (!this.dataFim || dataOrc <= this.dataFim)
+        );
+      });
+
+      // Reseta contadores
+      this.orcamentosAbertos = 0;
+      this.orcamentosCancelados = 0;
+      this.orcamentosPendentes = 0;
+      this.orcamentosFinalizados = 0;
+      this.totalVendas = 0;
+      this.orcamentosVencidos = 0;
+      this.totalOrcamento = orcamentosFiltrados.length;
+
+      orcamentosFiltrados.forEach((orcamento) => {
+        if (orcamento.status === 'Cancelado') this.orcamentosCancelados++;
+        if (orcamento.status === 'Aguardando Pagamento') {
+          this.orcamentosPendentes++;
+          if (
+            orcamento.dt_boleto &&
+            String(orcamento.dt_boleto).substring(0, 10) <
+              this.formatarDataParaInput(new Date())
+          ) {
+            this.orcamentosVencidos++;
+          }
+        }
+        if (orcamento.status === 'Aberto') {
+          this.orcamentosAbertos++;
+        }
+        if (orcamento.status === 'Finalizado') {
+          this.orcamentosFinalizados++;
+          this.totalVendas += orcamento.valor || 0;
+        }
+      });
+
+      // A MÁGICA AQUI: Gera o gráfico de Clientes direto da lista de Orçamentos filtrada
+      this.prepararGraficoClientesCorrigido(orcamentosFiltrados);
+    }
+
+    if (chartType === 'vendas' || chartType === 'all') {
+      // 2. Filtra Vendas (Agora APENAS para o Gráfico de Produtos)
+      const vendasFiltradas = this.todasVendas.filter((v) => {
+        const dataVenda = (v as any).updated_at
+          ? String((v as any).updated_at).substring(0, 10)
           : null;
+        if (!dataVenda) return false;
 
-      if (!dataOrc) return true; // Se não tiver data de jeito nenhum, deixa passar
+        return (
+          (!this.dataInicio || dataVenda >= this.dataInicio) &&
+          (!this.dataFim || dataVenda <= this.dataFim)
+        );
+      });
 
-      return (
-        (!this.dataInicio || dataOrc >= this.dataInicio) &&
-        (!this.dataFim || dataOrc <= this.dataFim)
-      );
-    });
-
-    // Reseta contadores
-    this.orcamentosAbertos = 0;
-    this.orcamentosCancelados = 0;
-    this.orcamentosPendentes = 0;
-    this.orcamentosFinalizados = 0;
-    this.totalVendas = 0;
-    this.totalOrcamento = orcamentosFiltrados.length;
-
-    orcamentosFiltrados.forEach((orcamento) => {
-      if (orcamento.status === 'Cancelado') this.orcamentosCancelados++;
-      if (orcamento.status === 'Aguardando Pagamento')
-        this.orcamentosPendentes++;
-      if (orcamento.status === 'Aberto') {
-        this.orcamentosAbertos++;
-      }
-      if (orcamento.status === 'Finalizado') {
-        this.orcamentosFinalizados++;
-        this.totalVendas += orcamento.valor || 0;
-      }
-    });
-
-    // A MÁGICA AQUI: Gera o gráfico de Clientes direto da lista de Orçamentos filtrada
-    this.prepararGraficoClientesCorrigido(orcamentosFiltrados);
-
-    // 2. Filtra Vendas (Agora APENAS para o Gráfico de Produtos)
-    const vendasFiltradas = this.todasVendas.filter((v) => {
-      const dataVenda = (v as any).updated_at
-        ? String((v as any).updated_at).substring(0, 10)
-        : null;
-      if (!dataVenda) return false;
-
-      return (
-        (!this.dataInicio || dataVenda >= this.dataInicio) &&
-        (!this.dataFim || dataVenda <= this.dataFim)
-      );
-    });
-
-    const produtosResumo = this.organizarPorProduto(vendasFiltradas);
-    this.prepararGraficoProdutos(produtosResumo);
+      const produtosResumo = this.organizarPorProduto(vendasFiltradas);
+      this.prepararGraficoProdutos(produtosResumo);
+    }
   }
 
   // --- MÉTODOS DE DATA E FILTRO ---

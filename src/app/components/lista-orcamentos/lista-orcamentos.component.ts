@@ -244,6 +244,20 @@ export class ListaOrcamentosComponent implements OnInit {
     return true;
   }
 
+  verificarVencido(orcamento: any): boolean {
+    if (orcamento.status === 'Aguardando Pagamento' && orcamento.dt_boleto) {
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+
+      const dataVencimento = new Date(orcamento.dt_boleto + 'T00:00:00');
+      dataVencimento.setHours(0, 0, 0, 0);
+
+      return dataVencimento < hoje;
+    }
+
+    return false;
+  }
+
   get calculoGanchos() {
     let total = 0;
     this.orcamentoSelecionado?.produtos?.forEach((prod) => {
