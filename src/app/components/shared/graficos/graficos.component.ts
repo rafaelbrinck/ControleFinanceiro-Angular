@@ -119,6 +119,7 @@ export class GraficosComponent implements OnInit {
       this.orcamentosFinalizados = 0;
       this.totalVendas = 0;
       this.orcamentosVencidos = 0;
+      this.previsaoEntrada = 0;
       this.totalOrcamento = orcamentosFiltrados.length;
 
       orcamentosFiltrados.forEach((orcamento) => {
