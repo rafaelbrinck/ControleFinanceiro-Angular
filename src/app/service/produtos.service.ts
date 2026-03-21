@@ -18,7 +18,7 @@ export class ProdutosService {
     private loginService: LoginService,
     private alertaService: AlertaService,
     private categoriaService: CategoriaService,
-    private variacaoService: VariacoesService
+    private variacaoService: VariacoesService,
   ) {}
 
   async carregarProdutos() {
@@ -27,7 +27,8 @@ export class ProdutosService {
     const { data, error } = await supabase
       .from('produtos')
       .select('*')
-      .eq('idUser', userId);
+      .eq('idUser', userId)
+      .order('nome', { ascending: true });
 
     if (error) {
       console.error('Erro ao carregar produtos:', error.message);
@@ -37,7 +38,7 @@ export class ProdutosService {
     this.categoriaService.categorias$.subscribe((categorias) => {
       data.forEach((produto) => {
         const categoria = categorias.find(
-          (cat) => cat.id === produto.categoria
+          (cat) => cat.id === produto.categoria,
         );
         produto.cat = categoria ? categoria.nome : 'Categoria não encontrada';
       });
@@ -75,7 +76,7 @@ export class ProdutosService {
       console.error('Erro ao inserir produto:', error.message);
       this.alertaService.erro(
         'Erro ao inserir produto',
-        'Por favor, tente novamente mais tarde.'
+        'Por favor, tente novamente mais tarde.',
       );
       return false;
     }
@@ -93,7 +94,7 @@ export class ProdutosService {
           console.error('Erro ao inserir variações');
           this.alertaService.erro(
             'Erro ao inserir variações',
-            'Por favor, tente novamente mais tarde.'
+            'Por favor, tente novamente mais tarde.',
           );
           return false;
         }
@@ -118,7 +119,7 @@ export class ProdutosService {
       console.error('Erro ao editar produto:', error.message);
       this.alertaService.erro(
         'Erro ao editar produto',
-        'Por favor, tente novamente mais tarde.'
+        'Por favor, tente novamente mais tarde.',
       );
       return;
     }
@@ -139,7 +140,7 @@ export class ProdutosService {
       console.error('Erro ao deletar produto:', error.message);
       return this.alertaService.erro(
         'Erro ao deletar produto',
-        'Por favor, tente novamente mais tarde.'
+        'Por favor, tente novamente mais tarde.',
       );
     }
 
@@ -173,7 +174,7 @@ export class ProdutosService {
       if (produto.valor == null || produto.valor <= 0) {
         this.alertaService.info(
           'Obrigatório',
-          'Valor do produto deve ser maior que zero'
+          'Valor do produto deve ser maior que zero',
         );
         return false;
       }

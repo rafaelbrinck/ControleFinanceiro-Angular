@@ -78,7 +78,14 @@
                 {{ orcamento.status }}
               </span>
 
-              <span *ngIf="verificarVencido(orcamento)" class="badge rounded-pill bg-danger py-2 px-3 d-inline-flex align-items-center fw-bold alert-pulse">
+              <span *ngIf="orcamento.dt_boleto && orcamento.status === 'Aguardando Pagamento'" 
+                    class="badge rounded-pill border py-2 px-3 d-inline-flex align-items-center fw-medium"
+                    [ngClass]="verificarVencido(orcamento) ? 'bg-white border-danger text-danger' : 'bg-light border-secondary border-opacity-25 text-secondary'">
+                <i class="bi bi-calendar-event me-2 fs-6"></i>
+                Vence em: {{ orcamento.dt_boleto | date: 'dd/MM/yyyy' }}
+              </span>
+
+              <span *ngIf="verificarVencido(orcamento)" class="badge rounded-pill bg-danger py-2 px-3 d-inline-flex align-items-center fw-bold alert-pulse text-white">
                 <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
                 Vencido
               </span>

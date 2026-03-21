@@ -7,6 +7,7 @@ import { GraficosDataService, Venda } from '../../../service/grafico.service';
 import { ClienteResumo, ProdutoResumo } from '../../../models/relatorios';
 import { OrcamentoService } from '../../../service/orcamento.service';
 import { RouterLink } from '@angular/router';
+import { Orcamento } from '../../../models/orcamento';
 
 @Component({
   selector: 'app-graficos',
@@ -26,13 +27,14 @@ export class GraficosComponent implements OnInit {
   orcamentosAbertos: number = 0;
   orcamentosVencidos: number = 0;
   totalVendas: number = 0;
+  previsaoEntrada: number = 0;
 
   // Variáveis do Filtro de Datas
   dataInicio: string = '';
   dataFim: string = '';
 
   // Guardam os dados originais para não precisar bater no banco toda hora
-  todosOrcamentos: any[] = [];
+  todosOrcamentos: Orcamento[] = [];
   todasVendas: Venda[] = [];
 
   public chartOptions: ChartConfiguration['options'] = {
@@ -123,6 +125,7 @@ export class GraficosComponent implements OnInit {
         if (orcamento.status === 'Cancelado') this.orcamentosCancelados++;
         if (orcamento.status === 'Aguardando Pagamento') {
           this.orcamentosPendentes++;
+          this.previsaoEntrada += orcamento.valor || 0;
           if (
             orcamento.dt_boleto &&
             String(orcamento.dt_boleto).substring(0, 10) <

@@ -14,7 +14,7 @@ export class ClientesService {
 
   constructor(
     private loginService: LoginService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
   ) {}
 
   async carregarClientes() {
@@ -22,7 +22,8 @@ export class ClientesService {
     const { data, error } = await supabase
       .from('clientes')
       .select('*')
-      .eq('idUser', userId);
+      .eq('idUser', userId)
+      .order('nome', { ascending: true });
 
     if (error) {
       console.error('Erro ao carregar clientes:', error.message);
