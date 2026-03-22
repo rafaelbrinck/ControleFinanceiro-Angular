@@ -109,6 +109,7 @@ export class ListaOrcamentosComponent implements OnInit {
             this.fecharModal();
             return true;
           }
+
           const categoriaVenda = await this.categoriaService.retornarVenda();
           if (!categoriaVenda) {
             this.alertaService.erro(
@@ -128,6 +129,10 @@ export class ListaOrcamentosComponent implements OnInit {
             data: new Date(),
           };
 
+          // Descontando a taxa do boleto da Nubank, R$0,90
+          if (orcamento.dt_boleto) {
+            transacao.valor = orcamento.valor - 0.9;
+          }
           const sucessoTransacao =
             await this.transacaoService.inserir(transacao);
           if (!sucessoTransacao) {
