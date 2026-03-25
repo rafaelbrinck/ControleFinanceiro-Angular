@@ -24,59 +24,70 @@
   </div>
 
   <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden total-sales-card">
-  <div class="card-body text-center py-4 position-relative z-1">
-    
-    <span class="badge bg-white text-success shadow-sm mb-2 rounded-pill px-3 py-2">
-      <i class="bi bi-graph-up-arrow me-1"></i> Receita Total
-    </span>
-    
-    <h1 class="display-4 fw-bold text-white mb-0 tracking-tight">
-      {{ totalVendas | currency:'BRL':'symbol':'1.0-0' }}
-    </h1>
-    <p class="text-white text-opacity-75 small mt-1 mb-4">Acumulado do período selecionado</p>
+    <div class="card-body text-center py-4 position-relative z-1">
+      
+      <span class="badge bg-white text-success shadow-sm mb-2 rounded-pill px-3 py-2">
+        <i class="bi bi-graph-up-arrow me-1"></i> Receita Total
+      </span>
+      
+      <h1 class="display-4 fw-bold text-white mb-0 tracking-tight">
+        {{ totalVendas | currency:'BRL':'symbol':'1.0-0' }}
+      </h1>
+      <p class="text-white text-opacity-75 small mt-1 mb-2">Acumulado do período selecionado</p>
 
-    <div class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-10 rounded-pill px-4 py-2 border border-white border-opacity-25 shadow-sm" *ngIf="previsaoEntrada > 0">
-      <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 26px; height: 26px;">
-        <i class="bi bi-cash-coin text-dark fw-bold" style="font-size: 0.9rem;"></i>
-      </div>
-      <span class="text-white text-opacity-75 small fw-medium">Previsão de Entrada:</span>
-      <span class="text-white fw-bold fs-6">{{ previsaoEntrada | currency:'BRL':'symbol':'1.0-0' }}</span>
     </div>
-
+    <div class="bg-deco"></div>
   </div>
-  <div class="bg-deco"></div>
-</div>
 
   <div class="row g-3 mb-4">
-    <div class="col-6 col-md-3" [routerLink]="['/lista-orcamentos']">
+    
+    <div class="col-6 col-md-3" *ngIf="totalAbertos > 0">
+      <div class="stat-card">
+        <div class="icon-box bg-info-subtle text-info">
+          <i class="bi bi-wallet2"></i>
+        </div>
+        <div class="mt-2">
+          <h3 class="fw-bold mb-0 text-dark">{{ totalAbertos | currency:'BRL':'symbol':'1.0-0' }}</h3>
+          <small class="text-muted fw-medium lh-sm d-block mt-1">Abertos + Boletos</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3" *ngIf="previsaoEntrada > 0">
+      <div class="stat-card">
+        <div class="icon-box bg-warning-subtle text-warning">
+          <i class="bi bi-cash-coin"></i>
+        </div>
+        <div class="mt-2">
+          <h3 class="fw-bold mb-0 text-dark">{{ previsaoEntrada | currency:'BRL':'symbol':'1.0-0' }}</h3>
+          <small class="text-muted fw-medium lh-sm d-block mt-1">Previsão Boletos</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3" [routerLink]="['/lista-orcamentos']" style="cursor: pointer;">
       <div class="stat-card">
         <div class="icon-box bg-primary-subtle text-primary">
           <i class="bi bi-file-earmark-text-fill"></i>
         </div>
         <div class="mt-2">
           <h3 class="fw-bold mb-0 text-dark">{{ totalOrcamento }}</h3>
-          <small class="text-muted fw-medium">Orçamentos</small>
+          <small class="text-muted fw-medium lh-sm d-block mt-1">Orçamentos</small>
         </div>
       </div>
     </div>
 
-    <div *ngIf="orcamentosVencidos > 0" class="col-6 col-md-3 fade-in" [routerLink]="['/lista-orcamentos']">
+    <div *ngIf="orcamentosVencidos > 0" class="col-6 col-md-3 fade-in" [routerLink]="['/lista-orcamentos']" style="cursor: pointer;">
       <div class="stat-card bg-danger border-0 position-relative h-100 alert-pulse">
-        
         <span class="position-absolute top-0 end-0 mt-2 me-2">
           <span class="spinner-grow spinner-grow-sm text-white opacity-75" style="width: 0.8rem; height: 0.8rem;" role="status"></span>
         </span>
-
         <div class="icon-box bg-white text-danger shadow-sm">
           <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
         <div class="mt-2">
-          <h3 class="fw-bold mb-0 text-white">
-            {{ orcamentosVencidos }}
-          </h3>
-          <small class="fw-bold text-white text-opacity-75">
-            Vencidos
-          </small>
+          <h3 class="fw-bold mb-0 text-white">{{ orcamentosVencidos }}</h3>
+          <small class="fw-bold text-white text-opacity-75 lh-sm d-block mt-1">Vencidos</small>
         </div>
       </div>
     </div>
@@ -88,7 +99,7 @@
         </div>
         <div class="mt-2">
           <h3 class="fw-bold mb-0 text-dark">{{ orcamentosFinalizados }}</h3>
-          <small class="text-muted fw-medium">Fechados</small>
+          <small class="text-muted fw-medium lh-sm d-block mt-1">Fechados</small>
         </div>
       </div>
     </div>
@@ -100,7 +111,7 @@
         </div>
         <div class="mt-2">
           <h3 class="fw-bold mb-0 text-dark">{{ orcamentosAbertos }}</h3>
-          <small class="text-muted fw-medium">Abertos</small>
+          <small class="text-muted fw-medium lh-sm d-block mt-1">Abertos</small>
         </div>
       </div>
     </div>
@@ -112,7 +123,7 @@
         </div>
         <div class="mt-2">
           <h3 class="fw-bold mb-0 text-dark">{{ orcamentosPendentes }}</h3>
-          <small class="text-muted fw-medium">Aguardando Pagamento</small>
+          <small class="text-muted fw-medium lh-sm d-block mt-1">Aguardando Pgto</small>
         </div>
       </div>
     </div>
@@ -124,10 +135,11 @@
         </div>
         <div class="mt-2">
           <h3 class="fw-bold mb-0 text-dark">{{ orcamentosCancelados }}</h3>
-          <small class="text-muted fw-medium">Perdidos</small>
+          <small class="text-muted fw-medium lh-sm d-block mt-1">Perdidos</small>
         </div>
       </div>
     </div>
+
   </div>
 
   <div class="row g-4">
