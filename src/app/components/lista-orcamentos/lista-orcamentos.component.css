@@ -13,7 +13,9 @@
 /* Card de Orçamento */
 .budget-card {
   border-radius: 16px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   cursor: pointer;
   background: #fff;
 
@@ -113,4 +115,19 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Estilização do Input de Mês (Esconde ícones nativos excessivos no Chrome/Safari) */
+.month-input {
+  cursor: pointer;
+}
+
+.month-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.5;
+  transition: 0.2s;
+}
+
+.month-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }

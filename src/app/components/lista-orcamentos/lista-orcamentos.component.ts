@@ -31,6 +31,7 @@ export class ListaOrcamentosComponent implements OnInit {
   nomePesquisa?: string;
   listaOrcamentos: Orcamento[] = [];
   orcamentoSelecionado?: Orcamento;
+  mesAnoSelecionado: string = '';
 
   constructor(
     private orcamentoService: OrcamentoService,
@@ -41,6 +42,12 @@ export class ListaOrcamentosComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    // Inicializa com o mês atual no formato YYYY-MM
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    this.mesAnoSelecionado = `${ano}-${mes}`;
+
     this.orcamentoService.orcamentoSelecionado$.subscribe(
       (orcamento) => (this.orcamentoSelecionado = orcamento ?? undefined),
     );
@@ -51,6 +58,24 @@ export class ListaOrcamentosComponent implements OnInit {
     });
     this.orcamentoService.orcamento$.subscribe((dados) => {
       this.listaOrcamentos = dados;
+    });
+  }
+
+  // Getter que filtra os orçamentos com base no mês e ano selecionado
+  get orcamentosFiltrados(): Orcamento[] {
+    if (!this.mesAnoSelecionado) {
+      return this.listaOrcamentos;
+    }
+
+    return this.listaOrcamentos.filter((orcamento) => {
+      if (!orcamento.created_at) return false;
+
+      const data = new Date(orcamento.created_at);
+      const ano = data.getFullYear();
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const mesAnoOrcamento = `${ano}-${mes}`;
+
+      return mesAnoOrcamento === this.mesAnoSelecionado;
     });
   }
 
