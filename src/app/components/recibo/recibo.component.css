@@ -40,7 +40,7 @@
    REGRAS DE IMPRESSÃO (A MÁGICA DA FOLHA A4)
    ========================================= */
 @media print {
-  /* Força os navegadores a imprimirem cores de fundo e gradientes */
+  /* 1. Cores e Fundo */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -51,25 +51,61 @@
     color: white !important;
   }
 
+  body {
+    background-color: white !important;
+    font-size: 12px !important; /* Reduz um pouquinho a fonte global para caber mais */
+  }
+
   .print-container {
     padding: 0 !important;
     margin: 0 !important;
     max-width: 100% !important;
   }
 
-  /* Evita que o navegador corte uma linha de produto ou assinatura ao meio da página */
-  tr,
-  .row {
-    page-break-inside: avoid;
-  }
-
-  /* Ajusta as margens para uma folha A4 padrão */
+  /* 2. Reduz margens da folha A4 (De 1.5cm para 0.5cm) */
   @page {
-    margin: 1.5cm;
+    margin: 0.5cm;
     size: A4 portrait;
   }
 
-  body {
-    background-color: white !important;
+  /* 3. A CORREÇÃO DO MOBILE: Força colunas lado a lado */
+  .row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* Impede que empilhe no celular */
+  }
+
+  /* Força a largura das colunas do Bootstrap na impressão */
+  .col-sm-6 {
+    width: 50% !important;
+    flex: 0 0 50% !important;
+  }
+  .col-sm-7 {
+    width: 58.33% !important;
+    flex: 0 0 58.33% !important;
+  }
+  .col-sm-5 {
+    width: 41.66% !important;
+    flex: 0 0 41.66% !important;
+  }
+
+  /* 4. Reduz margens gigantes que servem só pra tela (mb-5, mt-5) */
+  .mb-5 {
+    margin-bottom: 1.5rem !important;
+  }
+  .mt-5 {
+    margin-top: 1.5rem !important;
+  }
+  .pt-5 {
+    padding-top: 1.5rem !important;
+  }
+  .mb-4 {
+    margin-bottom: 1rem !important;
+  }
+
+  /* 5. Evita cortes no meio de tabelas e assinaturas */
+  tr,
+  .row {
+    page-break-inside: avoid;
   }
 }
