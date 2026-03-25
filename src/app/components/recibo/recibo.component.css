@@ -40,7 +40,6 @@
    REGRAS DE IMPRESSÃO (A MÁGICA DA FOLHA A4)
    ========================================= */
 @media print {
-  /* 1. Cores e Fundo */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -53,7 +52,8 @@
 
   body {
     background-color: white !important;
-    font-size: 12px !important; /* Reduz um pouquinho a fonte global para caber mais */
+    /* Reduzimos a fonte base de 12px para 11px */
+    font-size: 11px !important;
   }
 
   .print-container {
@@ -62,20 +62,17 @@
     max-width: 100% !important;
   }
 
-  /* 2. Reduz margens da folha A4 (De 1.5cm para 0.5cm) */
   @page {
     margin: 0.5cm;
     size: A4 portrait;
   }
 
-  /* 3. A CORREÇÃO DO MOBILE: Força colunas lado a lado */
   .row {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: nowrap !important; /* Impede que empilhe no celular */
+    flex-wrap: nowrap !important;
   }
 
-  /* Força a largura das colunas do Bootstrap na impressão */
   .col-sm-6 {
     width: 50% !important;
     flex: 0 0 50% !important;
@@ -89,21 +86,36 @@
     flex: 0 0 41.66% !important;
   }
 
-  /* 4. Reduz margens gigantes que servem só pra tela (mb-5, mt-5) */
-  .mb-5 {
-    margin-bottom: 1.5rem !important;
-  }
-  .mt-5 {
-    margin-top: 1.5rem !important;
-  }
-  .pt-5 {
-    padding-top: 1.5rem !important;
-  }
+  /* --- A REDUÇÃO DRÁSTICA DE ESPAÇOS --- */
+  /* Removemos as margens gigantes do Bootstrap apenas na impressão */
+  .mb-5,
   .mb-4 {
-    margin-bottom: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  .mt-5,
+  .mt-4 {
+    margin-top: 0.75rem !important;
+  }
+  .pt-5,
+  .pt-4 {
+    padding-top: 0.75rem !important;
+  }
+  .pb-4 {
+    padding-bottom: 0.75rem !important;
   }
 
-  /* 5. Evita cortes no meio de tabelas e assinaturas */
+  /* Diminui o espaçamento de dentro das células da tabela */
+  .table td,
+  .table th {
+    padding: 0.3rem 0.5rem !important;
+  }
+
+  /* Reduz o tamanho do QR Code apenas na hora de imprimir para poupar espaço */
+  img[alt="QR Code PIX"] {
+    width: 90px !important;
+    height: 90px !important;
+  }
+
   tr,
   .row {
     page-break-inside: avoid;
