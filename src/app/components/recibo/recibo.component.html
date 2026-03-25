@@ -1,0 +1,113 @@
+<div class="container bg-white p-4 p-md-5 print-container" *ngIf="orcamento">
+  
+  <div class="row border-bottom pb-4 mb-4 align-items-start">
+    
+    <div class="col-sm-6 mb-4 mb-sm-0">
+      <div class="bg-primary text-white rounded-3 d-inline-flex align-items-center justify-content-center mb-3 logo-box print-bg-primary">
+        <i class="bi bi-cpu fs-3"></i>
+      </div>
+      <h2 class="fw-black text-dark mb-0 tracking-tight">Brasil Jet Informática</h2>
+      <p class="text-muted fw-medium small mb-0">Tecnologia e Soluções</p>
+      <small class="text-muted" style="font-size: 0.75rem;">CNPJ: 35.117.769/0001-79</small>
+    </div>
+
+    <div class="col-sm-6 text-sm-end">
+      <h1 class="fw-black text-primary text-uppercase tracking-tight mb-2 display-5">Recibo</h1>
+      <p class="fw-bold text-dark mb-1">Fatura #{{ orcamento.id | number:'3.0' }}</p>
+      <p class="text-muted small mb-1">Emitido em: <span class="fw-medium text-dark">{{ orcamento.created_at| date: 'dd/MM/yyyy' }}</span></p>
+    </div>
+  </div>
+
+  <div class="row mb-5">
+    
+    <div class="col-sm-6 mb-4 mb-sm-0">
+      <h6 class="text-muted text-uppercase fw-bold tracking-wide" style="font-size: 0.7rem; margin-bottom: 1rem;">Emitido por</h6>
+      <p class="fw-bold text-dark mb-0">Brasil Jet Informática</p>
+      <p class="text-muted small fw-medium mb-0">(51) 99137-4848</p>
+      <p class="text-primary small fw-medium mb-0">brasiljet&#64;hotmail.com</p>
+    </div>
+
+    <div class="col-sm-6">
+      <h6 class="text-muted text-uppercase fw-bold tracking-wide" style="font-size: 0.7rem; margin-bottom: 1rem;">Faturado para</h6>
+      <p class="fw-bold text-dark mb-0 fs-5">{{ orcamento.cliente?.nome }}</p>
+      <p class="text-muted small mb-2" *ngIf="orcamento.cliente?.cpf">CPF/CNPJ: {{ orcamento.cliente?.cpf! | cpf }}</p>
+      
+      <ng-container *ngIf="orcamento.cliente?.endereco">
+        <p class="text-muted small mb-0">{{ orcamento.cliente?.endereco }}, {{ orcamento.cliente?.endNumero }}</p>
+        <p class="text-muted small mb-0">{{ orcamento.cliente?.bairro }}</p>
+        <p class="text-muted small mb-2">{{ orcamento.cliente?.cidade }} - {{ orcamento.cliente?.uf }}</p>
+      </ng-container>
+      
+      <p class="text-dark small fw-medium mb-0" *ngIf="orcamento.cliente?.telefone">{{ orcamento.cliente?.telefone! | telefone }}</p>
+    </div>
+  </div>
+
+  <div class="mb-5 table-responsive">
+    <table class="table table-borderless align-middle custom-table mb-0">
+      <thead>
+        <tr class="border-bottom border-dark text-dark">
+          <th class="text-uppercase tracking-wide py-3" style="font-size: 0.75rem;">Descrição do Item</th>
+          <th class="text-uppercase tracking-wide py-3 text-center" style="font-size: 0.75rem;">Qtd</th>
+          <th class="text-uppercase tracking-wide py-3 text-end" style="font-size: 0.75rem;">Valor Unit.</th>
+          <th class="text-uppercase tracking-wide py-3 text-end" style="font-size: 0.75rem;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of orcamento.produtos" class="border-bottom">
+          <td class="py-4 fw-medium text-dark">{{ item.nome }}</td>
+          <td class="py-4 text-center text-muted">{{ item.quantidade }}</td>
+          <td class="py-4 text-end text-muted">{{ item.valor | currency:'BRL' }}</td>
+          <td class="py-4 text-end fw-bold text-dark">{{ (item.quantidade || 0) * (item.valor || 0) | currency:'BRL' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row justify-content-end mb-5">
+    <div class="col-sm-7 col-lg-5">
+      
+      <div class="d-flex justify-content-between py-2 text-muted small">
+        <span>Subtotal</span>
+        <span class="fw-medium text-dark">{{ (orcamento.valor || 0) - (orcamento.frete || 0) + (orcamento.desconto || 0) | currency:'BRL' }}</span>
+      </div>
+      
+      <div class="d-flex justify-content-between py-2 text-muted small" *ngIf="orcamento.frete">
+        <span>Taxa de Entrega</span>
+        <span class="fw-medium text-dark">{{ orcamento.frete | currency:'BRL' }}</span>
+      </div>
+
+      <div class="d-flex justify-content-between py-2 text-muted small" *ngIf="orcamento.desconto">
+        <span>Desconto</span>
+        <span class="fw-medium text-danger">- {{ orcamento.desconto | currency:'BRL' }}</span>
+      </div>
+
+      <div class="d-flex justify-content-between py-3 mt-2 border-top border-dark border-2 align-items-center">
+        <span class="fw-bold text-dark text-uppercase tracking-wide" style="font-size: 0.85rem;">Total Geral</span>
+        <span class="fs-3 fw-black text-primary">{{ orcamento.valor | currency:'BRL' }}</span>
+      </div>
+
+      <!-- <div class="text-end mt-1 row" >
+        <span class="text-muted fw-bold text-uppercase tracking-wide" style="font-size: 0.7rem;" *ngIf="orcamento.formaPagamento">Método: {{ orcamento.formaPagamento }}</span>
+        <span class="text-muted fw-bold text-uppercase tracking-wide" style="font-size: 0.7rem;">Chave PIX: 35.117.769/0001-79</span>
+        <img src="../../../assets/codepix.png" alt="Código PIX" class="img-fluid mt-2" style="max-width: 150px;">
+        <img [src]=" '../../../assets/codepix.png'" alt="Código PIX" class="img-fluid mt-2" style="max-width: 150px;">
+      </div> -->
+
+      <div class="d-flex flex-column align-items-end mt-4 pt-3 border-top border-2 border-dark">
+  
+        <span class="text-dark fw-bold text-uppercase tracking-wide mb-1" style="font-size: 0.75rem;" *ngIf="orcamento.formaPagamento">
+          Método: {{ orcamento.formaPagamento }}
+        </span>
+
+        <span class="text-dark fw-bold text-uppercase tracking-wide mb-3" style="font-size: 0.75rem;">
+          Chave PIX: 35.117.769/0001-79
+        </span>
+      
+        <div class="text-center">
+          <img src="{{ userLogado?.qrcode_pix! }}" alt="QR Code PIX" class="img-fluid border border-dark p-1 rounded-2" style="width: 130px; height: 130px; object-fit: cover;">
+          <small class="d-block text-muted mt-1" style="font-size: 0.65rem;">Escaneie para pagar</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

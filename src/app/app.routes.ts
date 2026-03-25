@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { TabelaFinanceiroComponent } from './components/tabela-financeiro/tabela-financeiro.component';
 import { FormularioComponent } from './components/formulario/formulario.component';
-import { RelatorioComponent } from './components/relatorio/relatorio.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { FormCategoriaComponent } from './components/form-categoria/form-categoria.component';
 import { LoginComponent } from './components/login/login.component';
@@ -16,6 +15,7 @@ import { PerfilComponent } from './components/perfil/perfil.component';
 import { HomeComponent } from './components/home/home.component';
 import { ListaOrcamentosComponent } from './components/lista-orcamentos/lista-orcamentos.component';
 import { FornecedoresComponent } from './components/fornecedores/fornecedores.component';
+import { ReciboComponent } from './components/recibo/recibo.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
@@ -94,6 +94,11 @@ export const routes: Routes = [
   {
     path: 'fornecedores',
     component: FornecedoresComponent,
+    canActivate: [ValidacaoGuard],
+  },
+  {
+    path: 'recibo/:id',
+    component: ReciboComponent,
     canActivate: [ValidacaoGuard],
   },
   { path: '**', component: PageNotFoundComponent },

@@ -19,7 +19,7 @@ export class LoginService {
   constructor(
     private injector: Injector,
     private validacao: ValidacaoService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
   ) {}
 
   getUserLogado(): string {
@@ -34,7 +34,7 @@ export class LoginService {
     const userId = this.getUserLogado();
     const { data } = await supabase
       .from('usuarios')
-      .select('id, username, logo')
+      .select('id, username, logo, qrcode_pix')
       .eq('id', userId)
       .single();
     return data as UserLogado;
@@ -44,7 +44,7 @@ export class LoginService {
     const userId = this.getUserLogado();
     const { data, error } = await supabase
       .from('usuarios')
-      .select('id, username, logo')
+      .select('id, username, logo, qrcode_pix')
       .eq('id', userId)
       .single();
 
@@ -71,7 +71,7 @@ export class LoginService {
     if (!user.username || !user.password) {
       this.alertaService.info(
         'Obrigatório',
-        'Usuário e senha são obrigatórios'
+        'Usuário e senha são obrigatórios',
       );
       return false;
     }
@@ -84,7 +84,7 @@ export class LoginService {
     if (userExistente) {
       this.alertaService.erro(
         'Usuário já existe',
-        'Por favor, escolha outro nome de usuário.'
+        'Por favor, escolha outro nome de usuário.',
       );
       return false;
     }
@@ -109,14 +109,14 @@ export class LoginService {
     if (error) {
       this.alertaService.erro(
         'Erro ao salvar usuário',
-        'Erro ao salvar usuário no banco de dados'
+        'Erro ao salvar usuário no banco de dados',
       );
       return false;
     }
     this.insertVendas(data.user?.id!);
     this.alertaService.sucesso(
       'Sucesso',
-      'Usuário registrado com sucesso! Verifique seu e-mail.'
+      'Usuário registrado com sucesso! Verifique seu e-mail.',
     );
     return true;
   }
@@ -135,7 +135,7 @@ export class LoginService {
     if (error?.code === 'email_not_confirmed') {
       this.alertaService.info(
         'E-mail não confirmado',
-        'Por favor, verifique sua caixa de entrada para confirmar seu e-mail.'
+        'Por favor, verifique sua caixa de entrada para confirmar seu e-mail.',
       );
       return false;
     }
@@ -143,7 +143,7 @@ export class LoginService {
     if (error || !data.user) {
       this.alertaService.info(
         'Erro de login',
-        'E-mail ou senha inválidos. Por favor, tente novamente.'
+        'E-mail ou senha inválidos. Por favor, tente novamente.',
       );
       return false;
     }
@@ -153,7 +153,7 @@ export class LoginService {
 
     const { data: usuario } = await supabase
       .from('usuarios')
-      .select('id, username, logo, nome')
+      .select('id, username, logo, nome, qrcode_pix')
       .eq('id', data.user.id)
       .single();
 
@@ -193,7 +193,7 @@ export class LoginService {
   async insertVendas(id: string) {
     if (!id) {
       console.error(
-        'ID do usuário não fornecido para inserir categoria de vendas.'
+        'ID do usuário não fornecido para inserir categoria de vendas.',
       );
       return;
     }

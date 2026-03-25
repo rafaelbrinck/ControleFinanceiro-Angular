@@ -226,6 +226,9 @@
           </button>
         </div>
         <button class="btn btn-success w-100 text-white" (click)="finalizarOrcamento(orcamentoSelecionado)" *ngIf="orcamentoSelecionado.status === 'Aguardando Pagamento'">Finalizar Pagamento</button>
+        <a class="btn btn-outline-primary w-100" [routerLink]="['/recibo', orcamentoSelecionado.id]">
+  <i class="bi bi-printer"></i> Imprimir Recibo
+</a>
       </div>
     </div>
   </div>

@@ -15,7 +15,14 @@ import { CategoriaService } from '../../service/categoria.service';
 @Component({
   selector: 'app-lista-orcamentos',
   standalone: true,
-  imports: [CommonModule, BuscadorPipe, FormsModule, CpfPipe, TelefonePipe],
+  imports: [
+    CommonModule,
+    BuscadorPipe,
+    FormsModule,
+    CpfPipe,
+    TelefonePipe,
+    RouterLink,
+  ],
   templateUrl: './lista-orcamentos.component.html',
   styleUrl: './lista-orcamentos.component.css',
 })

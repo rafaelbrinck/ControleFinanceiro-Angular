@@ -11,4 +11,5 @@ export class UserLogado {
   username?: string;
   logo?: string;
   nome?: string;
+  qrcode_pix?: string;
 }

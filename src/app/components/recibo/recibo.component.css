@@ -1,0 +1,75 @@
+/* --- UTILITÁRIOS DE TIPOGRAFIA --- */
+.fw-black {
+  font-weight: 900;
+}
+
+.tracking-tight {
+  letter-spacing: -1.5px;
+}
+
+.tracking-wide {
+  letter-spacing: 1px;
+}
+
+/* --- ELEMENTOS VISUAIS --- */
+.logo-box {
+  width: 64px;
+  height: 64px;
+}
+
+.custom-table th {
+  border-bottom: 2px solid #212529 !important;
+}
+
+.custom-table td {
+  border-bottom: 1px solid #f8f9fa;
+}
+
+/* Badges Sutis (Caso seu Bootstrap não esteja na versão exata que as tenha nativamente) */
+.bg-success-subtle {
+  background-color: #d1e7dd !important;
+}
+.bg-warning-subtle {
+  background-color: #fff3cd !important;
+}
+.bg-danger-subtle {
+  background-color: #f8d7da !important;
+}
+
+/* =========================================
+   REGRAS DE IMPRESSÃO (A MÁGICA DA FOLHA A4)
+   ========================================= */
+@media print {
+  /* Força os navegadores a imprimirem cores de fundo e gradientes */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-bg-primary {
+    background-color: #0d6efd !important;
+    color: white !important;
+  }
+
+  .print-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Evita que o navegador corte uma linha de produto ou assinatura ao meio da página */
+  tr,
+  .row {
+    page-break-inside: avoid;
+  }
+
+  /* Ajusta as margens para uma folha A4 padrão */
+  @page {
+    margin: 1.5cm;
+    size: A4 portrait;
+  }
+
+  body {
+    background-color: white !important;
+  }
+}
