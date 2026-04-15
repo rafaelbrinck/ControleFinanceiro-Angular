@@ -1,3 +1,5 @@
+// src/app/services/variacoes.service.ts
+
 import { Injectable } from '@angular/core';
 import { VariacoesDTO } from '../models/variacoes';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -20,7 +22,6 @@ export class VariacoesService {
 
   async carregarVariacoes() {
     const userId = this.loginService.getUserLogado();
-
     const { data, error } = await supabase
       .from('variacoes')
       .select('*')
@@ -29,17 +30,14 @@ export class VariacoesService {
 
     if (error) {
       console.error('Erro ao carregar variações:', error.message);
-      this.alertaService.erro('Erro ao carregar variações', error.message);
       return;
     }
-
     this.variacoesSubject.next(data as VariacoesDTO[]);
   }
 
   async inserir(variacao: VariacoesDTO) {
     variacao.idUser = this.loginService.getUserLogado();
-
-    if (!this.validarCampos(variacao)) return;
+    if (!this.validarCampos(variacao)) return false;
 
     const { error } = await supabase.from('variacoes').insert([
       {
@@ -49,12 +47,12 @@ export class VariacoesService {
         idProd: variacao.idProd,
       },
     ]);
+
     if (error) {
       console.error('Erro ao inserir variação:', error.message);
-      this.alertaService.erro('Erro ao inserir variação', error.message);
       return false;
     }
-    await this.carregarVariacoes();
+    // Não chamamos carregarVariacoes aqui para evitar múltiplas chamadas em loops
     return true;
   }
 
@@ -69,16 +67,13 @@ export class VariacoesService {
 
     if (error) {
       console.error('Erro ao editar variação:', error.message);
-      this.alertaService.erro('Erro ao editar variação', error.message);
       return false;
     }
-    await this.carregarVariacoes();
     return true;
   }
 
   async deletar(id: number) {
     const idUser = this.loginService.getUserLogado();
-
     const { error } = await supabase
       .from('variacoes')
       .delete()
@@ -87,21 +82,12 @@ export class VariacoesService {
 
     if (error) {
       console.error('Erro ao deletar variação:', error.message);
-      this.alertaService.erro('Erro ao deletar variação', error.message);
       return false;
     }
-    await this.carregarVariacoes();
     return true;
   }
 
   private validarCampos(variacao: VariacoesDTO): boolean {
-    if (!variacao.variacao || !variacao.valor || !variacao.idProd) {
-      this.alertaService.erro(
-        'Campos inválidos',
-        'Por favor, preencha todos os campos obrigatórios.',
-      );
-      return false;
-    }
-    return true;
+    return !!(variacao.variacao && variacao.valor && variacao.idProd);
   }
 }

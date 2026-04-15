@@ -8,6 +8,7 @@ export class VariacoesDTO {
 }
 
 export class Variacao {
+  id?: number;
   variacao?: string;
   valor?: number;
 }

@@ -11,6 +11,7 @@ import { CategoriaService } from '../../service/categoria.service';
 import { AlertaService } from '../../service/alerta.service';
 import { MoedaPipe } from '../../pipes/moeda.pipe';
 import { VariacoesService } from '../../service/variacoes.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-form-produto',
@@ -36,7 +37,7 @@ export class FormProdutoComponent implements OnInit {
     private loginService: LoginService,
     private categoriaService: CategoriaService,
     private alertaService: AlertaService,
-    private variacaoService: VariacoesService
+    private variacaoService: VariacoesService,
   ) {}
 
   async ngOnInit() {
@@ -45,30 +46,35 @@ export class FormProdutoComponent implements OnInit {
     this.id = +this.route.snapshot.params['id'];
     if (this.id) {
       this.botao = 'Editar';
-      const produtoBuscado = await this.produtoService.buscarId(this.id);
 
-      if (produtoBuscado) {
-        this.produto = produtoBuscado;
-        // Garante que variacoes seja um array
+      // 1. Tenta buscar o produto da lista local (memória do Angular)
+      const produtosLocais = await firstValueFrom(
+        this.produtoService.produtos$,
+      );
+      let produtoOriginal = produtosLocais.find((p) => p.id === this.id);
+
+      // 2. Se não achou na memória (ex: usuário deu F5 na página), busca do banco
+      if (!produtoOriginal) {
+        produtoOriginal =
+          (await this.produtoService.buscarId(this.id)) || new Produto();
+      }
+
+      if (produtoOriginal) {
+        // 3. CLONE O OBJETO! (Evita alterar a lista global antes de clicar em salvar)
+        this.produto = JSON.parse(JSON.stringify(produtoOriginal));
+
         this.produto.variacoes = this.produto.variacoes || [];
 
-        // Se tiver valor único, formata
-        if (this.produto.valor != null && this.produto.variacoes.length === 0) {
+        // Verifica se tem variações
+        if (this.produto.variacoes.length > 0) {
+          this.mostrarVariacao = true; // Abre a seção de variações se o produto já tiver
+        } else if (this.produto.valor != null) {
+          // Se tiver valor único, formata
           this.valorFormatado = this.produto.valor.toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           });
         }
-
-        // Se tiver variações carregadas (dependendo de como seu backend retorna)
-        // Se precisar buscar separado:
-        this.variacaoService.variacoes$.subscribe((variacoes) => {
-          const varia = variacoes.filter((v) => v.idProd === this.produto.id);
-          // Só substitui se o produto não trouxe variações no buscarId
-          if (this.produto.variacoes.length === 0 && varia.length > 0) {
-            this.produto.variacoes = varia;
-          }
-        });
       }
     }
   }
@@ -79,7 +85,7 @@ export class FormProdutoComponent implements OnInit {
     if (!this.variacao.variacao || this.variacao.variacao.trim() === '') {
       this.alertaService.info(
         'Atenção',
-        'Digite o nome da variação (ex: Tamanho G)'
+        'Digite o nome da variação (ex: Tamanho G)',
       );
       return;
     }
@@ -87,7 +93,7 @@ export class FormProdutoComponent implements OnInit {
     if (!this.variacao.valor || this.variacao.valor <= 0) {
       this.alertaService.info(
         'Atenção',
-        'O valor da variação deve ser maior que zero.'
+        'O valor da variação deve ser maior que zero.',
       );
       return;
     }
@@ -130,7 +136,7 @@ export class FormProdutoComponent implements OnInit {
           // Se cancelou, mantém o switch ligado (na view precisaria de two-way binding no switch para reverter visualmente,
           // ou apenas não fazemos nada e o usuário clica de novo se quiser)
         }
-      }
+      },
     );
   }
 
@@ -142,7 +148,7 @@ export class FormProdutoComponent implements OnInit {
 
     // Remove da lista local
     this.produto.variacoes = this.produto.variacoes.filter(
-      (v) => v !== variacao
+      (v) => v !== variacao,
     );
 
     // Se removeu tudo, talvez queira voltar a mostrar o campo de adicionar?
@@ -178,7 +184,7 @@ export class FormProdutoComponent implements OnInit {
         if (sucesso) {
           this.alertaService.sucesso(
             'Sucesso',
-            'Produto cadastrado com sucesso!'
+            'Produto cadastrado com sucesso!',
           );
           this.voltar();
         }
@@ -224,7 +230,7 @@ export class FormProdutoComponent implements OnInit {
           } else {
             this.produto.categoria = undefined; // Reseta seleção
           }
-        }
+        },
       );
     }
   }
@@ -239,13 +245,13 @@ export class FormProdutoComponent implements OnInit {
       this.alertaService.info('Obrigatório', 'Selecione uma categoria.');
       return false;
     }
-    if (!this.produto.qtd_gancho || this.produto.qtd_gancho < 0) {
-      this.alertaService.info(
-        'Obrigatório',
-        'A quantidade de ganchos não pode ser menor que 0.'
-      );
-      return false;
-    }
+    // if (!this.produto.qtd_gancho || this.produto.qtd_gancho < 0) {
+    //   this.alertaService.info(
+    //     'Obrigatório',
+    //     'A quantidade de ganchos não pode ser menor que 0.'
+    //   );
+    //   return false;
+    // }
     // Validação de Variações vs Valor Único
     const temVariacoes = this.produto.variacoes.length > 0;
 
@@ -257,7 +263,7 @@ export class FormProdutoComponent implements OnInit {
       if (!this.produto.valor || this.produto.valor <= 0) {
         this.alertaService.info(
           'Obrigatório',
-          'Informe o valor do produto ou adicione variações.'
+          'Informe o valor do produto ou adicione variações.',
         );
         return false;
       }

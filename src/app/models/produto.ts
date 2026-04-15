@@ -1,4 +1,4 @@
-import { Variacao } from './variacoes';
+import { Variacao, VariacoesDTO } from './variacoes';
 
 export class Produto {
   id?: number;
@@ -8,7 +8,7 @@ export class Produto {
   qtd_gancho?: number;
   cat?: string;
   idUser?: string;
-  variacoes: Variacao[] = [];
+  variacoes: VariacoesDTO[] = [];
 }
 
 export class ProdutoOrcamento {
