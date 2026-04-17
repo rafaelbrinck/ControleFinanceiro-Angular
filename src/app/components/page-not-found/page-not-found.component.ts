@@ -15,7 +15,7 @@ export class PageNotFoundComponent {
     if (await this.validacao.confirmaAutenticacao()) {
       this.router.navigate(['/inicio']);
     } else {
-      this.router.navigate(['']);
+      this.router.navigate(['/login']);
     }
   }
 }

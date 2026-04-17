@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Transacao } from '../models/trasacao';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { LoginService } from './login.service';
 import { supabase } from '../supabase';
 import { CategoriaService } from './categoria.service';
@@ -20,6 +20,11 @@ export class TransacaoService {
 
   async carregarTransacoes(): Promise<void> {
     const userId = this.loginService.getUserLogado();
+    if (!userId) {
+      this.transacoesSubject.next([]);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('transacao')
       .select('*')
@@ -31,20 +36,20 @@ export class TransacaoService {
       return;
     }
 
-    if (data) {
-      await this.categoriaService.carregarCategorias();
-      this.categoriaService.categorias$.subscribe((categorias) => {
-        data.forEach((transacao) => {
-          const categoria = categorias.find(
-            (cat) => cat.id === transacao.categoria,
-          );
-          transacao.cat = categoria
-            ? categoria.nome
-            : 'Categoria não encontrada';
-        });
-      });
-      this.transacoesSubject.next(data);
+    if (!data) {
+      this.transacoesSubject.next([]);
+      return;
     }
+
+    await this.categoriaService.carregarCategorias();
+    const categorias = await firstValueFrom(this.categoriaService.categorias$);
+
+    data.forEach((transacao) => {
+      const categoria = categorias.find((cat) => cat.id === transacao.categoria);
+      transacao.cat = categoria ? categoria.nome : 'Categoria não encontrada';
+    });
+
+    this.transacoesSubject.next(data);
   }
 
   async inserir(transacao: Transacao): Promise<boolean> {
@@ -68,6 +73,10 @@ export class TransacaoService {
       await this.carregarTransacoes();
       return true;
     }
+  }
+
+  getTransacoesSnapshot(): Transacao[] {
+    return this.transacoesSubject.getValue();
   }
 
   async buscarId(id: number): Promise<Transacao> {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef } from '@angular/core';
 import { Produto, ProdutoOrcamento } from '../../models/produto';
 import { ProdutosService } from '../../service/produtos.service';
 import { CommonModule } from '@angular/common';
@@ -14,6 +14,7 @@ import { OrcamentoService } from '../../service/orcamento.service';
 import { AlertaService } from '../../service/alerta.service';
 import { Variacao } from '../../models/variacoes';
 import { firstValueFrom } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-orcamento',
@@ -43,32 +44,38 @@ export class OrcamentoComponent {
     private orcamentoService: OrcamentoService,
     private alertaService: AlertaService,
     private router: Router,
+    private destroyRef: DestroyRef,
   ) {}
 
   async ngOnInit(): Promise<void> {
     this.mostrarClientes = false;
-    this.produtoService.produtos$.subscribe(async (produtos) => {
-      if (produtos.length == 0) {
-        await this.produtoService.carregarProdutos();
-      }
-    });
-    this.produtoService.produtos$.subscribe(async (produtos) => {
-      if (produtos.length == 0) {
-        await this.produtoService.carregarProdutos();
-      }
-    });
-    this.produtoService.produtos$.subscribe((produtos) => {
-      this.listaProdutos = produtos;
-    });
-    this.clienteService.clientes$.subscribe((clientes) => {
-      this.listaClientes = clientes;
-    });
-    this.orcamentoService.produtosOrcamento$.subscribe((produtos) => {
-      this.produtosOrcamento = produtos;
-    });
-    this.orcamentoService.clienteOrcamento$.subscribe((cliente) => {
-      this.clienteSelecionado = cliente;
-    });
+    if (this.produtoService.getProdutosSnapshot().length === 0) {
+      await this.produtoService.carregarProdutos();
+    }
+    if (this.clienteService.getClientesSnapshot().length === 0) {
+      await this.clienteService.carregarClientes();
+    }
+
+    this.produtoService.produtos$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((produtos) => {
+        this.listaProdutos = produtos;
+      });
+    this.clienteService.clientes$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((clientes) => {
+        this.listaClientes = clientes;
+      });
+    this.orcamentoService.produtosOrcamento$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((produtos) => {
+        this.produtosOrcamento = produtos;
+      });
+    this.orcamentoService.clienteOrcamento$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((cliente) => {
+        this.clienteSelecionado = cliente;
+      });
   }
 
   limparCarrinho() {

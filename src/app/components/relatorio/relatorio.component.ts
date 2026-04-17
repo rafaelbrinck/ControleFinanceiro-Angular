@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { Relatorio } from '../../models/relatorio';
 import { TransacaoService } from '../../service/transacao.service';
 import { Transacao } from '../../models/trasacao';
@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { Categoria } from '../../models/categoria';
 import { LoginService } from '../../service/login.service';
 import { supabase } from '../../supabase';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-relatorio',
@@ -31,7 +32,8 @@ export class RelatorioComponent implements OnInit {
     private transacaoService: TransacaoService,
     private categoriaService: CategoriaService,
     private router: Router,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private destroyRef: DestroyRef,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -42,13 +44,17 @@ export class RelatorioComponent implements OnInit {
       await this.transacaoService.carregarTransacoes();
     }
 
-    this.transacaoService.transacoes$.subscribe((transacoes) => {
-      this.listaTransacoes = transacoes;
-    });
+    this.transacaoService.transacoes$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((transacoes) => {
+        this.listaTransacoes = transacoes;
+      });
     await this.carregarRelatorioViaEdge();
-    this.categoriaService.categorias$.subscribe((cats) => {
-      this.categorias = cats;
-    });
+    this.categoriaService.categorias$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((cats) => {
+        this.categorias = cats;
+      });
   }
 
   exibirDetalhes(tipo: 'Entrada' | 'Saida') {

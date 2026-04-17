@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -7,6 +7,7 @@ import { supabase } from '../../supabase';
 import { UserLogado } from '../../models/user';
 import { AlertaService } from '../../service/alerta.service';
 import { PerfilService } from '../../service/perfil.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-perfil',
@@ -28,23 +29,25 @@ export class PerfilComponent implements OnInit {
     private loginService: LoginService,
     private router: Router,
     private alertaService: AlertaService,
-    private perfilService: PerfilService
+    private perfilService: PerfilService,
+    private destroyRef: DestroyRef,
   ) {}
 
   ngOnInit(): void {
-    this.loginService.user$.subscribe((user) => {
-      if (user) {
-        this.usuario = user;
-        this.username = user.username;
-        this.fotoUrl = user.logo || '';
-        this.userId = user.id;
+    this.loginService.user$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((user) => {
+        if (user) {
+          this.usuario = user;
+          this.username = user.username;
+          this.fotoUrl = user.logo || '';
+          this.userId = user.id;
 
-        // ⚠️ Atualiza também o preview, se necessário
-        if (!this.novaFoto) {
-          this.novaFotoPreview = '';
+          if (!this.novaFoto) {
+            this.novaFotoPreview = '';
+          }
         }
-      }
-    });
+      });
   }
 
   selecionarFoto(event: Event): void {

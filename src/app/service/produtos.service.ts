@@ -1,7 +1,7 @@
 // src/app/services/produtos.service.ts
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { LoginService } from './login.service';
 import { Produto } from '../models/produto';
 import { supabase } from '../supabase';
@@ -25,6 +25,10 @@ export class ProdutosService {
 
   async carregarProdutos() {
     const userId = this.loginService.getUserLogado();
+    if (!userId) {
+      this.produtosSubject.next([]);
+      return;
+    }
 
     const { data, error } = await supabase
       .from('produtos')
@@ -36,24 +40,24 @@ export class ProdutosService {
       console.error('Erro ao carregar produtos:', error.message);
       return;
     }
+    if (!data) {
+      this.produtosSubject.next([]);
+      return;
+    }
 
     // Carrega categorias e anexa aos produtos
     await this.categoriaService.carregarCategorias();
-    this.categoriaService.categorias$.subscribe((categorias) => {
-      data.forEach((produto) => {
-        const categoria = categorias.find(
-          (cat) => cat.id === produto.categoria,
-        );
-        produto.cat = categoria ? categoria.nome : 'Categoria não encontrada';
-      });
+    const categorias = await firstValueFrom(this.categoriaService.categorias$);
+    data.forEach((produto) => {
+      const categoria = categorias.find((cat) => cat.id === produto.categoria);
+      produto.cat = categoria ? categoria.nome : 'Categoria não encontrada';
     });
 
     // Carrega variações e anexa aos produtos
     await this.variacaoService.carregarVariacoes();
-    this.variacaoService.variacoes$.subscribe((variacoes) => {
-      data.forEach((produto: Produto) => {
-        produto.variacoes = variacoes.filter((v) => v.idProd == produto.id);
-      });
+    const variacoes = await firstValueFrom(this.variacaoService.variacoes$);
+    data.forEach((produto: Produto) => {
+      produto.variacoes = variacoes.filter((v) => v.idProd == produto.id);
     });
 
     this.produtosSubject.next(data as Produto[]);
@@ -94,6 +98,10 @@ export class ProdutosService {
 
     await this.carregarProdutos();
     return true;
+  }
+
+  getProdutosSnapshot(): Produto[] {
+    return this.produtosSubject.getValue();
   }
 
   async editar(id: number, produto: Produto) {

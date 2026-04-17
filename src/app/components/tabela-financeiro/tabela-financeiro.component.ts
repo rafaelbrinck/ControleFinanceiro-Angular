@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, DestroyRef } from '@angular/core';
 import { Transacao } from '../../models/trasacao';
 import { TransacaoService } from '../../service/transacao.service';
 import { CommonModule } from '@angular/common';
@@ -6,8 +6,8 @@ import { BuscadorPipe } from '../../pipes/buscador.pipe';
 import { MoedaPipe } from '../../pipes/moeda.pipe';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LoginService } from '../../service/login.service';
 import { AlertaService } from '../../service/alerta.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-tabela-financeiro',
@@ -22,18 +22,16 @@ export class TabelaFinanceiroComponent {
 
   constructor(
     private transacaoService: TransacaoService,
-    private loginService: LoginService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
+    private destroyRef: DestroyRef,
   ) {}
   async ngOnInit(): Promise<void> {
-    this.transacaoService.transacoes$.subscribe(async (transacoes) => {
-      if (transacoes.length == 0) {
-        await this.transacaoService.carregarTransacoes();
-      }
-    });
-    this.transacaoService.transacoes$.subscribe(
-      (transacoes) => (this.lista = transacoes)
-    );
+    if (this.transacaoService.getTransacoesSnapshot().length === 0) {
+      await this.transacaoService.carregarTransacoes();
+    }
+    this.transacaoService.transacoes$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((transacoes) => (this.lista = transacoes));
   }
   async deletar(id?: number) {
     this.alertaService.sucesso(

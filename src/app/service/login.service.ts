@@ -15,6 +15,7 @@ export class LoginService {
 
   private userSubject = new BehaviorSubject<UserLogado | undefined>(undefined);
   public user$ = this.userSubject.asObservable();
+  private restaurandoSessao: Promise<void> | null = null;
 
   constructor(
     private injector: Injector,
@@ -30,32 +31,24 @@ export class LoginService {
     this.idUserLogadoSubject.next(id);
   }
 
-  async getUser(): Promise<UserLogado> {
+  async getUser(): Promise<UserLogado | undefined> {
+    const userCache = this.userSubject.getValue();
+    if (userCache) return userCache;
+
     const userId = this.getUserLogado();
-    const { data } = await supabase
-      .from('usuarios')
-      .select('id, username, logo, qrcode_pix')
-      .eq('id', userId)
-      .single();
-    return data as UserLogado;
+    if (!userId) return undefined;
+
+    return this.buscarUsuarioPorId(userId);
   }
 
   async recarregarUsuario(): Promise<void> {
     const userId = this.getUserLogado();
-    const { data, error } = await supabase
-      .from('usuarios')
-      .select('id, username, logo, qrcode_pix')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Erro ao recarregar usuário:', error.message);
+    if (!userId) {
       return;
     }
 
-    if (data) {
-      this.userSubject.next(data);
-    }
+    const user = await this.buscarUsuarioPorId(userId);
+    this.userSubject.next(user);
   }
 
   async listar() {
@@ -151,36 +144,21 @@ export class LoginService {
     this.validacao.login(data.session?.access_token || 'token');
     this.setUserLogado(data.user.id);
 
-    const { data: usuario } = await supabase
-      .from('usuarios')
-      .select('id, username, logo, nome, qrcode_pix')
-      .eq('id', data.user.id)
-      .single();
-
-    if (usuario) {
-      this.userSubject.next(usuario);
-    }
+    const usuario = await this.buscarUsuarioPorId(data.user.id);
+    this.userSubject.next(usuario);
     this.orcamentoService.limparOrcamento();
     return true;
   }
 
   async restaurarSessao(): Promise<void> {
-    const { data } = await supabase.auth.getSession();
-    const session = data?.session;
-
-    if (!session?.user) return;
-
-    this.setUserLogado(session.user.id);
-
-    const { data: usuario } = await supabase
-      .from('usuarios')
-      .select('id, username, logo, nome')
-      .eq('id', session.user.id)
-      .single();
-
-    if (usuario) {
-      this.userSubject.next(usuario);
+    if (this.restaurandoSessao) {
+      return this.restaurandoSessao;
     }
+
+    this.restaurandoSessao = this.restaurarSessaoInterno();
+    await this.restaurandoSessao.finally(() => {
+      this.restaurandoSessao = null;
+    });
   }
 
   async logout(): Promise<void> {
@@ -205,7 +183,64 @@ export class LoginService {
     }
   }
 
+  async hasActiveSession(): Promise<boolean> {
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Erro ao validar sessão:', error.message);
+        return false;
+      }
+      return !!data.session;
+    } catch (error) {
+      console.error('Erro inesperado ao validar sessão:', error);
+      return false;
+    }
+  }
+
   private get orcamentoService(): OrcamentoService {
     return this.injector.get(OrcamentoService);
+  }
+
+  private async restaurarSessaoInterno(): Promise<void> {
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Erro ao restaurar sessão:', error.message);
+        this.userSubject.next(undefined);
+        this.setUserLogado('');
+        return;
+      }
+
+      const session = data?.session;
+
+      if (!session?.user) {
+        this.userSubject.next(undefined);
+        this.setUserLogado('');
+        return;
+      }
+
+      this.setUserLogado(session.user.id);
+      const usuario = await this.buscarUsuarioPorId(session.user.id);
+      this.userSubject.next(usuario);
+    } catch (error) {
+      console.error('Erro inesperado ao restaurar sessão:', error);
+      this.userSubject.next(undefined);
+      this.setUserLogado('');
+    }
+  }
+
+  private async buscarUsuarioPorId(userId: string): Promise<UserLogado | undefined> {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('id, username, logo, nome, qrcode_pix')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Erro ao buscar usuário logado:', error.message);
+      return undefined;
+    }
+
+    return data ?? undefined;
   }
 }

@@ -39,6 +39,10 @@ export class FornecedoresService {
     return this.fornecedoresSubject.getValue();
   }
 
+  getFornecedoresSnapshot(): Fornecedor[] {
+    return this.fornecedoresSubject.getValue();
+  }
+
   async insert(fornecedor: Fornecedor): Promise<boolean> {
     fornecedor.idUser = this.loginService.getUserLogado();
 

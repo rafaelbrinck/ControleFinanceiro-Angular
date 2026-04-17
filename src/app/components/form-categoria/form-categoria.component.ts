@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Categoria } from '../../models/categoria';
 import { CategoriaService } from '../../service/categoria.service';
 import { AlertaService } from '../../service/alerta.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-form-categoria',
@@ -20,13 +21,17 @@ export class FormCategoriaComponent {
   constructor(
     private categoriaService: CategoriaService,
     private router: Router,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
+    private destroyRef: DestroyRef,
   ) {}
 
-  ngOnInit() {
-    this.categoriaService.categorias$.subscribe(
-      (categorias) => (this.lista = categorias)
-    );
+  async ngOnInit() {
+    if (this.categoriaService.getCategoriasSnapshot().length === 0) {
+      await this.categoriaService.carregarCategorias();
+    }
+    this.categoriaService.categorias$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((categorias) => (this.lista = categorias));
   }
 
   async salvar() {
@@ -75,7 +80,7 @@ export class FormCategoriaComponent {
   }
 
   voltar() {
-    this.router.navigate(['/form-categoria']);
+    return;
   }
 
   voltarInicio() {

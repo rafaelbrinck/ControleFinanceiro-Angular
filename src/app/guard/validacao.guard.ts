@@ -1,20 +1,18 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
-import { ValidacaoService } from '../service/validacao.service';
-import { supabase } from '../supabase';
+import { LoginService } from '../service/login.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ValidacaoGuard implements CanActivate {
-  constructor(private valid: ValidacaoService, private router: Router) {}
+  constructor(private loginService: LoginService, private router: Router) {}
 
   async canActivate(): Promise<boolean | UrlTree> {
-    const session = await supabase.auth.getSession();
+    const hasSession = await this.loginService.hasActiveSession();
 
     // Se não há sessão válida
-    if (!session.data.session) {
-      this.valid.logout(); // limpa localStorage e supabase
+    if (!hasSession) {
       return this.router.parseUrl('/login');
     }
 

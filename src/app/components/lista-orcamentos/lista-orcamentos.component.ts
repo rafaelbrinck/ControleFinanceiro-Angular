@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BuscadorPipe } from '../../pipes/buscador.pipe';
 import { CpfPipe } from '../../pipes/cpf.pipe';
@@ -11,6 +11,7 @@ import { TransacaoService } from '../../service/transacao.service';
 import { Transacao } from '../../models/trasacao';
 import { AlertaService } from '../../service/alerta.service';
 import { CategoriaService } from '../../service/categoria.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-lista-orcamentos',
@@ -39,6 +40,7 @@ export class ListaOrcamentosComponent implements OnInit {
     private transacaoService: TransacaoService,
     private alertaService: AlertaService,
     private categoriaService: CategoriaService,
+    private destroyRef: DestroyRef,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -48,17 +50,18 @@ export class ListaOrcamentosComponent implements OnInit {
     const mes = String(hoje.getMonth() + 1).padStart(2, '0');
     this.mesAnoSelecionado = `${ano}-${mes}`;
 
-    this.orcamentoService.orcamentoSelecionado$.subscribe(
-      (orcamento) => (this.orcamentoSelecionado = orcamento ?? undefined),
-    );
-    this.orcamentoService.orcamento$.subscribe(async (orcamentos) => {
-      if (orcamentos.length == 0) {
-        await this.orcamentoService.carregarOrcamentos();
-      }
-    });
-    this.orcamentoService.orcamento$.subscribe((dados) => {
-      this.listaOrcamentos = dados;
-    });
+    if (this.orcamentoService.getOrcamentosSnapshot().length === 0) {
+      await this.orcamentoService.carregarOrcamentos();
+    }
+
+    this.orcamentoService.orcamentoSelecionado$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((orcamento) => (this.orcamentoSelecionado = orcamento ?? undefined));
+    this.orcamentoService.orcamento$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((dados) => {
+        this.listaOrcamentos = dados;
+      });
   }
 
   // Getter que filtra os orçamentos com base no mês e ano selecionado

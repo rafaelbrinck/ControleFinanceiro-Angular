@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { Cliente } from '../../models/cliente';
 import { ClientesService } from '../../service/clientes.service';
 import { CommonModule } from '@angular/common';
@@ -13,6 +13,7 @@ import { AlertaService } from '../../service/alerta.service';
 import { Orcamento } from '../../models/orcamento';
 import { OrcamentoService } from '../../service/orcamento.service';
 import { ListaOrcamentosComponent } from '../lista-orcamentos/lista-orcamentos.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-clientes',
@@ -41,18 +42,17 @@ export class ClientesComponent implements OnInit {
     private clienteService: ClientesService,
     private alertaService: AlertaService,
     private orcamentoService: OrcamentoService,
-    private router: Router
+    private router: Router,
+    private destroyRef: DestroyRef,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.clienteService.clientes$.subscribe(async (clientes) => {
-      if (clientes.length == 0) {
-        await this.clienteService.carregarClientes();
-      }
-    });
-    this.clienteService.clientes$.subscribe(
-      (clientes) => (this.listaClientes = clientes)
-    );
+    if (this.clienteService.getClientesSnapshot().length === 0) {
+      await this.clienteService.carregarClientes();
+    }
+    this.clienteService.clientes$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((clientes) => (this.listaClientes = clientes));
   }
 
   redirecionarOrcamento(orcamento: Orcamento) {

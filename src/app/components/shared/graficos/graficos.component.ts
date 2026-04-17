@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { NgChartsModule } from 'ng2-charts';
@@ -8,6 +8,7 @@ import { ClienteResumo, ProdutoResumo } from '../../../models/relatorios';
 import { OrcamentoService } from '../../../service/orcamento.service';
 import { RouterLink } from '@angular/router';
 import { Orcamento } from '../../../models/orcamento';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-graficos',
@@ -76,22 +77,27 @@ export class GraficosComponent implements OnInit {
   constructor(
     private graficosDataService: GraficosDataService,
     private orcamentoService: OrcamentoService,
+    private destroyRef: DestroyRef,
   ) {}
 
   ngOnInit(): void {
     this.definirMesAtualComoPadrao();
 
     // Carrega e guarda os Orçamentos originais
-    this.orcamentoService.orcamento$.subscribe((orcamentos) => {
-      this.todosOrcamentos = orcamentos;
-      this.aplicarFiltro('orcamentos'); // Aplica o filtro logo que os dados chegam
-    });
+    this.orcamentoService.orcamento$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((orcamentos) => {
+        this.todosOrcamentos = orcamentos;
+        this.aplicarFiltro('orcamentos');
+      });
 
     // Carrega e guarda as Vendas originais
-    this.graficosDataService.vendas$.subscribe((vendas) => {
-      this.todasVendas = vendas;
-      this.aplicarFiltro('vendas'); // Aplica o filtro logo que os dados chegam
-    });
+    this.graficosDataService.vendas$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((vendas) => {
+        this.todasVendas = vendas;
+        this.aplicarFiltro('vendas');
+      });
   }
 
   aplicarFiltro(chartType: 'all' | 'vendas' | 'orcamentos') {

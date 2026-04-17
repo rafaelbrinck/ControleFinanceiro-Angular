@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { Orcamento } from '../models/orcamento';
 import { supabase } from '../supabase';
 import { LoginService } from './login.service';
@@ -62,6 +62,11 @@ export class OrcamentoService {
 
   async carregarOrcamentos() {
     const userId = this.loginService.getUserLogado();
+    if (!userId) {
+      this.orcamentoSubject.next([]);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('orcamentos')
       .select('*')
@@ -72,20 +77,25 @@ export class OrcamentoService {
       console.error('Erro ao carregar orçamentos:', error.message);
       return;
     }
+    if (!data) {
+      this.orcamentoSubject.next([]);
+      return;
+    }
     await this.clienteService.carregarClientes();
+    const clientes = this.clienteService.getClientesSnapshot();
 
-    this.clienteService.clientes$
-      .subscribe((clientes) => {
-        data.forEach((orcamento) => {
-          orcamento.cliente = clientes.find(
-            (cliente) => cliente.id === orcamento.idCliente,
-          ) || { nome: 'Cliente não encontrado', cpf: '' };
-          orcamento.nomeCliente =
-            orcamento.cliente?.nome || 'Cliente não encontrado';
-        });
-        this.orcamentoSubject.next(data as Orcamento[]);
-      })
-      .unsubscribe();
+    data.forEach((orcamento) => {
+      orcamento.cliente = clientes.find(
+        (cliente) => cliente.id === orcamento.idCliente,
+      ) || { nome: 'Cliente não encontrado', cpf: '' };
+      orcamento.nomeCliente = orcamento.cliente?.nome || 'Cliente não encontrado';
+    });
+
+    this.orcamentoSubject.next(data as Orcamento[]);
+  }
+
+  getOrcamentosSnapshot(): Orcamento[] {
+    return this.orcamentoSubject.getValue();
   }
 
   async inserir(orcamento: Orcamento) {
@@ -180,11 +190,7 @@ export class OrcamentoService {
   }
 
   qtdOrcamentos(): Observable<number> {
-    return new Observable<number>((observer) => {
-      this.orcamento$.subscribe((orcamentos) => {
-        observer.next(orcamentos.length);
-      });
-    });
+    return this.orcamento$.pipe(map((orcamentos) => orcamentos.length));
   }
 
   enviarOrcamentoWhatsApp(orcamento: Orcamento) {

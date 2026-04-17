@@ -46,6 +46,10 @@ export class CategoriaService {
     }
   }
 
+  getCategoriasSnapshot(): Categoria[] {
+    return this.categoriaSubject.getValue();
+  }
+
   async inserir(categoria: Categoria) {
     categoria.userId = this.loginService.getUserLogado();
 

@@ -40,6 +40,10 @@ export class ClientesService {
     return this.clientesSubject.getValue();
   }
 
+  getClientesSnapshot(): Cliente[] {
+    return this.clientesSubject.getValue();
+  }
+
   async insert(cliente: Cliente): Promise<boolean> {
     cliente.idUser = this.loginService.getUserLogado();
     cliente.instaUser = cliente.instaUser?.toLowerCase();

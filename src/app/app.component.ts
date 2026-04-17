@@ -1,9 +1,9 @@
 import {
   Component,
+  DestroyRef,
   HostListener,
   OnInit,
   ViewChild,
-  viewChild,
 } from '@angular/core';
 import {
   NavigationEnd,
@@ -11,13 +11,13 @@ import {
   RouterLink,
   RouterOutlet,
 } from '@angular/router';
-import { ValidacaoService } from './service/validacao.service';
 import { CommonModule } from '@angular/common';
 import { LoginService } from './service/login.service';
 import { UserLogado } from './models/user';
 import { AlertaComponent } from './components/shared/alerta/alerta.component';
 import { AlertaService } from './service/alerta.service';
 import { OrcamentoService } from './service/orcamento.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // 1. Importações do PWA adicionadas aqui
 
@@ -50,12 +50,12 @@ export class AppComponent implements OnInit {
   }
 
   constructor(
-    private validacao: ValidacaoService,
     private router: Router,
     private loginService: LoginService,
     private alertaService: AlertaService,
     private orcamentoService: OrcamentoService,
     private swUpdate: SwUpdate, // 2. SwUpdate injetado no construtor
+    private destroyRef: DestroyRef,
   ) {}
 
   ngAfterViewInit(): void {
@@ -70,6 +70,7 @@ export class AppComponent implements OnInit {
           filter(
             (evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY',
           ),
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe(() => {
           // Mantive o confirm nativo do navegador pois ele trava a tela e força a resposta do usuário,
@@ -86,19 +87,16 @@ export class AppComponent implements OnInit {
 
     // ✅ Restaura sessão se existir ao carregar o app
     await this.loginService.restaurarSessao();
-    this.usuario = await this.loginService.getUser();
+    this.loginService.user$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((user) => {
+        this.usuario = user;
+      });
 
-    // ✅ Detecta troca de rota e atualiza a navbar e sessão
-    this.router.events.subscribe(async (event) => {
+    // ✅ Detecta troca de rota e atualiza apenas a navbar
+    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.validaNavBar = !event.urlAfterRedirects.includes('login');
-
-        const autenticado = await this.validacao.confirmaAutenticacao();
-        if (autenticado) {
-          this.usuario = await this.loginService.getUser();
-        } else {
-          this.usuario = undefined;
-        }
       }
     });
   }
@@ -107,7 +105,7 @@ export class AppComponent implements OnInit {
     await this.loginService.logout();
     this.usuario = undefined;
     this.orcamentoService.limparOrcamento();
-    this.router.navigate(['']);
+    this.router.navigate(['/login']);
   }
 
   get estaLogado(): boolean {

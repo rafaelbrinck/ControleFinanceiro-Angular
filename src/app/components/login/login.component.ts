@@ -15,7 +15,6 @@ import { OrcamentoService } from '../../service/orcamento.service';
 })
 export class LoginComponent {
   usuario = new User();
-  listaUsuarios: User[] = [];
   registrar = false;
 
   constructor(
@@ -23,13 +22,7 @@ export class LoginComponent {
     private router: Router,
     private alertaService: AlertaService,
     private orcamentoService: OrcamentoService
-  ) {
-    this.listarUsuarios();
-  }
-
-  async listarUsuarios() {
-    this.listaUsuarios = await this.loginService.listar();
-  }
+  ) {}
 
   async inserir() {
     if (this.validaCampos()) {
@@ -41,7 +34,6 @@ export class LoginComponent {
         );
         this.usuario = new User();
         this.registrar = false;
-        this.listarUsuarios();
       } else {
         this.alertaService.erro(
           'Erro ao Registrar Usuário',

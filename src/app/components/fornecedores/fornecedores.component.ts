@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { BuscadorPipe } from '../../pipes/buscador.pipe';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Fornecedor } from '../../models/fornecedor';
 import { FornecedoresService } from '../../service/fornecedores.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-fornecedores',
@@ -17,14 +18,20 @@ export class FornecedoresComponent implements OnInit {
   listaFornecedores: Fornecedor[] = [];
   fornecedorSelecionado?: Fornecedor;
 
-  constructor(private fornecedorService: FornecedoresService) {}
+  constructor(
+    private fornecedorService: FornecedoresService,
+    private destroyRef: DestroyRef,
+  ) {}
 
-  ngOnInit(): void {
-    this.fornecedorService.fornecedores$.subscribe(async (fornecedores) => {
-      if (fornecedores.length == 0) {
-        await this.fornecedorService.carregarFornecedores();
-      }
-    });
+  async ngOnInit(): Promise<void> {
+    if (this.fornecedorService.getFornecedoresSnapshot().length === 0) {
+      await this.fornecedorService.carregarFornecedores();
+    }
+    this.fornecedorService.fornecedores$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((fornecedores) => {
+        this.listaFornecedores = fornecedores;
+      });
   }
   deletar(arg0: string | undefined) {
     throw new Error('Method not implemented.');

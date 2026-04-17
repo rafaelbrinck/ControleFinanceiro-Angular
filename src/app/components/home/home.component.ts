@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { Transacao } from '../../models/trasacao';
 import { Relatorio } from '../../models/relatorio';
 import { Categoria } from '../../models/categoria';
@@ -13,6 +13,7 @@ import { ProdutosService } from '../../service/produtos.service';
 import { OrcamentoService } from '../../service/orcamento.service';
 import { VariacoesService } from '../../service/variacoes.service';
 import { firstValueFrom } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GraficosComponent } from '../shared/graficos/graficos.component';
 import { GraficosDataService } from '../../service/grafico.service';
 import { FornecedoresService } from '../../service/fornecedores.service';
@@ -49,6 +50,7 @@ export class HomeComponent implements OnInit {
     private loginService: LoginService,
     private graficoService: GraficosDataService,
     private fornecedoresService: FornecedoresService,
+    private destroyRef: DestroyRef,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -60,19 +62,23 @@ export class HomeComponent implements OnInit {
       await this.carregarSistema();
     }
     await this.carregarRelatorioViaEdge();
-    this.categoriaService.categorias$.subscribe((cats) => {
-      this.categorias = cats;
-    });
-
-    this.transacaoService.transacoes$.subscribe((transacoes) => {
-      transacoes.forEach((transacao) => {
-        const categoria = this.categorias.find(
-          (cat) => cat.id === transacao.categoria,
-        );
-        transacao.cat = categoria ? categoria.nome : 'Categoria não encontrada';
+    this.categoriaService.categorias$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((cats) => {
+        this.categorias = cats;
       });
-      this.listaTransacoes = transacoes;
-    });
+
+    this.transacaoService.transacoes$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((transacoes) => {
+        transacoes.forEach((transacao) => {
+          const categoria = this.categorias.find(
+            (cat) => cat.id === transacao.categoria,
+          );
+          transacao.cat = categoria ? categoria.nome : 'Categoria não encontrada';
+        });
+        this.listaTransacoes = transacoes;
+      });
   }
 
   // --- MÉTODOS DE DATA ---

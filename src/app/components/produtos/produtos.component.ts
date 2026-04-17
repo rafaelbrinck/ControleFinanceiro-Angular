@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { Produto } from '../../models/produto';
 import { CommonModule } from '@angular/common';
 import { BuscadorPipe } from '../../pipes/buscador.pipe';
 import { MoedaPipe } from '../../pipes/moeda.pipe';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LoginService } from '../../service/login.service';
 import { ProdutosService } from '../../service/produtos.service';
 import { AlertaService } from '../../service/alerta.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-produtos',
@@ -22,9 +22,9 @@ export class ProdutosComponent implements OnInit {
   expandedRow: number | null = null;
 
   constructor(
-    private loginService: LoginService,
     private produtoService: ProdutosService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
+    private destroyRef: DestroyRef,
   ) {}
 
   toggleExpand(index: number, prod: Produto) {
@@ -34,14 +34,14 @@ export class ProdutosComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.produtoService.produtos$.subscribe(async (produtos) => {
-      if (produtos.length == 0) {
-        await this.produtoService.carregarProdutos();
-      }
-    });
-    this.produtoService.produtos$.subscribe((produtos) => {
-      this.listaProdutos = produtos;
-    });
+    if (this.produtoService.getProdutosSnapshot().length === 0) {
+      await this.produtoService.carregarProdutos();
+    }
+    this.produtoService.produtos$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((produtos) => {
+        this.listaProdutos = produtos;
+      });
   }
 
   async deletar(id?: number) {

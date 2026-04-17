@@ -18,8 +18,8 @@ import { FornecedoresComponent } from './components/fornecedores/fornecedores.co
 import { ReciboComponent } from './components/recibo/recibo.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '', pathMatch: 'full' },
-  { path: '', component: LoginComponent, canActivate: [LoginGuard] },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
 
   {
     path: 'transacoes',
