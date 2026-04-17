@@ -56,7 +56,9 @@ export class ListaOrcamentosComponent implements OnInit {
 
     this.orcamentoService.orcamentoSelecionado$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((orcamento) => (this.orcamentoSelecionado = orcamento ?? undefined));
+      .subscribe(
+        (orcamento) => (this.orcamentoSelecionado = orcamento ?? undefined),
+      );
     this.orcamentoService.orcamento$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((dados) => {
@@ -122,6 +124,7 @@ export class ListaOrcamentosComponent implements OnInit {
           if (orcamento.status != 'Aguardando Pagamento') {
             if (!this.validarOrcamento(orcamento, 'f')) return false;
           }
+
           if (
             orcamento.formaPagamento == 'Boleto' &&
             orcamento.status !== 'Aguardando Pagamento'
@@ -130,8 +133,11 @@ export class ListaOrcamentosComponent implements OnInit {
           } else {
             orcamento.status = 'Finalizado';
           }
+
           orcamento.updated_at = new Date();
+
           const sucesso = await this.orcamentoService.atualizar(orcamento);
+
           if (!sucesso) {
             this.alertaService.erro(
               'Erro ao Finalizar Orçamento',
@@ -139,58 +145,11 @@ export class ListaOrcamentosComponent implements OnInit {
             );
             return false;
           }
-          // Só orçamento finalizado guarda transação
-          if (orcamento.status != 'Finalizado') {
-            this.fecharModal();
-            return true;
-          }
 
-          const categoriaVenda = await this.categoriaService.retornarVenda();
-          if (!categoriaVenda) {
-            this.alertaService.erro(
-              'Erro',
-              "erro ao buscar categoria de vendas. Verifique se a categoria 'Vendas' está cadastrada.",
-            );
-            return false;
-          }
-          // Registrar transação
-          const transacao: Transacao = {
-            nome: `Pagamento de ${orcamento.cliente!.nome} - Orçamento #${
-              orcamento.id
-            }`,
-            valor: orcamento.valor,
-            tipo: 'Entrada',
-            categoria: categoriaVenda.id,
-            data: new Date(),
-          };
-
-          // Descontando a taxa do boleto da Nubank, R$0,90
-          if (orcamento.dt_boleto) {
-            transacao.valor = orcamento.valor - 0.9;
-          }
-          const sucessoTransacao =
-            await this.transacaoService.inserir(transacao);
-          if (!sucessoTransacao) {
-            console.error('Erro ao registrar transação');
-            return false;
-          }
-          if (orcamento.frete > 0) {
-            const transacaoFrete: Transacao = {
-              nome: `Frete do orçamento #${orcamento.id}`,
-              valor: orcamento.frete || 0,
-              tipo: 'Saida',
-              categoria: categoriaVenda.id,
-              data: new Date(),
-            };
-
-            const sucessoTransacaoFrete =
-              await this.transacaoService.inserir(transacaoFrete);
-            if (!sucessoTransacaoFrete) {
-              console.error('Erro ao registrar transação Frete');
-              return false;
-            }
-          }
-
+          this.alertaService.sucesso(
+            'Sucesso',
+            'Orçamento finalizado e lançado no financeiro!',
+          );
           this.fecharModal();
           return true;
         }
