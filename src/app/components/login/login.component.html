@@ -1,11 +1,8 @@
 <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light-gradient p-3">
   
-  <!-- Container Principal com largura limitada para não esticar em desktops -->
   <div class="card border-0 shadow-lg rounded-4 overflow-hidden login-card">
     <div class="row g-0">
       
-      <!-- Lado Esquerdo (Decorativo - Opcional, mas dá um charme) -->
-      <!-- Em mobile ele some (d-none) e fica só no desktop (d-md-block) -->
       <div class="col-md-5 d-none d-md-block bg-primary-gradient position-relative">
         <div class="position-absolute top-50 start-50 translate-middle text-center text-white p-4">
           <i class="bi bi-coin display-1 mb-3"></i>
@@ -14,11 +11,9 @@
         </div>
       </div>
 
-      <!-- Lado Direito (Formulário) -->
       <div class="col-md-7">
         <div class="card-body p-4 p-md-5">
           
-          <!-- Cabeçalho Mobile (Só aparece se o lado esquerdo sumir) -->
           <div class="text-center mb-4 d-md-none">
             <div class="icon-circle bg-primary-subtle text-primary mb-2 mx-auto">
               <i class="bi bi-person-fill fs-3"></i>
@@ -26,12 +21,10 @@
             <h2 class="fw-bold text-dark">{{ registrar ? 'Criar Conta' : 'Acessar Conta' }}</h2>
           </div>
 
-          <!-- Cabeçalho Desktop -->
           <h2 class="fw-bold text-primary mb-4 d-none d-md-block">
             {{ registrar ? 'Criar Conta' : 'Login' }}
           </h2>
 
-          <!-- FORMULÁRIO DE LOGIN -->
           <form *ngIf="!registrar" class="fade-in-up">
             <div class="form-floating mb-3">
               <input 
@@ -41,6 +34,7 @@
                 placeholder="nome@exemplo.com"
                 [(ngModel)]="usuario.username" 
                 name="username"
+                [disabled]="loading"
                 required>
               <label for="loginEmail">E-mail</label>
             </div>
@@ -53,17 +47,17 @@
                 placeholder="Senha"
                 [(ngModel)]="usuario.password" 
                 name="password"
+                [disabled]="loading"
                 required>
               <label for="loginPass">Senha</label>
             </div>
 
-            <!-- Botão Principal (Full Width) -->
-            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 mb-3 shadow-sm hover-elevate" (click)="logar()">
-              Entrar
+            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 mb-3 shadow-sm hover-elevate" (click)="logar()" [disabled]="loading">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              {{ loading ? 'Entrando...' : 'Entrar' }}
             </button>
 
-            <!-- Link para trocar de tela (Mais limpo que um botão secundário gigante) -->
-            <div class="text-center">
+            <div class="text-center" *ngIf="!loading">
               <span class="text-muted small">Não tem uma conta?</span>
               <a role="button" class="text-primary fw-bold text-decoration-none ms-1" (click)="registrar = true">
                 Registre-se agora
@@ -71,7 +65,6 @@
             </div>
           </form>
 
-          <!-- FORMULÁRIO DE REGISTRO -->
           <form *ngIf="registrar" class="fade-in-up">
             <div class="form-floating mb-3">
               <input 
@@ -81,6 +74,7 @@
                 placeholder="Seu Nome"
                 [(ngModel)]="usuario.nome" 
                 name="nome"
+                [disabled]="loading"
                 required>
               <label for="regNome">Nome Completo</label>
             </div>
@@ -93,6 +87,7 @@
                 placeholder="nome@exemplo.com"
                 [(ngModel)]="usuario.username" 
                 name="username"
+                [disabled]="loading"
                 required>
               <label for="regEmail">E-mail</label>
             </div>
@@ -107,6 +102,7 @@
                     placeholder="Senha"
                     [(ngModel)]="usuario.password" 
                     name="password"
+                    [disabled]="loading"
                     required>
                   <label for="regPass">Senha</label>
                 </div>
@@ -120,17 +116,19 @@
                     placeholder="Repetir"
                     [(ngModel)]="usuario.validaPassword" 
                     name="validaPassword"
+                    [disabled]="loading"
                     required>
                   <label for="regPassConf">Confirmar</label>
                 </div>
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 mb-3 shadow-sm hover-elevate" (click)="inserir()">
-              Cadastrar
+            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 mb-3 shadow-sm hover-elevate" (click)="inserir()" [disabled]="loading">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              {{ loading ? 'Cadastrando...' : 'Cadastrar' }}
             </button>
 
-            <div class="text-center">
+            <div class="text-center" *ngIf="!loading">
               <span class="text-muted small">Já possui conta?</span>
               <a role="button" class="text-primary fw-bold text-decoration-none ms-1" (click)="registrar = false">
                 Fazer Login
