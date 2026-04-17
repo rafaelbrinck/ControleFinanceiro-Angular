@@ -24,9 +24,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class OrcamentoComponent {
   freteFormatado: string = '';
-  descontoFormatado: string = '';
   frete: number = 0;
+
+  // Controle de Descontos
+  tipoDesconto: 'valor' | 'porcentagem' = 'valor';
+  descontoFormatado: string = '';
   desconto: number = 0;
+  descontoPorcFormatado: string = '';
+  descontoPorcentagem: number = 0;
+
   nomePesquisa?: string;
   clientePesquisa?: string;
   clienteSelecionado: Cliente = new Cliente();
@@ -87,6 +93,7 @@ export class OrcamentoComponent {
           this.orcamentoService.limparOrcamento();
           this.produtosOrcamento = [];
           this.clienteSelecionado = new Cliente();
+          this.resetarDescontoEFrete();
         }
       },
     );
@@ -130,29 +137,40 @@ export class OrcamentoComponent {
     );
   }
 
-  get total() {
-    const total =
+  // Subtotal apenas dos produtos (sem frete e descontos)
+  get subtotalProdutos() {
+    return (
       this.produtosOrcamento.reduce(
         (soma, p) => soma + (p.quantidade ?? 0) * (p.valor ?? 0),
         0,
-      ) || 0;
+      ) || 0
+    );
+  }
 
-    const totalComDesconto = total - this.desconto;
+  // Calcula o valor em reais que será descontado (independente de ser $ ou %)
+  get valorDescontoCalculado() {
+    if (this.tipoDesconto === 'valor') {
+      return this.desconto || 0;
+    } else {
+      return this.subtotalProdutos * ((this.descontoPorcentagem || 0) / 100);
+    }
+  }
+
+  get total() {
+    const totalComDesconto =
+      this.subtotalProdutos - this.valorDescontoCalculado;
     const totalComFrete = totalComDesconto + this.frete;
-
-    return totalComFrete;
+    return totalComFrete > 0 ? totalComFrete : 0; // Evita total negativo
   }
 
   get totalParcelamento() {
-    const total =
-      this.produtosOrcamento.reduce(
-        (soma, p) => soma + (p.quantidade ?? 0) * (p.valor ?? 0),
-        0,
-      ) + this.frete || 0;
+    // Para o parcelamento, aplica-se o desconto ANTES da taxa, depois soma frete
+    const totalComDesconto =
+      this.subtotalProdutos - this.valorDescontoCalculado;
+    const totalBaseParaTaxa = totalComDesconto + this.frete;
     const taxaTotal = 4.98 + 8.66;
-    const totalComTaxa = total / (1 - taxaTotal / 100);
-    const totalComTaxaDesconto = totalComTaxa - this.desconto;
-    return totalComTaxaDesconto;
+    const totalComTaxa = totalBaseParaTaxa / (1 - taxaTotal / 100);
+    return totalComTaxa > 0 ? totalComTaxa : 0;
   }
 
   get calculoGanchos() {
@@ -188,23 +206,45 @@ export class OrcamentoComponent {
       prodLista!.quantidade = (prodLista!.quantidade ?? 0) - 1;
     }
   }
+
   adicionarCliente(cliente: Cliente) {
     this.clienteSelecionado = cliente;
     this.orcamentoService.addCliente(cliente);
   }
 
+  // Troca entre dinheiro e porcentagem
+  mudarTipoDesconto(tipo: 'valor' | 'porcentagem') {
+    this.tipoDesconto = tipo;
+    this.desconto = 0;
+    this.descontoFormatado = '';
+    this.descontoPorcentagem = 0;
+    this.descontoPorcFormatado = '';
+  }
+
+  resetarDescontoEFrete() {
+    this.frete = 0;
+    this.freteFormatado = '';
+    this.desconto = 0;
+    this.descontoFormatado = '';
+    this.descontoPorcentagem = 0;
+    this.descontoPorcFormatado = '';
+    this.tipoDesconto = 'valor';
+  }
+
   async finalizarOrcamento() {
     if (!this.validarOrcamento()) return;
+
     const orcamento: Orcamento = {
       cliente: this.clienteSelecionado,
       produtos: this.produtosOrcamento,
-      valorCredito: this.totalParcelamento, // Implementar lógica de crédito se necessário
-      valor: this.total, // Valor total do orçamento
+      valorCredito: this.totalParcelamento,
+      valor: this.total,
       status: 'Aberto',
       idUser: this.loginService.getUserLogado(),
       frete: this.frete,
-      desconto: this.desconto,
+      desconto: this.valorDescontoCalculado, // Salva o valor real em reais no banco
     };
+
     await this.orcamentoService.inserir(orcamento).then((success) => {
       if (success) {
         this.orcamentoService.limparOrcamento();
@@ -212,8 +252,8 @@ export class OrcamentoComponent {
         this.clienteSelecionado = new Cliente();
         this.mostrarDetalhes = false;
         this.mostrarClientes = false;
-        this.frete = 0;
-        this.desconto = 0;
+        this.resetarDescontoEFrete();
+
         this.alertaService.sucesso(
           'Orçamento Finalizado',
           'O orçamento foi salvo com sucesso!',
@@ -239,6 +279,7 @@ export class OrcamentoComponent {
       }
     });
   }
+
   validarOrcamento(): boolean {
     if (this.produtosOrcamento.length === 0) {
       this.alertaService.info(
@@ -262,7 +303,7 @@ export class OrcamentoComponent {
       );
       return false;
     }
-    if (this.desconto < 0) {
+    if (this.valorDescontoCalculado < 0) {
       this.alertaService.info(
         'Desconto Inválido',
         'O valor do desconto não pode ser negativo.',
@@ -272,7 +313,7 @@ export class OrcamentoComponent {
     if (this.total < 0) {
       this.alertaService.info(
         'Valor Total Inválido',
-        'O valor total do orçamento não pode ser negativo.',
+        'O valor total do orçamento não pode ficar negativo. Verifique o desconto aplicado.',
       );
       return false;
     }
@@ -284,28 +325,37 @@ export class OrcamentoComponent {
     this.router.navigate(['/lista-orcamentos']);
   }
 
-  mascaraValor(event: Event, campo: 'frete' | 'desconto') {
-    const input = event.target as HTMLInputElement;
-    const valor = input.value;
+  // NOVA ABORDAGEM: Reativa 100% com o Angular
+  mascaraValorModel(
+    valorStr: string,
+    campo: 'frete' | 'desconto' | 'desconto_porc',
+  ) {
+    if (!valorStr) valorStr = '0';
 
-    const numeros = valor.replace(/\D/g, '');
-    const somenteNumeros = parseFloat(numeros) / 100 || 0;
+    const numeros = String(valorStr).replace(/\D/g, '');
+    let somenteNumeros = parseFloat(numeros) / 100 || 0;
+
+    // Se for porcentagem, trava o máximo em 100%
+    if (campo === 'desconto_porc' && somenteNumeros > 100) {
+      somenteNumeros = 100;
+    }
 
     const formatado = somenteNumeros.toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
 
-    // Atualiza valor e texto formatado
+    // Atualiza os valores matemáticos
     if (campo === 'frete') {
       this.frete = somenteNumeros;
       this.freteFormatado = formatado;
-    } else {
+    } else if (campo === 'desconto') {
       this.desconto = somenteNumeros;
       this.descontoFormatado = formatado;
+    } else if (campo === 'desconto_porc') {
+      this.descontoPorcentagem = somenteNumeros;
+      this.descontoPorcFormatado = formatado;
     }
-
-    input.value = formatado; // reflete no input imediatamente
   }
 
   enviarOrcamentoWhatsApp(orcamento: Orcamento) {
