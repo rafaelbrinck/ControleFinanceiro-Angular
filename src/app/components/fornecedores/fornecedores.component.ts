@@ -33,7 +33,15 @@ export class FornecedoresComponent implements OnInit {
         this.listaFornecedores = fornecedores;
       });
   }
-  deletar(arg0: string | undefined) {
-    throw new Error('Method not implemented.');
+
+  async deletar(id: string | undefined) {
+    if (!id) return;
+
+    const confirmar = window.confirm(
+      'Deseja realmente deletar este fornecedor?',
+    );
+    if (!confirmar) return;
+
+    await this.fornecedorService.deletar(id);
   }
 }

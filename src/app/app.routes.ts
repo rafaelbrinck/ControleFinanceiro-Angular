@@ -1,105 +1,145 @@
 import { Routes } from '@angular/router';
-import { TabelaFinanceiroComponent } from './components/tabela-financeiro/tabela-financeiro.component';
-import { FormularioComponent } from './components/formulario/formulario.component';
-import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
-import { FormCategoriaComponent } from './components/form-categoria/form-categoria.component';
 import { LoginComponent } from './components/login/login.component';
 import { ValidacaoGuard } from './guard/validacao.guard';
 import { LoginGuard } from './guard/login.guard';
-import { ProdutosComponent } from './components/produtos/produtos.component';
-import { FormProdutoComponent } from './components/form-produto/form-produto.component';
-import { ClientesComponent } from './components/clientes/clientes.component';
-import { FormClienteComponent } from './components/form-cliente/form-cliente.component';
-import { OrcamentoComponent } from './components/orcamento/orcamento.component';
-import { PerfilComponent } from './components/perfil/perfil.component';
-import { HomeComponent } from './components/home/home.component';
-import { ListaOrcamentosComponent } from './components/lista-orcamentos/lista-orcamentos.component';
-import { FornecedoresComponent } from './components/fornecedores/fornecedores.component';
-import { ReciboComponent } from './components/recibo/recibo.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
 
+  // Rotas mais pesadas primeiro: dashboard (gráficos/estatísticas)
+  // e telas operacionais com bastante lógica e dependências.
+  {
+    path: 'inicio',
+    canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/home/home.component').then((m) => m.HomeComponent),
+  },
   {
     path: 'transacoes',
-    component: TabelaFinanceiroComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/tabela-financeiro/tabela-financeiro.component').then(
+        (m) => m.TabelaFinanceiroComponent,
+      ),
   },
   {
     path: 'edit/:id',
-    component: FormularioComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/formulario/formulario.component').then(
+        (m) => m.FormularioComponent,
+      ),
   },
   {
     path: 'novo',
-    component: FormularioComponent,
     canActivate: [ValidacaoGuard],
-  },
-  {
-    path: 'inicio',
-    component: HomeComponent,
-    canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/formulario/formulario.component').then(
+        (m) => m.FormularioComponent,
+      ),
   },
   {
     path: 'form-categoria',
-    component: FormCategoriaComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/form-categoria/form-categoria.component').then(
+        (m) => m.FormCategoriaComponent,
+      ),
   },
   {
     path: 'form-produto',
-    component: FormProdutoComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/form-produto/form-produto.component').then(
+        (m) => m.FormProdutoComponent,
+      ),
   },
   {
     path: 'form-produto/:id',
-    component: FormProdutoComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/form-produto/form-produto.component').then(
+        (m) => m.FormProdutoComponent,
+      ),
   },
   {
     path: 'produtos',
-    component: ProdutosComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/produtos/produtos.component').then(
+        (m) => m.ProdutosComponent,
+      ),
   },
   {
     path: 'clientes',
-    component: ClientesComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/clientes/clientes.component').then(
+        (m) => m.ClientesComponent,
+      ),
   },
   {
     path: 'form-cliente',
-    component: FormClienteComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/form-cliente/form-cliente.component').then(
+        (m) => m.FormClienteComponent,
+      ),
   },
   {
     path: 'form-cliente/:id',
-    component: FormClienteComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/form-cliente/form-cliente.component').then(
+        (m) => m.FormClienteComponent,
+      ),
   },
   {
     path: 'orcamento',
-    component: OrcamentoComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/orcamento/orcamento.component').then(
+        (m) => m.OrcamentoComponent,
+      ),
   },
   {
     path: 'perfil',
-    component: PerfilComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/perfil/perfil.component').then(
+        (m) => m.PerfilComponent,
+      ),
   },
   {
     path: 'lista-orcamentos',
-    component: ListaOrcamentosComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/lista-orcamentos/lista-orcamentos.component').then(
+        (m) => m.ListaOrcamentosComponent,
+      ),
   },
   {
     path: 'fornecedores',
-    component: FornecedoresComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/fornecedores/fornecedores.component').then(
+        (m) => m.FornecedoresComponent,
+      ),
   },
   {
     path: 'recibo/:id',
-    component: ReciboComponent,
     canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./components/recibo/recibo.component').then(
+        (m) => m.ReciboComponent,
+      ),
   },
-  { path: '**', component: PageNotFoundComponent },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./components/page-not-found/page-not-found.component').then(
+        (m) => m.PageNotFoundComponent,
+      ),
+  },
 ];

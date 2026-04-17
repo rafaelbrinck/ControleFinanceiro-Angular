@@ -131,7 +131,7 @@ export class TransacaoService {
       .from('transacao')
       .delete()
       .eq('id', id)
-      .eq('userId', userId);
+      .eq('idUser', userId);
 
     if (error) {
       console.error('Erro ao deletar transação:', error.message);

@@ -11,16 +11,38 @@ export class ValidacaoService {
 
   async logout() {
     localStorage.removeItem('token');
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Erro ao efetuar logout:', error);
+    }
   }
 
   async confirmaAutenticacao(): Promise<boolean> {
-    const { data } = await supabase.auth.getSession();
-    return !!data.session;
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Erro ao confirmar autenticação:', error.message);
+        return false;
+      }
+      return !!data.session;
+    } catch (error) {
+      console.error('Erro inesperado ao confirmar autenticação:', error);
+      return false;
+    }
   }
 
   async getToken(): Promise<string | null> {
-    const { data } = await supabase.auth.getSession();
-    return data.session?.access_token ?? null;
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Erro ao obter token da sessão:', error.message);
+        return null;
+      }
+      return data.session?.access_token ?? null;
+    } catch (error) {
+      console.error('Erro inesperado ao obter token:', error);
+      return null;
+    }
   }
 }

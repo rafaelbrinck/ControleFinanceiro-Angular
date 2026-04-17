@@ -62,7 +62,6 @@ export class FormCategoriaComponent {
       `Categoria ${this.categoria.nome} cadastrada com sucesso!`
     );
     this.categoria = new Categoria();
-    this.voltar();
   }
 
   async deletar(id: number) {
@@ -77,10 +76,6 @@ export class FormCategoriaComponent {
         }
       }
     );
-  }
-
-  voltar() {
-    return;
   }
 
   voltarInicio() {
