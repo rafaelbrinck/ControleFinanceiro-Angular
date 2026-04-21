@@ -12,11 +12,11 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { LoginService } from './service/login.service';
-import { UserLogado } from './models/user';
-import { AlertaComponent } from './components/shared/alerta/alerta.component';
-import { AlertaService } from './service/alerta.service';
-import { OrcamentoService } from './service/orcamento.service';
+import { LoginService } from '@app/core/auth/services/login.service';
+import { UserLogado } from '@app/shared/models/user';
+import { AlertaComponent } from '@app/shared/components/alerta/alerta.component';
+import { AlertaService } from '@app/core/services/alerta.service';
+import { OrcamentoService } from '@app/core/services/orcamento.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // 1. Importações do PWA adicionadas aqui
@@ -46,7 +46,6 @@ export class AppComponent implements OnInit {
   blockDoubleClick(event: Event) {
     event.preventDefault();
     event.stopPropagation();
-    console.log('Duplo clique bloqueado 🚫');
   }
 
   constructor(

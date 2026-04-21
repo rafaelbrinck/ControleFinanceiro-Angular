@@ -1,0 +1,1 @@
+export { Transacao } from './transacao';

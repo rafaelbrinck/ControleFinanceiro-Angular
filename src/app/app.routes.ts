@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './components/login/login.component';
-import { ValidacaoGuard } from './guard/validacao.guard';
-import { LoginGuard } from './guard/login.guard';
+import { LoginComponent } from './features/auth/pages/login/login.component';
+import { ValidacaoGuard } from '@app/core/auth/guards/validacao.guard';
+import { LoginGuard } from '@app/core/auth/guards/login.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -13,13 +13,13 @@ export const routes: Routes = [
     path: 'inicio',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/home/home.component').then((m) => m.HomeComponent),
+      import('./features/dashboard/pages/home/home.component').then((m) => m.HomeComponent),
   },
   {
     path: 'transacoes',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/tabela-financeiro/tabela-financeiro.component').then(
+      import('./features/financeiro/components/tabela-financeiro/tabela-financeiro.component').then(
         (m) => m.TabelaFinanceiroComponent,
       ),
   },
@@ -27,7 +27,7 @@ export const routes: Routes = [
     path: 'edit/:id',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/formulario/formulario.component').then(
+      import('./features/financeiro/components/formulario/formulario.component').then(
         (m) => m.FormularioComponent,
       ),
   },
@@ -35,7 +35,7 @@ export const routes: Routes = [
     path: 'novo',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/formulario/formulario.component').then(
+      import('./features/financeiro/components/formulario/formulario.component').then(
         (m) => m.FormularioComponent,
       ),
   },
@@ -43,7 +43,7 @@ export const routes: Routes = [
     path: 'form-categoria',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/form-categoria/form-categoria.component').then(
+      import('./features/financeiro/components/form-categoria/form-categoria.component').then(
         (m) => m.FormCategoriaComponent,
       ),
   },
@@ -51,7 +51,7 @@ export const routes: Routes = [
     path: 'form-produto',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/form-produto/form-produto.component').then(
+      import('./features/produtos/components/form-produto/form-produto.component').then(
         (m) => m.FormProdutoComponent,
       ),
   },
@@ -59,7 +59,7 @@ export const routes: Routes = [
     path: 'form-produto/:id',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/form-produto/form-produto.component').then(
+      import('./features/produtos/components/form-produto/form-produto.component').then(
         (m) => m.FormProdutoComponent,
       ),
   },
@@ -67,7 +67,7 @@ export const routes: Routes = [
     path: 'produtos',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/produtos/produtos.component').then(
+      import('./features/produtos/pages/produtos/produtos.component').then(
         (m) => m.ProdutosComponent,
       ),
   },
@@ -75,7 +75,7 @@ export const routes: Routes = [
     path: 'clientes',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/clientes/clientes.component').then(
+      import('./features/clientes/pages/clientes/clientes.component').then(
         (m) => m.ClientesComponent,
       ),
   },
@@ -83,7 +83,7 @@ export const routes: Routes = [
     path: 'form-cliente',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/form-cliente/form-cliente.component').then(
+      import('./features/clientes/components/form-cliente/form-cliente.component').then(
         (m) => m.FormClienteComponent,
       ),
   },
@@ -91,7 +91,7 @@ export const routes: Routes = [
     path: 'form-cliente/:id',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/form-cliente/form-cliente.component').then(
+      import('./features/clientes/components/form-cliente/form-cliente.component').then(
         (m) => m.FormClienteComponent,
       ),
   },
@@ -99,7 +99,7 @@ export const routes: Routes = [
     path: 'orcamento',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/orcamento/orcamento.component').then(
+      import('./features/orcamentos/pages/orcamento/orcamento.component').then(
         (m) => m.OrcamentoComponent,
       ),
   },
@@ -107,7 +107,7 @@ export const routes: Routes = [
     path: 'perfil',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/perfil/perfil.component').then(
+      import('./features/perfil/pages/perfil/perfil.component').then(
         (m) => m.PerfilComponent,
       ),
   },
@@ -115,7 +115,7 @@ export const routes: Routes = [
     path: 'lista-orcamentos',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/lista-orcamentos/lista-orcamentos.component').then(
+      import('./features/orcamentos/pages/lista-orcamentos/lista-orcamentos.component').then(
         (m) => m.ListaOrcamentosComponent,
       ),
   },
@@ -123,7 +123,7 @@ export const routes: Routes = [
     path: 'fornecedores',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/fornecedores/fornecedores.component').then(
+      import('./features/fornecedores/pages/fornecedores/fornecedores.component').then(
         (m) => m.FornecedoresComponent,
       ),
   },
@@ -131,14 +131,14 @@ export const routes: Routes = [
     path: 'recibo/:id',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./components/recibo/recibo.component').then(
+      import('./features/orcamentos/pages/recibo/recibo.component').then(
         (m) => m.ReciboComponent,
       ),
   },
   {
     path: '**',
     loadComponent: () =>
-      import('./components/page-not-found/page-not-found.component').then(
+      import('./features/common/page-not-found/page-not-found.component').then(
         (m) => m.PageNotFoundComponent,
       ),
   },
