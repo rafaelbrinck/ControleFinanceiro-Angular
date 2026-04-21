@@ -45,7 +45,9 @@ export class TransacaoService {
     const categorias = await firstValueFrom(this.categoriaService.categorias$);
 
     data.forEach((transacao) => {
-      const categoria = categorias.find((cat) => cat.id === transacao.categoria);
+      const categoria = categorias.find(
+        (cat) => cat.id === transacao.categoria,
+      );
       transacao.cat = categoria ? categoria.nome : 'Categoria não encontrada';
     });
 
