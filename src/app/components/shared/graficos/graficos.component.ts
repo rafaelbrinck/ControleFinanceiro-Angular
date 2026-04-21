@@ -1,11 +1,16 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { NgChartsModule } from 'ng2-charts';
-import { FormsModule } from '@angular/forms'; // <-- Importado para o filtro de datas
-import { GraficosDataService, Venda } from '../../../service/grafico.service';
-import { ClienteResumo, ProdutoResumo } from '../../../models/relatorios';
 import { OrcamentoService } from '../../../service/orcamento.service';
+import { TransacaoService } from '../../../service/transacao.service';
 import { RouterLink } from '@angular/router';
 import { Orcamento } from '../../../models/orcamento';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -13,271 +18,225 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-graficos',
   standalone: true,
-  imports: [CommonModule, NgChartsModule, FormsModule, RouterLink], // <-- Adicionado FormsModule
+  imports: [CommonModule, NgChartsModule, RouterLink],
   templateUrl: './graficos.component.html',
   styleUrls: ['./graficos.component.css'],
 })
-export class GraficosComponent implements OnInit {
-  public chartClientesData: ChartData<'bar'> = { labels: [], datasets: [] };
-  public chartProdutosData: ChartData<'bar'> = { labels: [], datasets: [] };
+export class GraficosComponent implements OnInit, OnChanges {
+  @Input() dataInicio: string = '';
+  @Input() dataFim: string = '';
 
+  // Nossos 3 Gráficos Estratégicos
+  public chartCategoriasData: ChartData<'doughnut'> = {
+    labels: [],
+    datasets: [],
+  };
+  public chartClientesQtdData: ChartData<'pie'> = { labels: [], datasets: [] };
+  public chartClientesValorData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [],
+  };
+
+  // KPIs de Inteligência
   totalOrcamento: number = 0;
   orcamentosFinalizados: number = 0;
-  orcamentosCancelados: number = 0;
-  orcamentosPendentes: number = 0;
-  orcamentosAbertos: number = 0;
-  orcamentosVencidos: number = 0;
   totalVendas: number = 0;
+  taxaConversao: number = 0;
+  ticketMedio: number = 0;
   previsaoEntrada: number = 0;
-  totalAbertos: number = 0;
+  orcamentosVencidos: number = 0;
 
-  // Variáveis do Filtro de Datas
-  dataInicio: string = '';
-  dataFim: string = '';
-
-  // Guardam os dados originais para não precisar bater no banco toda hora
   todosOrcamentos: Orcamento[] = [];
-  todasVendas: Venda[] = [];
+  todasTransacoes: any[] = [];
 
+  // Configuração para o gráfico de Barras
   public chartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      tooltip: {
-        backgroundColor: 'rgba(0,0,0,0.8)',
-        padding: 12,
-        cornerRadius: 8,
-        displayColors: false,
-        callbacks: {
-          label: (context) => ` Qtd/Valor: ${context.raw}`,
-        },
-      },
+      tooltip: { padding: 10, cornerRadius: 8 },
     },
     scales: {
-      x: {
-        grid: { display: false },
-        ticks: {
-          font: { family: "'Inter', sans-serif", size: 11 },
-          color: '#64748b',
-          maxTicksLimit: 6,
-        },
-      },
-      y: {
-        beginAtZero: true,
-        grid: { color: '#f1f5f9' },
-        ticks: { color: '#94a3b8', maxTicksLimit: 5, stepSize: 1 },
-      },
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
     },
-    elements: {
-      bar: { borderRadius: 6, borderSkipped: 'bottom' },
+  };
+
+  // Configuração para os gráficos de Pizza e Rosca
+  public pieOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { boxWidth: 12, font: { size: 11 } },
+      },
+      tooltip: { padding: 10, cornerRadius: 8 },
     },
   };
 
   constructor(
-    private graficosDataService: GraficosDataService,
     private orcamentoService: OrcamentoService,
+    private transacaoService: TransacaoService,
     private destroyRef: DestroyRef,
   ) {}
 
   ngOnInit(): void {
-    this.definirMesAtualComoPadrao();
-
-    // Carrega e guarda os Orçamentos originais
     this.orcamentoService.orcamento$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((orcamentos) => {
-        this.todosOrcamentos = orcamentos;
-        this.aplicarFiltro('orcamentos');
+      .subscribe((data) => {
+        this.todosOrcamentos = data;
+        this.processarBI();
       });
 
-    // Carrega e guarda as Vendas originais
-    this.graficosDataService.vendas$
+    this.transacaoService.transacoes$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((vendas) => {
-        this.todasVendas = vendas;
-        this.aplicarFiltro('vendas');
+      .subscribe((data) => {
+        this.todasTransacoes = data;
+        this.processarBI();
       });
   }
 
-  aplicarFiltro(chartType: 'all' | 'vendas' | 'orcamentos') {
-    if (chartType === 'orcamentos' || chartType === 'all') {
-      // 1. Filtra Orçamentos pelo período
-      const orcamentosFiltrados = this.todosOrcamentos.filter((o) => {
-        // Tenta pegar o updated_at, se não tiver, pega o created_at
-        const dataOrc = o.updated_at
-          ? String(o.updated_at).substring(0, 10)
-          : o.created_at
-            ? String(o.created_at).substring(0, 10)
-            : null;
-
-        if (!dataOrc) return true; // Se não tiver data de jeito nenhum, deixa passar
-
-        return (
-          (!this.dataInicio || dataOrc >= this.dataInicio) &&
-          (!this.dataFim || dataOrc <= this.dataFim)
-        );
-      });
-
-      // Reseta contadores
-      this.orcamentosAbertos = 0;
-      this.orcamentosCancelados = 0;
-      this.orcamentosPendentes = 0;
-      this.orcamentosFinalizados = 0;
-      this.totalVendas = 0;
-      this.orcamentosVencidos = 0;
-      this.previsaoEntrada = 0;
-      this.totalAbertos = 0;
-      this.totalOrcamento = orcamentosFiltrados.length;
-
-      orcamentosFiltrados.forEach((orcamento) => {
-        if (orcamento.status === 'Cancelado') this.orcamentosCancelados++;
-        if (orcamento.status === 'Aguardando Pagamento') {
-          this.orcamentosPendentes++;
-          this.previsaoEntrada += orcamento.valor || 0;
-          this.totalAbertos += orcamento.valor || 0;
-          if (
-            orcamento.dt_boleto &&
-            String(orcamento.dt_boleto).substring(0, 10) <
-              this.formatarDataParaInput(new Date())
-          ) {
-            this.orcamentosVencidos++;
-          }
-        }
-        if (orcamento.status === 'Aberto') {
-          this.orcamentosAbertos++;
-          this.totalAbertos += orcamento.valor || 0;
-        }
-        if (orcamento.status === 'Finalizado') {
-          this.orcamentosFinalizados++;
-          this.totalVendas += orcamento.valor || 0;
-        }
-      });
-
-      // A MÁGICA AQUI: Gera o gráfico de Clientes direto da lista de Orçamentos filtrada
-      this.prepararGraficoClientesCorrigido(orcamentosFiltrados);
-    }
-
-    if (chartType === 'vendas' || chartType === 'all') {
-      // 2. Filtra Vendas (Agora APENAS para o Gráfico de Produtos)
-      const vendasFiltradas = this.todasVendas.filter((v) => {
-        const dataVenda = (v as any).updated_at
-          ? String((v as any).updated_at).substring(0, 10)
-          : null;
-        if (!dataVenda) return false;
-
-        return (
-          (!this.dataInicio || dataVenda >= this.dataInicio) &&
-          (!this.dataFim || dataVenda <= this.dataFim)
-        );
-      });
-
-      const produtosResumo = this.organizarPorProduto(vendasFiltradas);
-      this.prepararGraficoProdutos(produtosResumo);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['dataInicio'] || changes['dataFim']) {
+      this.processarBI();
     }
   }
 
-  // --- MÉTODOS DE DATA E FILTRO ---
+  processarBI() {
+    const hoje = new Date().toISOString().substring(0, 10);
 
-  definirMesAtualComoPadrao() {
-    const dataAtual = new Date();
-    const primeiroDia = new Date(
-      dataAtual.getFullYear(),
-      dataAtual.getMonth(),
-      1,
-    );
-    const ultimoDia = new Date(
-      dataAtual.getFullYear(),
-      dataAtual.getMonth() + 1,
-      0,
-    );
-
-    this.dataInicio = this.formatarDataParaInput(primeiroDia);
-    this.dataFim = this.formatarDataParaInput(ultimoDia);
-  }
-
-  formatarDataParaInput(data: Date): string {
-    const ano = data.getFullYear();
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const dia = String(data.getDate()).padStart(2, '0');
-    return `${ano}-${mes}-${dia}`;
-  }
-
-  // --- MÉTODOS DE ORGANIZAÇÃO DE GRÁFICOS (Mantidos) ---
-
-  prepararGraficoClientesCorrigido(orcamentos: any[]) {
-    // Pegamos apenas os orçamentos que viraram vendas (Finalizados)
-    const orcamentosFinalizados = orcamentos.filter(
-      (o) => o.status === 'Finalizado',
-    );
-
-    // Usamos um Map para agrupar as compras por Cliente
-    const mapaClientes = new Map<
-      number,
-      { nome: string; qtdPedidos: number }
-    >();
-
-    orcamentosFinalizados.forEach((orc) => {
-      const id = orc.idCliente;
-      // Puxa o nome do cliente que já vem junto do orçamento
-      const nome = orc.cliente?.nome || 'Cliente ' + id;
-
-      if (!mapaClientes.has(id)) {
-        mapaClientes.set(id, { nome: nome, qtdPedidos: 0 });
-      }
-
-      // Adiciona exatamente 1 pedido, independente de quantos produtos tem dentro dele!
-      mapaClientes.get(id)!.qtdPedidos += 1;
+    // Filtros por Data
+    const orcFiltrados = this.todosOrcamentos.filter((o) => {
+      const data = o.updated_at
+        ? String(o.updated_at).substring(0, 10)
+        : String(o.created_at).substring(0, 10);
+      return (
+        (!this.dataInicio || data >= this.dataInicio) &&
+        (!this.dataFim || data <= this.dataFim)
+      );
     });
 
-    // Ordena do cliente que comprou mais vezes para o que comprou menos
-    const clientesOrdenados = Array.from(mapaClientes.values()).sort(
-      (a, b) => b.qtdPedidos - a.qtdPedidos,
-    );
+    const transFiltradas = this.todasTransacoes.filter((t) => {
+      return (
+        (!this.dataInicio || t.data! >= this.dataInicio) &&
+        (!this.dataFim || t.data! <= this.dataFim)
+      );
+    });
 
-    const labels = clientesOrdenados.map((c) => c.nome.split(' ')[0]); // Pega só o primeiro nome
-    const data = clientesOrdenados.map((c) => c.qtdPedidos);
+    // Cálculos de KPIs
+    this.totalOrcamento = orcFiltrados.length;
+    this.orcamentosFinalizados = orcFiltrados.filter(
+      (o) => o.status === 'Finalizado',
+    ).length;
+    this.totalVendas = orcFiltrados
+      .filter((o) => o.status === 'Finalizado')
+      .reduce((acc, curr) => acc + (curr.valor || 0), 0);
+    this.orcamentosVencidos = orcFiltrados.filter(
+      (o) =>
+        o.status === 'Aguardando Pagamento' &&
+        o.dt_boleto &&
+        String(o.dt_boleto) < hoje,
+    ).length;
+    this.previsaoEntrada = orcFiltrados
+      .filter((o) => o.status === 'Aguardando Pagamento')
+      .reduce((acc, curr) => acc + (curr.valor || 0), 0);
 
-    this.chartClientesData = {
-      labels,
+    this.taxaConversao =
+      this.totalOrcamento > 0
+        ? (this.orcamentosFinalizados / this.totalOrcamento) * 100
+        : 0;
+    this.ticketMedio =
+      this.orcamentosFinalizados > 0
+        ? this.totalVendas / this.orcamentosFinalizados
+        : 0;
+
+    // Gerar os 3 Gráficos
+    this.prepararGraficoCategorias(transFiltradas);
+    this.prepararGraficosClientes(orcFiltrados);
+  }
+
+  prepararGraficoCategorias(transacoes: any[]) {
+    const despesas = transacoes.filter((t) => t.tipo === 'Saida');
+    const mapa = new Map<string, number>();
+
+    despesas.forEach((d) => {
+      const cat = d.cat || 'Outros';
+      mapa.set(cat, (mapa.get(cat) || 0) + d.valor);
+    });
+
+    this.chartCategoriasData = {
+      labels: Array.from(mapa.keys()),
       datasets: [
         {
-          label: 'Total de Compras (Pedidos)',
-          data,
-          backgroundColor: '#6366f1',
-          hoverBackgroundColor: '#4f46e5',
+          data: Array.from(mapa.values()),
+          backgroundColor: [
+            '#ef4444',
+            '#f97316',
+            '#f59e0b',
+            '#84cc16',
+            '#06b6d4',
+            '#6366f1',
+            '#d946ef',
+          ],
         },
       ],
     };
   }
 
-  organizarPorProduto(vendas: Venda[]): ProdutoResumo[] {
-    const mapaProdutos = new Map<string, ProdutoResumo>();
-    vendas.forEach((venda) => {
-      let produto = mapaProdutos.get(venda.produto_nome);
-      if (!produto) {
-        produto = { produto_nome: venda.produto_nome, total_vendido: 0 };
-        mapaProdutos.set(venda.produto_nome, produto);
-      }
-      produto.total_vendido += venda.total_vendido;
+  prepararGraficosClientes(orcamentos: any[]) {
+    const fechados = orcamentos.filter((o) => o.status === 'Finalizado');
+
+    const mapaQtd = new Map<string, number>();
+    const mapaValor = new Map<string, number>();
+
+    fechados.forEach((o) => {
+      const nome = o.cliente?.nome?.split(' ')[0] || 'Desconhecido';
+      const valor = o.valor || 0;
+
+      mapaQtd.set(nome, (mapaQtd.get(nome) || 0) + 1);
+      mapaValor.set(nome, (mapaValor.get(nome) || 0) + valor);
     });
-    return Array.from(mapaProdutos.values()).sort(
-      (a, b) => b.total_vendido - a.total_vendido,
-    );
-  }
 
-  prepararGraficoProdutos(produtos: ProdutoResumo[]) {
-    const labels = produtos.map((p) => p.produto_nome);
-    const data = produtos.map((p) => p.total_vendido);
-
-    this.chartProdutosData = {
-      labels,
+    // Gráfico 1: Quantidade (Pizza) - Top 5
+    const ordenadosQtd = Array.from(mapaQtd.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+    this.chartClientesQtdData = {
+      labels: ordenadosQtd.map((x) => x[0]),
       datasets: [
         {
-          label: 'Vendas',
-          data,
-          backgroundColor: '#ec4899',
-          hoverBackgroundColor: '#db2777',
+          data: ordenadosQtd.map((x) => x[1]),
+          backgroundColor: [
+            '#3b82f6',
+            '#10b981',
+            '#f59e0b',
+            '#ec4899',
+            '#8b5cf6',
+          ],
+        },
+      ],
+    };
+
+    // Gráfico 2: Receita (Barras) - Top 5
+    const ordenadosValor = Array.from(mapaValor.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+    this.chartClientesValorData = {
+      labels: ordenadosValor.map((x) => x[0]),
+      datasets: [
+        {
+          label: 'Receita (R$)',
+          data: ordenadosValor.map((x) => x[1]),
+          backgroundColor: [
+            '#3b82f6',
+            '#10b981',
+            '#f59e0b',
+            '#ec4899',
+            '#8b5cf6',
+          ],
+          borderRadius: 4,
         },
       ],
     };

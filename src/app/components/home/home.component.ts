@@ -17,27 +17,35 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GraficosComponent } from '../shared/graficos/graficos.component';
 import { GraficosDataService } from '../../service/grafico.service';
 import { FornecedoresService } from '../../service/fornecedores.service';
-import { FormsModule } from '@angular/forms'; // <-- Importante para o [(ngModel)] funcionar
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
-  imports: [NgClass, CommonModule, GraficosComponent, FormsModule], // <-- Adicionado FormsModule
+  standalone: true,
+  imports: [NgClass, CommonModule, GraficosComponent, FormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit {
   relatorio = new Relatorio(0, 0, 0);
   listaTransacoes: Transacao[] = [];
-
-  mostrarCategorias: boolean = false;
   categorias: Categoria[] = [];
 
+  mostrarCategorias: boolean = false;
   mostrarDetalhes: boolean = false;
   tipoDetalhe: 'Entrada' | 'Saida' | undefined;
 
-  // Variáveis para o filtro de datas
+  // Filtro de Datas Centralizado
   dataInicio: string = '';
   dataFim: string = '';
+
+  // KPIs de Operação (O "Pulso" do Negócio)
+  kpiOrcamentos = {
+    abertos: 0,
+    pendentes: 0,
+    vencidos: 0,
+    valorAReceber: 0,
+  };
 
   constructor(
     private transacaoService: TransacaoService,
@@ -55,13 +63,21 @@ export class HomeComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.definirMesAtualComoPadrao();
-
     const userId = this.loginService.getUserLogado();
 
     if (userId) {
       await this.carregarSistema();
     }
+
     await this.carregarRelatorioViaEdge();
+
+    // Monitorização de Orçamentos para KPIs da Home
+    this.orcamentoService.orcamento$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((orcamentos) => {
+        this.calcularKpisOrcamento(orcamentos);
+      });
+
     this.categoriaService.categorias$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((cats) => {
@@ -71,33 +87,18 @@ export class HomeComponent implements OnInit {
     this.transacaoService.transacoes$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((transacoes) => {
-        transacoes.forEach((transacao) => {
-          const categoria = this.categorias.find(
-            (cat) => cat.id === transacao.categoria,
-          );
-          transacao.cat = categoria ? categoria.nome : 'Categoria não encontrada';
+        transacoes.forEach((t) => {
+          const cat = this.categorias.find((c) => c.id === t.categoria);
+          t.cat = cat ? cat.nome : 'Sem Categoria';
         });
         this.listaTransacoes = transacoes;
       });
   }
 
-  // --- MÉTODOS DE DATA ---
-
   definirMesAtualComoPadrao() {
-    const dataAtual = new Date();
-    // Primeiro dia do mês atual
-    const primeiroDia = new Date(
-      dataAtual.getFullYear(),
-      dataAtual.getMonth(),
-      1,
-    );
-    // Último dia do mês atual
-    const ultimoDia = new Date(
-      dataAtual.getFullYear(),
-      dataAtual.getMonth() + 1,
-      0,
-    );
-
+    const data = new Date();
+    const primeiroDia = new Date(data.getFullYear(), data.getMonth(), 1);
+    const ultimoDia = new Date(data.getFullYear(), data.getMonth() + 1, 0);
     this.dataInicio = this.formatarDataParaInput(primeiroDia);
     this.dataFim = this.formatarDataParaInput(ultimoDia);
   }
@@ -106,46 +107,43 @@ export class HomeComponent implements OnInit {
     const ano = data.getFullYear();
     const mes = String(data.getMonth() + 1).padStart(2, '0');
     const dia = String(data.getDate()).padStart(2, '0');
-    return `${ano}-${mes}-${dia}`; // Formato YYYY-MM-DD exigido pelo input type="date"
+    return `${ano}-${mes}-${dia}`;
+  }
+
+  calcularKpisOrcamento(orcamentos: any[]) {
+    const hojeStr = new Date().toISOString().substring(0, 10);
+
+    const filtrados = orcamentos.filter((o) => {
+      const data = o.updated_at
+        ? String(o.updated_at).substring(0, 10)
+        : String(o.created_at).substring(0, 10);
+      return (
+        (!this.dataInicio || data >= this.dataInicio) &&
+        (!this.dataFim || data <= this.dataFim)
+      );
+    });
+
+    this.kpiOrcamentos = {
+      abertos: filtrados.filter((o) => o.status === 'Aberto').length,
+      pendentes: filtrados.filter((o) => o.status === 'Aguardando Pagamento')
+        .length,
+      vencidos: filtrados.filter(
+        (o) =>
+          o.status === 'Aguardando Pagamento' &&
+          o.dt_boleto &&
+          String(o.dt_boleto) < hojeStr,
+      ).length,
+      valorAReceber: filtrados
+        .filter(
+          (o) => o.status === 'Aguardando Pagamento' || o.status === 'Aberto',
+        )
+        .reduce((acc, curr) => acc + (curr.valor || 0), 0),
+    };
   }
 
   async aplicarFiltro() {
-    // Quando o usuário muda as datas na tela, chama a edge function novamente
     await this.carregarRelatorioViaEdge();
-  }
-
-  // --- RESTANTE DOS MÉTODOS ---
-
-  exibirDetalhes(tipo: 'Entrada' | 'Saida') {
-    if (this.tipoDetalhe === tipo && this.mostrarDetalhes) {
-      this.fecharDetalhes();
-      return;
-    } else {
-      this.tipoDetalhe = tipo;
-      this.mostrarDetalhes = true;
-    }
-  }
-
-  exibirCategorias() {
-    this.mostrarCategorias = !this.mostrarCategorias;
-  }
-
-  fecharDetalhes() {
-    this.tipoDetalhe = undefined;
-    this.mostrarDetalhes = false;
-    this.mostrarCategorias = false;
-  }
-
-  get transacoesFiltradas(): Transacao[] {
-    return this.listaTransacoes.filter((transacao) => {
-      const isTipoCorreto = transacao.tipo === this.tipoDetalhe;
-      // Compara as datas (string com string YYYY-MM-DD funciona perfeitamente)
-      const isDentroDoPeriodo =
-        (!this.dataInicio || transacao.data! >= this.dataInicio) &&
-        (!this.dataFim || transacao.data! <= this.dataFim);
-
-      return isTipoCorreto && isDentroDoPeriodo;
-    });
+    this.calcularKpisOrcamento(this.orcamentoService.getOrcamentosSnapshot());
   }
 
   async carregarRelatorioViaEdge() {
@@ -156,70 +154,82 @@ export class HomeComponent implements OnInit {
         {
           body: {
             userId: idUser,
-            dataInicio: this.dataInicio, // Agora passamos as datas
+            dataInicio: this.dataInicio,
             dataFim: this.dataFim,
           },
         },
       );
-
-      if (error) {
-        console.error('Erro da função:', error);
-        alert(
-          'Erro ao carregar relatório via função: ' +
-            (error.message || JSON.stringify(error)),
-        );
-        return;
+      if (!error) {
+        this.relatorio.entradas = data.entradas;
+        this.relatorio.saidas = data.saidas;
+        this.relatorio.resultado = data.resultado;
       }
-      this.relatorio.entradas = data.entradas;
-      this.relatorio.saidas = data.saidas;
-      this.relatorio.resultado = data.resultado;
     } catch (e) {
-      console.error('Erro inesperado:', e);
+      console.error(e);
     }
+  }
+
+  // Métodos de UI e Navegação
+  exibirDetalhes(tipo: 'Entrada' | 'Saida') {
+    if (this.tipoDetalhe === tipo && this.mostrarDetalhes) {
+      this.fecharDetalhes();
+    } else {
+      this.tipoDetalhe = tipo;
+      this.mostrarDetalhes = true;
+    }
+  }
+
+  fecharDetalhes() {
+    this.tipoDetalhe = undefined;
+    this.mostrarDetalhes = false;
+    this.mostrarCategorias = false;
+  }
+
+  get transacoesFiltradas(): Transacao[] {
+    return this.listaTransacoes.filter(
+      (t) =>
+        t.tipo === this.tipoDetalhe &&
+        (!this.dataInicio || t.data! >= this.dataInicio) &&
+        (!this.dataFim || t.data! <= this.dataFim),
+    );
   }
 
   navegarParaCategorias() {
     this.router.navigate(['/form-categoria']);
   }
 
-  mostrar() {
-    return this.relatorio;
+  navegarParaOrcamentos() {
+    this.router.navigate(['/lista-orcamentos']);
   }
 
   async carregarSistema() {
-    const transacoes = await firstValueFrom(this.transacaoService.transacoes$);
-    if (transacoes.length === 0) {
-      await this.transacaoService.carregarTransacoes();
-    }
+    // Cria pequenas rotinas assíncronas para cada serviço
+    const loadTransacoes = async () => {
+      const res = await firstValueFrom(this.transacaoService.transacoes$);
+      if (res.length === 0) await this.transacaoService.carregarTransacoes();
+    };
 
-    const categorias = await firstValueFrom(this.categoriaService.categorias$);
-    if (categorias.length === 0) {
-      await this.categoriaService.carregarCategorias();
-    }
+    const loadCategorias = async () => {
+      const res = await firstValueFrom(this.categoriaService.categorias$);
+      if (res.length === 0) await this.categoriaService.carregarCategorias();
+    };
 
-    const clientes = await firstValueFrom(this.clienteService.clientes$);
-    if (clientes.length === 0) {
-      await this.clienteService.carregarClientes();
-    }
+    const loadOrcamentos = async () => {
+      const res = await firstValueFrom(this.orcamentoService.orcamento$);
+      if (res.length === 0) await this.orcamentoService.carregarOrcamentos();
+    };
 
-    const produtos = await firstValueFrom(this.produtoService.produtos$);
-    if (produtos.length === 0) {
-      await this.produtoService.carregarProdutos();
-    }
+    const loadVendas = async () => {
+      const res = await firstValueFrom(this.graficoService.vendas$);
+      if (res.length === 0) await this.graficoService.carregarDados();
+    };
 
-    const orcamentos = await firstValueFrom(this.orcamentoService.orcamento$);
-    if (orcamentos.length === 0) {
-      await this.orcamentoService.carregarOrcamentos();
-    }
-
-    const graficoVendas = await firstValueFrom(this.graficoService.vendas$);
-    if (graficoVendas.length === 0) {
-      await this.graficoService.carregarDados();
-    }
-
-    const variacoes = await firstValueFrom(this.variacoesService.variacoes$);
-    if (variacoes.length === 0) {
-      await this.variacoesService.carregarVariacoes();
-    }
+    // Executa todas ao mesmo tempo (em paralelo)
+    await Promise.all([
+      loadTransacoes(),
+      loadCategorias(),
+      loadOrcamentos(),
+      loadVendas(),
+    ]);
   }
 }
