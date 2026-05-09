@@ -106,7 +106,9 @@ export class OrcamentoComponent {
 
     if (produto) {
       if (variacao) {
-        produto.nome = produto.nome! + ' - ' + variacao.variacao;
+        if (variacao.variacao) {
+          produto.nome = produto.nome! + ' - ' + variacao.variacao;
+        }
         produto.valor = variacao.valor;
       }
       const prodLista = this.produtosOrcamento.find(

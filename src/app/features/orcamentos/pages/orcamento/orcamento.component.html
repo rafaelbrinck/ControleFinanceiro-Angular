@@ -72,8 +72,8 @@
         <div class="p-2">
           <div class="bg-white rounded-3 border">
             <div *ngFor="let variacao of produto.variacoes" class="d-flex justify-content-between align-items-center p-3 border-bottom last-border-none">
-              <span class="fw-medium text-dark">{{ variacao.variacao }}</span>
-              <div class="d-flex align-items-center gap-3">
+              <span class="fw-medium text-dark" *ngIf="variacao.variacao">{{ variacao.variacao }}</span>
+              <div class="d-flex align-items-center gap-3" [ngClass]="{'justify-content-between w-100': !variacao.variacao, 'justify-content-end': variacao.variacao}">
                 <span class="fw-bold text-dark">{{ variacao.valor | moeda }}</span>
                 <button 
                   class="btn btn-sm btn-outline-primary rounded-pill px-3"
