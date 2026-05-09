@@ -81,15 +81,6 @@ export class FormProdutoComponent implements OnInit {
 
   // Chamado pelo botão "Confirmar Item" (A nova lógica)
   adicionarVariacaoNaListaLocalSeHouverLogica() {
-    // 1. Validações
-    if (!this.variacao.variacao || this.variacao.variacao.trim() === '') {
-      this.alertaService.info(
-        'Atenção',
-        'Digite o nome da variação (ex: Tamanho G)',
-      );
-      return;
-    }
-
     if (!this.variacao.valor || this.variacao.valor <= 0) {
       this.alertaService.info(
         'Atenção',
@@ -99,7 +90,9 @@ export class FormProdutoComponent implements OnInit {
     }
 
     // 2. Prepara o objeto
-    this.variacao.variacao = this.variacao.variacao.toUpperCase();
+    if (this.variacao.variacao) {
+      this.variacao.variacao = this.variacao.variacao.toUpperCase();
+    }
 
     // 3. Adiciona à lista local (visual)
     this.produto.variacoes.push(this.variacao);
