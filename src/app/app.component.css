@@ -4,31 +4,70 @@
   z-index: 1030;
 }
 
-/* --- ESTILOS DESKTOP --- */
+/* --- ESTILOS DESKTOP (Novo Design Premium em Pills) --- */
 .nav-link-desktop {
   text-decoration: none;
-  color: #6c757d;
+  color: #64748b; /* Cinza elegante que combina com o novo design */
   font-weight: 500;
-  padding: 0.5rem 0;
-  transition: color 0.2s ease-in-out;
-  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
 }
 
+/* Efeito Hover nos Links e Remoção da Borda de Foco */
 .nav-link-desktop:hover {
-  color: #6366f1;
+  background-color: #f8fafc;
+  color: #6366f1; /* Mantive a sua cor primária original (Indigo) */
 }
 
+.nav-link-desktop:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* O Menu Ativo (Pílula Azul) */
 .active-desktop {
-  color: #6366f1;
-  font-weight: 600;
-  border-bottom: 2px solid #6366f1;
+  background-color: #e0e7ff !important; /* Fundo Indigo bem clarinho */
+  color: #4f46e5 !important; /* Indigo mais forte para contraste */
+  font-weight: 700 !important;
+}
+
+/* --- ANIMAÇÕES E EFEITOS DO HEADER DESKTOP --- */
+.user-profile-btn:hover {
+  background-color: #f8fafc;
+}
+
+.logout-btn:hover {
+  background-color: #fecdd3 !important;
+  transform: scale(1.05);
+}
+
+/* Animação Suave do Dropdown (Sem quebrar o Layout) */
+.dropdown-menu {
+  animation: fadeInDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f8fafc;
 }
 
 /* --- ESTILOS MOBILE (BOTTOM NAV) --- */
 .bottom-nav {
   height: 65px;
   z-index: 1030;
-  /* padding-bottom: env(safe-area-inset-bottom); Ajuda em iPhones sem botão home */
 }
 
 .pb-safe {
@@ -58,9 +97,9 @@
   font-weight: 500;
 }
 
-/* A Mágica do Ícone Ativo no App */
+/* A Mágica do Ícone Ativo no App Mobile */
 .nav-item-mobile.active {
-  color: #6366f1;
+  color: #6366f1; /* Sua cor original mantida */
 }
 
 .nav-item-mobile.active i {

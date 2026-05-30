@@ -49,7 +49,7 @@ export class AppComponent implements OnInit {
   }
 
   constructor(
-    private router: Router,
+    public router: Router,
     private loginService: LoginService,
     private alertaService: AlertaService,
     private orcamentoService: OrcamentoService,
@@ -93,11 +93,13 @@ export class AppComponent implements OnInit {
       });
 
     // ✅ Detecta troca de rota e atualiza apenas a navbar
-    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        this.validaNavBar = !event.urlAfterRedirects.includes('login');
-      }
-    });
+    this.router.events
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        if (event instanceof NavigationEnd) {
+          this.validaNavBar = !event.urlAfterRedirects.includes('login');
+        }
+      });
   }
 
   async logout() {

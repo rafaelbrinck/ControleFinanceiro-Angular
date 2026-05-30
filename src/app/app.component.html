@@ -1,40 +1,82 @@
-<header *ngIf="validaNavBar && estaLogado" class="navbar bg-white shadow-sm fixed-top app-header">
-  <div class="container-fluid px-3 px-md-4">
+<header *ngIf="validaNavBar && estaLogado" class="navbar bg-white shadow-sm fixed-top app-header py-2">
+  <div class="container-fluid px-3 px-md-4 d-flex align-items-center">
     
-    <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2 m-0" routerLink="/inicio">
-      <img src="icons/icon.png" alt="Logo Controle Financeiro" width="32" height="32" class="rounded">
-      <span class="d-sm-inline">{{ title }}</span>
+    <a class="navbar-brand fw-bolder text-primary d-flex align-items-center gap-2 m-0" routerLink="/inicio">
+      <img src="icons/icon.png" alt="Logo Controle Financeiro" width="36" height="36" class="rounded-3 shadow-sm">
+      <span class="d-none d-sm-inline tracking-tight">{{ title }}</span>
     </a>
 
-    <ul class="navbar-nav flex-row me-auto ms-5 d-none d-lg-flex gap-4">
+    <ul class="navbar-nav flex-row me-auto ms-4 ms-lg-5 d-none d-lg-flex gap-2 align-items-center">
       <li class="nav-item">
-        <a class="nav-link-desktop" routerLink="/inicio" routerLinkActive="active-desktop"><i class="bi bi-house-door me-1"></i> Início</a>
+        <a class="nav-link-desktop px-3 py-2 rounded-pill fw-medium transition-all" routerLink="/inicio" routerLinkActive="active-desktop">
+          <i class="bi bi-house-door me-1"></i> Início
+        </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link-desktop" routerLink="/transacoes" routerLinkActive="active-desktop"><i class="bi bi-currency-exchange me-1"></i> Transações</a>
+        <a class="nav-link-desktop px-3 py-2 rounded-pill fw-medium transition-all" routerLink="/transacoes" routerLinkActive="active-desktop">
+          <i class="bi bi-currency-exchange me-1"></i> Transações
+        </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link-desktop" routerLink="/cartoes" routerLinkActive="active-desktop"><i class="bi bi-credit-card me-1"></i> Cartões</a>
+        <a class="nav-link-desktop px-3 py-2 rounded-pill fw-medium transition-all" routerLink="/orcamento" routerLinkActive="active-desktop">
+          <i class="bi bi-calculator me-1"></i> Orçamentos
+        </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link-desktop" routerLink="/produtos" routerLinkActive="active-desktop"><i class="bi bi-box me-1"></i> Produtos</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link-desktop" routerLink="/clientes" routerLinkActive="active-desktop"><i class="bi bi-people me-1"></i> Clientes</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link-desktop" routerLink="/orcamento" routerLinkActive="active-desktop"><i class="bi bi-calculator me-1"></i> Orçamento</a>
+
+      <li class="nav-item dropdown ms-2 position-relative">
+        <a class="nav-link-desktop px-3 py-2 rounded-pill fw-medium transition-all dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" [class.active-desktop]="router.url.includes('/produtos') || router.url.includes('/clientes') || router.url.includes('/fornecedores') || router.url.includes('/cartoes')">
+          <i class="bi bi-grid-fill text-primary opacity-75"></i> Gestão
+        </a>
+        
+        <ul class="dropdown-menu position-absolute border-0 shadow-lg rounded-4 p-2 mt-2" style="min-width: 220px;">
+          <li>
+            <small class="text-muted fw-bold px-3 py-1 d-block text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">Cadastros Base</small>
+          </li>
+          <li>
+            <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3 fw-medium mb-1" routerLink="/clientes" routerLinkActive="bg-light text-primary">
+              <div class="bg-success-subtle text-success rounded-4 p-1 d-flex"><i class="bi bi-people"></i></div> Clientes
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3 fw-medium mb-1" routerLink="/produtos" routerLinkActive="bg-light text-primary">
+              <div class="bg-primary-subtle text-primary rounded-4 p-1 d-flex"><i class="bi bi-box"></i></div> Produtos
+            </a>
+          </li>
+          <li>
+            <hr class="dropdown-divider my-1 opacity-25">
+          </li>
+          <li>
+            <small class="text-muted fw-bold px-3 py-1 d-block text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">Operacional</small>
+          </li>
+          <li>
+            <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3 fw-medium mb-1" routerLink="/fornecedores" routerLinkActive="bg-light text-primary">
+              <div class="bg-warning-subtle text-warning rounded-4 p-1 d-flex"><i class="bi bi-buildings"></i></div> Fornecedores
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3 fw-medium" routerLink="/cartoes" routerLinkActive="bg-light text-primary">
+              <div class="bg-info-subtle text-info rounded-4 p-1 d-flex"><i class="bi bi-credit-card"></i></div> Cartões
+            </a>
+          </li>
+        </ul>
       </li>
     </ul>
 
     <div class="d-flex align-items-center gap-3 ms-auto">
-      <a class="text-decoration-none d-flex align-items-center" routerLink="/perfil" aria-label="Perfil">
-        <img *ngIf="usuario?.logo" [src]="usuario?.logo" alt="Foto de Perfil" class="rounded-circle border" width="38" height="38" style="object-fit: cover;" />
-        <i *ngIf="!usuario?.logo" class="bi bi-person-circle fs-2 text-secondary"></i>
+      
+      <div class="vr d-none d-lg-block text-muted opacity-25 align-self-center mx-1" style="height: 32px; width: 1.5px;"></div>
+
+      <a class="text-decoration-none d-flex align-items-center gap-2 user-profile-btn px-2 py-1 rounded-pill transition-all" routerLink="/perfil" aria-label="Perfil">
+        <div class="d-none d-lg-block text-end me-1">
+          <small class="d-block fw-bold text-dark lh-1" style="font-size: 0.8rem;">Meu Perfil</small>
+          <small class="text-muted" style="font-size: 0.7rem;">Configurações</small>
+        </div>
+        <img *ngIf="usuario?.logo" [src]="usuario?.logo" alt="Foto de Perfil" class="rounded-circle border border-2 border-white shadow-sm" width="40" height="40" style="object-fit: cover;" />
+        <i *ngIf="!usuario?.logo" class="bi bi-person-circle fs-2 text-secondary shadow-sm rounded-circle bg-white"></i>
       </a>
       
-      <button class="btn btn-light text-danger rounded-circle p-2 d-flex align-items-center justify-content-center border-0 bg-danger-subtle" (click)="logout()" title="Sair" style="width: 38px; height: 38px;">
-        <i class="bi bi-box-arrow-right"></i>
+      <button class="btn btn-light text-danger rounded-circle p-0 d-flex align-items-center justify-content-center border-0 bg-danger-subtle logout-btn shadow-sm" (click)="logout()" title="Sair do Sistema" style="width: 40px; height: 40px;">
+        <i class="bi bi-box-arrow-right fs-5"></i>
       </button>
     </div>
   </div>
@@ -52,15 +94,15 @@
       <i class="bi bi-currency-exchange"></i>
       <span>Transações</span>
     </a>
+
+    <a class="nav-item-mobile" routerLink="/cartoes" routerLinkActive="active">
+      <i class="bi bi-credit-card"></i>
+      <span>Cartões</span>
+    </a>
     
     <a class="nav-item-mobile" routerLink="/orcamento" routerLinkActive="active">
       <i class="bi bi-calculator"></i>
       <span>Orçamento</span>
-    </a>
-    
-    <a class="nav-item-mobile" routerLink="/clientes" routerLinkActive="active">
-      <i class="bi bi-people"></i>
-      <span>Clientes</span>
     </a>
 
     <a class="nav-item-mobile text-secondary" data-bs-toggle="offcanvas" data-bs-target="#menuMaisMobile" role="button" style="cursor: pointer;">
@@ -88,17 +130,17 @@
         <i class="bi bi-chevron-right ms-auto text-muted small"></i>
       </a>
 
-      <a class="list-group-item list-group-item-action py-3 px-4 d-flex align-items-center gap-3 border-0" routerLink="/cartoes" data-bs-dismiss="offcanvas">
+      <a class="list-group-item list-group-item-action py-3 px-4 d-flex align-items-center gap-3 border-0" routerLink="/clientes" data-bs-dismiss="offcanvas">
         <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
-          <i class="bi bi-credit-card fs-5"></i>
+          <i class="bi bi-people fs-5"></i>
         </div>
-        <span class="fw-bold text-dark">Cartões</span>
+        <span class="fw-bold text-dark">Clientes</span>
         <i class="bi bi-chevron-right ms-auto text-muted small"></i>
       </a>
 
       <a class="list-group-item list-group-item-action py-3 px-4 d-flex align-items-center gap-3 border-0" routerLink="/fornecedores" data-bs-dismiss="offcanvas">
-        <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
-          <i class="bi bi-inboxes-fill fs-5"></i>
+        <div class="bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+          <i class="bi bi-buildings fs-5"></i>
         </div>
         <span class="fw-bold text-dark">Fornecedores</span>
         <i class="bi bi-chevron-right ms-auto text-muted small"></i>
