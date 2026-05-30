@@ -209,10 +209,7 @@ export class ListaOrcamentosComponent implements OnInit {
       );
       return false;
     }
-    if (
-      orcamento.dt_boleto &&
-      new Date(orcamento.dt_boleto).getDate() < new Date().getDate()
-    ) {
+    if (orcamento.dt_boleto && new Date(orcamento.dt_boleto) < new Date()) {
       this.alertaService.info(
         'Boleto com Data no Passado',
         'O boleto deste orçamento está com data no passado.',
