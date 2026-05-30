@@ -37,6 +37,144 @@ body {
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
+/* --- CUSTOM PREMIUM SELECTS --- */
+.custom-select-btn {
+  text-align: left;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+  background-color: #f8fafc !important; /* Cinza super claro */
+}
+
+.custom-select-btn:hover,
+.custom-select-btn:focus {
+  background-color: #f1f5f9 !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important; /* Anel Indigo */
+}
+
+/* Garante que a setinha do dropdown fique alinhada à direita */
+.custom-select-btn::after {
+  margin-left: auto;
+  color: #94a3b8;
+}
+
+.custom-dropdown-menu {
+  max-height: 320px;
+  overflow-y: auto;
+  transform-origin: top;
+  animation: dropFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.custom-dropdown-menu .dropdown-item {
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Efeito ao passar o mouse numa opção */
+.custom-dropdown-menu .dropdown-item:hover {
+  background-color: #f8fafc;
+  transform: translateX(4px); /* Puxa levemente para o lado */
+}
+
+/* Estilo do item que está selecionado */
+.active-item {
+  background-color: #e0e7ff !important;
+  color: #4f46e5 !important;
+  font-weight: 700 !important;
+}
+
+/* =========================================
+   FORMULÁRIOS PREMIUM (SaaS UI)
+========================================= */
+
+/* Campos de Texto e Selects Nativos */
+.form-control,
+.form-select {
+  background-color: #f8fafc !important; /* Cinza super claro */
+  border: 2px solid transparent !important;
+  color: #334155 !important;
+  transition: all 0.2s ease-in-out;
+  box-shadow: none !important;
+  font-weight: 500;
+}
+
+/* Quando o utilizador clica no campo */
+.form-control:focus,
+.form-select:focus {
+  background-color: #ffffff !important;
+  border-color: #c7d2fe !important; /* Borda Azul clara */
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important; /* Anel Indigo/Primary */
+}
+
+/* Rótulos Flutuantes (Form-Floating) */
+.form-floating > label {
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Cards Interativos de Seleção (Entrada/Saída/Produto/Transação) */
+.type-selector {
+  cursor: pointer;
+}
+
+.type-selector .selector-card {
+  padding: 1rem;
+  border-radius: 16px;
+  border: 2px solid #f1f5f9;
+  background-color: #f8fafc;
+  color: #64748b;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.type-selector .selector-card:hover {
+  background-color: #f1f5f9;
+  transform: translateY(-2px);
+}
+
+/* Cores dos Cards Ativos */
+.type-selector input:checked + .selector-card.income {
+  border-color: #10b981;
+  background-color: #ecfdf5;
+  color: #047857;
+}
+.type-selector input:checked + .selector-card.expense {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+.type-selector input:checked + .selector-card.transaction {
+  border-color: #6366f1;
+  background-color: #eef2ff;
+  color: #4338ca;
+}
+.type-selector input:checked + .selector-card.product {
+  border-color: #f59e0b;
+  background-color: #fffbeb;
+  color: #b45309;
+}
+
+.type-selector input:checked + .selector-card span {
+  font-weight: 700;
+}
+.type-selector input:checked + .selector-card i {
+  transform: scale(1.15);
+}
+
 /* =========================================
    CONFIGURAÇÕES GLOBAIS DE IMPRESSÃO
    ========================================= */

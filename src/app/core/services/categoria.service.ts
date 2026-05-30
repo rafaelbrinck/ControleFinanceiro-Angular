@@ -34,7 +34,8 @@ export class CategoriaService {
     const { data, error } = await supabase
       .from('categoria')
       .select('*')
-      .eq('userId', userId);
+      .eq('userId', userId)
+      .order('tipo', { ascending: true });
 
     if (error) {
       console.error('Erro ao carregar categorias:', error.message);
@@ -63,6 +64,7 @@ export class CategoriaService {
         nome: categoria.nome,
         userId: categoria.userId,
         tipo: categoria.tipo,
+        categoria_mae: categoria.categoria_mae || null, // <--- Enviando a categoria mãe
       },
     ]);
 

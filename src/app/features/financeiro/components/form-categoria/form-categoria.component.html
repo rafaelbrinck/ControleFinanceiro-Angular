@@ -1,112 +1,80 @@
 <div class="container my-4 max-w-700 pb-5">
   
-  <!-- CABEÇALHO -->
   <div class="d-flex justify-content-between align-items-center mb-4 px-2">
     <div>
-      <h4 class="fw-bold text-dark mb-0">Categorias</h4>
-      <small class="text-muted">Organize seus lançamentos</small>
+      <h4 class="fw-bolder text-dark mb-0">Categorias</h4>
+      <small class="text-muted fw-medium">Organize seus lançamentos</small>
     </div>
-    <button class="btn btn-outline-secondary rounded-pill shadow-sm" (click)="voltarInicio()">
+    <button class="btn btn-light text-secondary rounded-pill shadow-sm fw-bold px-4" (click)="voltarInicio()">
       <i class="bi bi-arrow-left me-1"></i> Voltar
     </button>
   </div>
 
-  <!-- CARD DO FORMULÁRIO -->
-  <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-5">
-    <div class="card-body p-4">
-      <h6 class="text-uppercase text-secondary fw-bold small mb-3">Nova Categoria</h6>
-      
-      <form (submit)="salvar()">
-        <div class="row g-3">
-          
-          <!-- Seletor de Tipo Visual -->
-          <div class="col-12">
-            <div class="row g-2">
-              <div class="col-6">
-                <label class="type-selector w-100">
-                  <input type="radio" name="tipoCat" value="Transacao" [(ngModel)]="categoria.tipo" class="d-none">
-                  <div class="selector-card transaction">
-                    <i class="bi bi-arrow-left-right fs-5 mb-1"></i>
-                    <span>Transação</span>
-                  </div>
-                </label>
-              </div>
-              <div class="col-6">
-                <label class="type-selector w-100">
-                  <input type="radio" name="tipoCat" value="Produto" [(ngModel)]="categoria.tipo" class="d-none">
-                  <div class="selector-card product">
-                    <i class="bi bi-box-seam fs-5 mb-1"></i>
-                    <span>Produto</span>
-                  </div>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- Input de Nome -->
-          <div class="col-12">
-            <div class="form-floating">
-              <input 
-                type="text" 
-                class="form-control rounded-3" 
-                id="nomeCat" 
-                [(ngModel)]="categoria.nome" 
-                name="nome" 
-                placeholder="Ex: Alimentação" 
-                required
-              >
-              <label for="nomeCat">Nome da Categoria</label>
-            </div>
-          </div>
-
-          <!-- Botão Salvar -->
-          <div class="col-12">
-            <button type="submit" class="btn btn-primary w-100 btn-lg rounded-3 fw-bold shadow-sm">
-              <i class="bi bi-plus-lg me-1"></i> Adicionar
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- LISTA DE CATEGORIAS -->
-  <div>
-    <h6 class="text-uppercase text-secondary fw-bold small mb-3 px-2 d-flex justify-content-between align-items-center">
-      <span>Cadastradas</span>
-      <span class="badge bg-light text-dark border">{{ lista.length }} itens</span>
-    </h6>
-
-    <!-- Estado Vazio -->
-    <div *ngIf="lista.length === 0" class="text-center py-5 fade-in bg-white rounded-4 shadow-sm border border-dashed">
-      <div class="bg-light rounded-circle d-inline-flex p-3 mb-3 text-muted">
-        <i class="bi bi-tags fs-2"></i>
-      </div>
-      <h6 class="fw-bold text-secondary">Nenhuma categoria</h6>
-      <p class="text-muted small mb-0">Crie categorias para organizar o sistema.</p>
-    </div>
-
-    <!-- Lista -->
-    <div class="d-flex flex-column gap-2" *ngIf="lista.length > 0">
-      <div *ngFor="let item of lista" class="category-item bg-white p-3 rounded-3 shadow-sm border-0 d-flex align-items-center justify-content-between fade-in">
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5 bg-white p-4">
+    <h6 class="text-uppercase text-primary fw-bolder small mb-4 tracking-wide">Adicionar Categoria</h6>
+    
+    <form (submit)="salvar()">
+      <div class="row g-4">
         
-        <div class="d-flex align-items-center gap-3">
-          <!-- Ícone baseado no tipo -->
-          <div class="icon-box" [ngClass]="item.tipo === 'Transacao' ? 'bg-success-subtle text-success' : 'bg-primary-subtle text-primary'">
-            <i class="bi" [ngClass]="item.tipo === 'Transacao' ? 'bi-arrow-left-right' : 'bi-box-seam'"></i>
-          </div>
-          <div>
-            <h6 class="mb-0 fw-bold text-dark">{{ item.nome }}</h6>
-            <small class="text-muted" style="font-size: 0.75rem;">{{ item.tipo === 'Transacao' ? 'Finanças' : 'Estoque' }}</small>
+        <div class="col-12">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="type-selector w-100">
+                <input type="radio" name="tipoCat" value="Transacao" [(ngModel)]="categoria.tipo" (change)="categoria.categoria_mae = null" class="d-none">
+                <div class="selector-card transaction py-3">
+                  <i class="bi bi-arrow-left-right fs-4 mb-1 transition-all"></i>
+                  <span>Finanças</span>
+                </div>
+              </label>
+            </div>
+            <div class="col-6">
+              <label class="type-selector w-100">
+                <input type="radio" name="tipoCat" value="Produto" [(ngModel)]="categoria.tipo" (change)="categoria.categoria_mae = null" class="d-none">
+                <div class="selector-card product py-3">
+                  <i class="bi bi-box-seam fs-4 mb-1 transition-all"></i>
+                  <span>Produtos</span>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
 
-        <button class="btn btn-light text-danger btn-sm rounded-circle delete-btn" (click)="deletar(item.id!)" title="Excluir">
-          <i class="bi bi-trash-fill"></i>
-        </button>
+        <div class="col-md-6 col-12">
+          <div class="form-floating">
+            <input type="text" class="form-control rounded-4" id="nomeCat" [(ngModel)]="categoria.nome" name="nome" placeholder="Ex: Alimentação" required>
+            <label for="nomeCat">Nome da Categoria</label>
+          </div>
+        </div>
 
+        <div class="col-md-6 col-12">
+          <div class="form-floating">
+            <div class="dropdown w-100 h-100">
+              <button class="form-control rounded-4 h-100 d-flex align-items-center justify-content-between border-0 custom-select-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding-top: 1.625rem; padding-bottom: 0.625rem;">
+                <span class="text-truncate" [ngClass]="categoria.categoria_mae ? 'text-dark fw-bold' : 'text-muted fw-normal'">
+                  <i class="bi bi-diagram-2 me-2" [ngClass]="categoria.categoria_mae ? 'text-primary' : ''"></i>
+                  {{ getNomeCategoriaMae() || 'Categoria Principal' }}
+                </span>
+              </button>
+              <label class="position-absolute top-0 start-0 w-100 px-3 py-2 text-muted small fw-bold">Subcategoria de? (Opcional)</label>
+              
+              <ul class="dropdown-menu w-100 border-0 shadow-lg rounded-4 p-2 mt-2 custom-dropdown-menu">
+                <li><a class="dropdown-item rounded-3 py-2 px-3 fw-medium text-muted" (click)="selecionarCategoriaMae(null)"><i class="bi bi-star-fill text-warning me-2"></i> Tornar Categoria Principal</a></li>
+                <li><hr class="dropdown-divider my-2 opacity-25"></li>
+                <li *ngFor="let cat of categoriasMaeDisponiveis">
+                  <a class="dropdown-item rounded-3 py-2 px-3 fw-medium" [class.active-item]="categoria.categoria_mae === cat.id" (click)="selecionarCategoriaMae(cat.id)">Filha de {{ cat.nome }}</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 mt-2">
+          <button type="submit" class="btn btn-primary w-100 btn-lg rounded-pill py-3 fw-bold shadow-sm">
+            <i class="bi bi-plus-lg me-2"></i> Criar Categoria
+          </button>
+        </div>
       </div>
-    </div>
+    </form>
   </div>
 
-</div>
+  </div>

@@ -1,11 +1,10 @@
 <div class="container my-4 max-w-700 pb-5">
-  
   <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
     
     <div class="bg-primary p-4 text-center text-white position-relative overflow-hidden">
       <div class="position-relative z-1">
-        <h3 class="fw-bold mb-1">{{ transacao.id ? 'Editar Transação' : 'Nova Transação' }}</h3>
-        <p class="mb-0 opacity-75 small">Registre suas movimentações financeiras</p>
+        <h3 class="fw-bolder mb-1">{{ transacao.id ? 'Editar Transação' : 'Nova Transação' }}</h3>
+        <p class="mb-0 opacity-75 small fw-medium">Registre suas movimentações financeiras</p>
       </div>
       <div class="circle-deco"></div>
     </div>
@@ -14,13 +13,13 @@
       <form>
         
         <div class="mb-4">
-          <label class="d-block text-secondary small fw-bold text-uppercase mb-2">Tipo de Operação</label>
+          <label class="d-block text-secondary small fw-bold text-uppercase mb-2" style="letter-spacing: 0.5px;">Tipo de Operação</label>
           <div class="row g-3">
             <div class="col-6">
               <label class="type-selector w-100">
                 <input type="radio" name="tipo" value="Entrada" [(ngModel)]="transacao.tipo" class="d-none">
                 <div class="selector-card income">
-                  <i class="bi bi-arrow-down-left-circle-fill fs-4 mb-1"></i>
+                  <i class="bi bi-arrow-down-left-circle-fill fs-3 transition-all"></i>
                   <span>Entrada</span>
                 </div>
               </label>
@@ -29,7 +28,7 @@
               <label class="type-selector w-100">
                 <input type="radio" name="tipo" value="Saida" [(ngModel)]="transacao.tipo" class="d-none">
                 <div class="selector-card expense">
-                  <i class="bi bi-arrow-up-right-circle-fill fs-4 mb-1"></i>
+                  <i class="bi bi-arrow-up-right-circle-fill fs-3 transition-all"></i>
                   <span>Saída</span>
                 </div>
               </label>
@@ -37,76 +36,124 @@
           </div>
         </div>
 
-        <div class="row g-3">
-          
+        <div class="row g-4">
           <div class="col-12">
             <div class="form-floating">
-              <input type="text" class="form-control rounded-3 fs-4 fw-bold" id="valor" inputmode="decimal"
+              <input type="text" class="form-control rounded-4 fs-3 fw-bold py-3 h-auto" id="valor" inputmode="decimal"
                 [value]="valorFormatado" (input)="mascaraValor($event)" placeholder="0,00"
-                [ngClass]="{'text-success': transacao.tipo === 'Entrada', 'text-danger': transacao.tipo === 'Saida'}">
+                [ngClass]="{'text-success': transacao.tipo === 'Entrada', 'text-danger': transacao.tipo === 'Saida', 'text-dark': !transacao.tipo}">
               <label for="valor">Valor (R$)</label>
             </div>
           </div>
 
           <div class="col-12">
             <div class="form-floating">
-              <input type="text" class="form-control rounded-3" id="descricao" [(ngModel)]="transacao.nome" name="descricao" placeholder="Ex: Conta de Luz">
-              <label for="descricao">Descrição</label>
+              <input type="text" class="form-control rounded-4" id="descricao" [(ngModel)]="transacao.nome" name="descricao" placeholder="Ex: Conta de Luz">
+              <label for="descricao">Descrição (Nome da Transação)</label>
             </div>
           </div>
 
           <div class="col-12 col-md-6">
-            <div class="input-group">
-              <div class="form-floating flex-grow-1">
-                <input type="date" class="form-control rounded-start-3 rounded-end-0" id="data" [(ngModel)]="transacao.data" name="data">
-                <label for="data">Data</label>
-              </div>
-              <button class="btn btn-outline-secondary px-3" type="button" (click)="transacao.data = getDataHoje()" title="Definir Hoje">Hoje</button>
+            <div class="form-floating position-relative">
+              <input type="date" class="form-control rounded-4" id="data" [(ngModel)]="transacao.data" name="data" style="padding-right: 85px;">
+              <label for="data">Data do Ocorrido</label>
+              
+              <button class="btn btn-sm bg-white text-primary fw-bold position-absolute top-50 end-0 translate-middle-y me-2 rounded-pill shadow-sm border transition-all hover-scale" 
+                      type="button" 
+                      (click)="transacao.data = getDataHoje()" 
+                      style="padding: 0.35rem 0.8rem; font-size: 0.8rem; z-index: 5;">
+                Hoje
+              </button>
             </div>
           </div>
 
           <div class="col-12 col-md-6">
             <div class="form-floating">
-              <select class="form-select rounded-3" id="categoria" [(ngModel)]="transacao.categoria" (ngModelChange)="conferirCategoria($event)" name="categoria">
-                <option [ngValue]="null" disabled selected>Selecione...</option>
-                <option *ngFor="let categoria of listaCategorias" [ngValue]="categoria.id">{{categoria.nome}}</option>
-                <option [ngValue]="'nova'" class="fw-bold text-primary">+ Nova Categoria</option>
-              </select>
-              <label for="categoria">Categoria</label>
+              <div class="dropdown w-100 h-100">
+                <button class="form-control rounded-4 h-100 d-flex align-items-center justify-content-between border-0 custom-select-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding-top: 1.625rem; padding-bottom: 0.625rem;">
+                  <span class="text-truncate" [ngClass]="transacao.categoria ? 'text-dark fw-bold' : 'text-muted fw-normal'">
+                    <i class="bi bi-tags-fill me-2" [ngClass]="transacao.categoria ? 'text-primary' : ''"></i>
+                    {{ getNomeCategoria() || 'Selecione...' }}
+                  </span>
+                </button>
+                <label class="position-absolute top-0 start-0 w-100 px-3 py-2 text-muted small fw-bold">Categoria</label>
+                
+                <ul class="dropdown-menu w-100 border-0 shadow-lg rounded-4 p-2 mt-2 custom-dropdown-menu">
+                  <li *ngFor="let cat of categoriasAgrupadas">
+                    <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-2"
+                       [ngClass]="{'ms-3': cat.isFilha, 'active-item': transacao.categoria === cat.id}"
+                       (click)="selecionarCategoria(cat.id)">
+                      <i class="bi text-muted" [ngClass]="cat.isFilha ? 'bi-arrow-return-right' : 'bi-folder2-open'"></i>
+                      <span [class.fw-medium]="!cat.isFilha">{{ cat.nome }}</span>
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider my-2 opacity-25"></li>
+                  <li>
+                    <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-2 text-primary fw-bold bg-primary-subtle" (click)="selecionarCategoria('nova')">
+                      <i class="bi bi-plus-circle-fill"></i> Criar Nova Categoria
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
 
           <ng-container *ngIf="transacao.tipo === 'Saida'">
+            
             <div class="col-12 col-md-6 fade-in">
               <div class="form-floating">
-                <select class="form-select rounded-3" id="fornecedor" [(ngModel)]="transacao.fornecedor_id" name="fornecedor">
-                  <option [ngValue]="null">Nenhum / Não se aplica</option>
-                  <option *ngFor="let forn of listaFornecedores" [ngValue]="forn.id">{{forn.nome}}</option>
-                </select>
-                <label for="fornecedor"><i class="bi bi-shop me-1 text-muted"></i> Fornecedor</label>
+                <div class="dropdown w-100 h-100">
+                  <button class="form-control rounded-4 h-100 d-flex align-items-center justify-content-between border-0 custom-select-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding-top: 1.625rem; padding-bottom: 0.625rem;">
+                    <span class="text-truncate" [ngClass]="transacao.fornecedor_id ? 'text-dark fw-bold' : 'text-muted fw-normal'">
+                      <i class="bi bi-shop me-2" [ngClass]="transacao.fornecedor_id ? 'text-warning' : ''"></i>
+                      {{ getNomeFornecedor() || 'Não se aplica' }}
+                    </span>
+                  </button>
+                  <label class="position-absolute top-0 start-0 w-100 px-3 py-2 text-muted small fw-bold">Fornecedor (Opcional)</label>
+                  
+                  <ul class="dropdown-menu w-100 border-0 shadow-lg rounded-4 p-2 mt-2 custom-dropdown-menu">
+                    <li><a class="dropdown-item rounded-3 py-2 px-3 fw-medium text-muted" (click)="selecionarFornecedor(null)"><i class="bi bi-dash-circle me-2"></i> Não se aplica</a></li>
+                    <li><hr class="dropdown-divider my-2 opacity-25"></li>
+                    <li *ngFor="let forn of listaFornecedores">
+                      <a class="dropdown-item rounded-3 py-2 px-3 fw-medium" [class.active-item]="transacao.fornecedor_id === forn.id" (click)="selecionarFornecedor(forn.id)">{{ forn.nome }}</a>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
 
             <div class="col-12 col-md-6 fade-in">
               <div class="form-floating">
-                <select class="form-select rounded-3" id="cartao" [(ngModel)]="transacao.cartao_id" name="cartao">
-                  <option [ngValue]="null">Nenhum (Dinheiro / Pix)</option>
-                  <option *ngFor="let cartao of listaCartoes" [ngValue]="cartao.id">{{cartao.nome}}</option>
-                </select>
-                <label for="cartao"><i class="bi bi-credit-card me-1 text-muted"></i> Cartão de Crédito</label>
+                <div class="dropdown w-100 h-100">
+                  <button class="form-control rounded-4 h-100 d-flex align-items-center justify-content-between border-0 custom-select-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding-top: 1.625rem; padding-bottom: 0.625rem;">
+                    <span class="text-truncate" [ngClass]="transacao.cartao_id ? 'text-dark fw-bold' : 'text-muted fw-normal'">
+                      <i class="bi bi-credit-card me-2" [ngClass]="transacao.cartao_id ? 'text-info' : ''"></i>
+                      {{ getNomeCartao() || 'Dinheiro / Pix' }}
+                    </span>
+                  </button>
+                  <label class="position-absolute top-0 start-0 w-100 px-3 py-2 text-muted small fw-bold">Cartão de Crédito (Opcional)</label>
+                  
+                  <ul class="dropdown-menu w-100 border-0 shadow-lg rounded-4 p-2 mt-2 custom-dropdown-menu">
+                    <li><a class="dropdown-item rounded-3 py-2 px-3 fw-medium text-muted" (click)="selecionarCartao(null)"><i class="bi bi-cash-coin me-2"></i> Dinheiro / Pix</a></li>
+                    <li><hr class="dropdown-divider my-2 opacity-25"></li>
+                    <li *ngFor="let cartao of listaCartoes">
+                      <a class="dropdown-item rounded-3 py-2 px-3 fw-medium" [class.active-item]="transacao.cartao_id === cartao.id" (click)="selecionarCartao(cartao.id)">{{ cartao.nome }}</a>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </ng-container>
 
         </div>
 
-        <div class="row g-2 mt-5 pt-2 border-top">
-          <div class="col-6">
-            <button type="button" class="btn btn-light btn-lg w-100 fw-medium text-secondary" (click)="voltar()">Voltar</button>
+        <div class="row g-3 mt-5 pt-3 border-top">
+          <div class="col-12 col-md-6 order-2 order-md-1">
+            <button type="button" class="btn btn-light btn-lg w-100 fw-bold text-secondary rounded-pill py-3" (click)="voltar()">Cancelar</button>
           </div>
-          <div class="col-6">
-            <button type="submit" class="btn btn-success btn-lg w-100 fw-bold shadow-sm" (click)="salvar()">
-              <i class="bi bi-check-lg me-1"></i> {{ botao }}
+          <div class="col-12 col-md-6 order-1 order-md-2">
+            <button type="submit" class="btn btn-success btn-lg w-100 fw-bold shadow-sm rounded-pill py-3" (click)="salvar()">
+              <i class="bi bi-check2-circle me-2 fs-5"></i> {{ botao }} Transação
             </button>
           </div>
         </div>

@@ -150,4 +150,51 @@ export class FormularioComponent implements OnInit {
   getDataHoje(): string {
     return new Date().toISOString().split('T')[0];
   }
+  // Agrupa as filhas debaixo das mães
+  get categoriasAgrupadas() {
+    let resultado: any[] = [];
+    const principais = this.listaCategorias.filter((c) => !c.categoria_mae);
+    principais.forEach((pai) => {
+      resultado.push({ ...pai, isFilha: false });
+      const filhas = this.listaCategorias.filter(
+        (c) => c.categoria_mae === pai.id,
+      );
+      filhas.forEach((filha) => {
+        resultado.push({ ...filha, isFilha: true, nomeMae: pai.nome });
+      });
+    });
+    return resultado;
+  }
+
+  // Getters para os textos dos botões principais
+  getNomeCategoria(): string {
+    const cat = this.listaCategorias.find(
+      (c) => c.id === this.transacao.categoria,
+    );
+    return cat ? cat.nome! : '';
+  }
+  getNomeFornecedor(): string {
+    const forn = this.listaFornecedores.find(
+      (c) => c.id === this.transacao.fornecedor_id,
+    );
+    return forn ? forn.nome! : '';
+  }
+  getNomeCartao(): string {
+    const cartao = this.listaCartoes.find(
+      (c) => c.id === this.transacao.cartao_id,
+    );
+    return cartao ? cartao.nome! : '';
+  }
+
+  // Setters ao clicar nas opções
+  selecionarCategoria(id: any) {
+    if (id === 'nova') this.conferirCategoria('nova');
+    else this.transacao.categoria = id;
+  }
+  selecionarFornecedor(id: any) {
+    this.transacao.fornecedor_id = id;
+  }
+  selecionarCartao(id: any) {
+    this.transacao.cartao_id = id;
+  }
 }

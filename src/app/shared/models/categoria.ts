@@ -3,4 +3,5 @@ export class Categoria {
   nome?: string;
   userId?: string;
   tipo?: string;
+  categoria_mae?: number | null; // <--- Novo campo
 }

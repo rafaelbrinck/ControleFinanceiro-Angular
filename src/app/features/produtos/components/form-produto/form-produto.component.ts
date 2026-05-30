@@ -264,4 +264,31 @@ export class FormProdutoComponent implements OnInit {
 
     return true;
   }
+
+  get categoriasAgrupadas() {
+    let resultado: any[] = [];
+    const principais = this.listaCategorias.filter((c) => !c.categoria_mae);
+    principais.forEach((pai) => {
+      resultado.push({ ...pai, isFilha: false });
+      const filhas = this.listaCategorias.filter(
+        (c) => c.categoria_mae === pai.id,
+      );
+      filhas.forEach((filha) => {
+        resultado.push({ ...filha, isFilha: true, nomeMae: pai.nome });
+      });
+    });
+    return resultado;
+  }
+
+  getNomeCategoria(): string {
+    const cat = this.listaCategorias.find(
+      (c) => c.id === this.produto.categoria,
+    );
+    return cat ? cat.nome! : '';
+  }
+
+  selecionarCategoria(id: any) {
+    if (id === 'nova') this.conferirCategoria('nova');
+    else this.produto.categoria = id;
+  }
 }
