@@ -8,4 +8,5 @@ export class Transacao {
   data?: Date | string;
   idUser?: string;
   cartao_id?: number;
+  fornecedor_id?: number | undefined;
 }

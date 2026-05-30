@@ -1,162 +1,94 @@
-<div class="container my-5">
-  <div class="card shadow rounded-4">
-    <div class="card-body p-4">
-      <h2 class="mb-4 fw-bold text-center">Tabela de Fornecedores</h2>
+<div class="container my-4 pb-5 max-w-700">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+    <div>
+      <h2 class="fw-bold mb-0 text-dark">Fornecedores</h2>
+      <p class="text-muted small mb-0">Gestão de parceiros comerciais</p>
+    </div>
+    <button class="btn btn-dark rounded-pill px-4 shadow-sm fw-bold" (click)="abrirModal()">
+      <i class="bi bi-plus-lg me-1"></i> Adicionar
+    </button>
+  </div>
 
-      <div class="input-group mb-4 shadow-sm">
-        <span class="input-group-text bg-white border-end-0">
-          <i class="bi bi-search text-secondary"></i>
-        </span>
-        <input
-          type="text"
-          [(ngModel)]="nomePesquisa"
-          id="nomePesquisa"
-          class="form-control form-control-lg border-start-0"
-          placeholder="Digite para pesquisar..."
-          aria-label="Pesquisar transações"
-        >
-        <a class="btn btn-success btn-lg px-4 w-md-auto" routerLink="/fornecedores">
-          <i class="bi bi-check-circle me-2"></i>Inserir
-        </a>
+  <div *ngIf="fornecedores.length === 0" class="text-center py-5 mt-4">
+    <div class="icon-circle bg-light text-secondary mx-auto mb-3" style="width: 80px; height: 80px;">
+      <i class="bi bi-buildings fs-1"></i>
+    </div>
+    <h5 class="fw-bold text-dark">Nenhum fornecedor</h5>
+    <p class="text-muted small">Registe as empresas que fornecem produtos ou serviços para si.</p>
+  </div>
+
+  <div class="row g-4 fade-in-up">
+    <div class="col-md-6 col-lg-6" *ngFor="let forn of fornecedores; let i = index">
+      <div class="card border-0 shadow-sm rounded-4 h-100 bg-white fornecedor-card">
+        
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="icon-box rounded-4 d-flex align-items-center justify-content-center" [ngClass]="getCor(i)" style="width: 50px; height: 50px;">
+              <i class="bi bi-shop fs-4"></i>
+            </div>
+            
+            <div class="dropdown">
+              <button class="btn btn-sm btn-light rounded-circle text-muted" data-bs-toggle="dropdown">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                <li><a class="dropdown-item fw-medium py-2" (click)="abrirModal(forn)"><i class="bi bi-pencil me-2 text-primary"></i> Editar</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item fw-medium py-2 text-danger" (click)="excluirFornecedor(forn.id!)"><i class="bi bi-trash me-2"></i> Excluir</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <h5 class="fw-bold text-dark mb-1 text-truncate" title="{{ forn.nome }}">{{ forn.nome }}</h5>
+          <span class="badge bg-light border text-secondary fw-medium mb-4 d-inline-block">
+            <i class="bi bi-building me-1"></i> {{ forn.cnpj ? forn.cnpj : 'CNPJ não informado' }}
+          </span>
+
+          <div class="p-3 bg-light rounded-4 border border-white border-2 shadow-sm">
+            <small class="text-muted fw-bold d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">TOTAL COMPRADO (HISTÓRICO)</small>
+            <h4 class="fw-bold mb-0" [ngClass]="forn.totalGasto! > 0 ? 'text-danger' : 'text-secondary'">
+              {{ forn.totalGasto | currency:'BRL' }}
+            </h4>
+          </div>
+        </div>
+        
       </div>
+    </div>
+  </div>
 
-      <div *ngIf="(listaFornecedores | buscador:nomePesquisa:['nome']).length === 0" 
-           class="alert alert-light text-center shadow-sm rounded p-4">
-        <i class="bi bi-exclamation-circle fs-3 text-secondary d-block mb-2"></i>
-        <span class="fs-5 text-muted">Nenhum fornecedor encontrado</span>
+</div>
+
+<div class="modal fade backdrop-blur" id="modalFornecedor" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-bottom-0 pb-0">
+        <h5 class="modal-title fw-bold">{{ fornecedorEmEdicao.id ? 'Editar Fornecedor' : 'Novo Fornecedor' }}</h5>
+        <button type="button" class="btn-close" (click)="fecharModal()"></button>
       </div>
+      <div class="modal-body p-4">
+        
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted">Nome da Empresa *</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="bi bi-shop text-muted"></i></span>
+            <input type="text" class="form-control form-control-lg rounded-end-3 bg-light border-0" [(ngModel)]="fornecedorEmEdicao.nome" placeholder="Ex: Distribuidora Pet">
+          </div>
+        </div>
 
-      <div class="table-responsive" *ngIf="(listaFornecedores | buscador:nomePesquisa:['nome']).length > 0">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light text-center">
-            <tr>
-              <th scope="col">NOME</th>
-              <th scope="col" class="col-4">AÇÃO</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let fornecedor of (listaFornecedores | buscador:nomePesquisa:['nome'])" class="text-center">
-              <td>{{ fornecedor.nome }}</td>
-              <td>
-                <!-- <button class="btn btn-sm btn-outline-info me-2 mb-1" (click)="abrirModal(cliente)">
-                  <i class="bi bi-info-circle-fill"></i> Descrição
-                </button> -->
+        <div class="mb-2">
+          <label class="form-label small fw-bold text-muted">CNPJ (Opcional)</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="bi bi-file-earmark-text text-muted"></i></span>
+            <input type="text" class="form-control form-control-lg rounded-end-3 bg-light border-0" [(ngModel)]="fornecedorEmEdicao.cnpj" placeholder="00.000.000/0000-00">
+          </div>
+        </div>
 
-                <a class="btn btn-sm btn-outline-primary me-2 mb-1" routerLink="/form-cliente/{{ fornecedor.id }}">
-                  <i class="bi bi-pencil-fill"></i> Editar
-                </a>
-
-                <button class="btn btn-sm btn-outline-danger mb-1" (click)="deletar(fornecedor.id)" type="button">
-                  <i class="bi bi-trash-fill"></i> Deletar
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      </div>
+      <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+        <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" (click)="fecharModal()">Cancelar</button>
+        <button type="button" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" (click)="salvarFornecedor()">Guardar</button>
       </div>
     </div>
   </div>
 </div>
-
-<!-- Modal
-<div class="modal fade show d-block" *ngIf="clienteSelecionado" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content rounded-4 shadow border-0">
-      <div class="modal-header bg-primary text-white rounded-top-4">
-        <h5 class="modal-title">Descrição do Cliente</h5>
-        <button type="button" class="btn-close btn-close-white" (click)="fecharModal()"></button>
-      </div>
-      <div class="modal-body">
-        
-        <div class="mb-4">
-          <h6 class="text-secondary fw-bold border-bottom pb-2">Documentos</h6>
-          <div class="row">
-            <div class="col-12 col-md-6 mb-2" *ngIf="clienteSelecionado.cpf != null">
-              <strong>CPF:</strong> {{ clienteSelecionado.cpf! | cpf }}
-            </div>
-            <div class="col-12 col-md-6 mb-2">
-              <strong>Nome:</strong> {{ clienteSelecionado.nome }}
-            </div>
-          </div>
-        </div>
-
-        <div class="mb-4" *ngIf="clienteSelecionado.cep">
-          <h6 class="text-secondary fw-bold border-bottom pb-2">Endereço</h6>
-          <div class="row">
-            <div class="col-12 col-md-6 mb-2">
-              <strong>CEP:</strong> {{ clienteSelecionado.cep! | cep }}
-            </div>
-            <div class="col-12 col-md-8 mb-2">
-              <strong>Endereço:</strong> {{ clienteSelecionado.endereco }}
-            </div>
-            <div class="col-12 col-md-6 mb-2">
-              <strong>Número:</strong> {{ clienteSelecionado.endNumero }}
-            </div>
-            <div class="col-12 col-md-6 mb-2">
-              <strong>Complemento:</strong> {{ clienteSelecionado.endComplemento }}
-            </div>
-            <div class="col-12 col-md-6 mb-2">
-              <strong>Bairro:</strong> {{ clienteSelecionado.bairro }}
-            </div>
-            <div class="col-12 col-md-6 mb-2">
-              <strong>Cidade:</strong> {{ clienteSelecionado.cidade }}
-            </div>
-            <div class="col-12 col-md-6 mb-2">
-              <strong>UF:</strong> {{ clienteSelecionado.uf }}
-            </div>
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <h6 class="text-secondary fw-bold border-bottom pb-2">Contato</h6>
-          <div class="row">
-            <div class="col-12 mb-2">
-              <strong>Telefone:</strong> {{ clienteSelecionado.telefone! | telefone }}
-            </div>
-            <div class="col-12 col-md-6 mb-2" *ngIf="clienteSelecionado.instaUser != null">
-              <strong>Instagram:</strong> {{ clienteSelecionado.instaUser! | instagram }}
-            </div>
-          </div>
-        </div>
-
-        <div *ngIf="listaOrcamentos.length > 0">
-          <h6 class="text-secondary fw-bold border-bottom pb-2">Orçamentos</h6>
-          <div class="row">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead class="table-light text-center">
-                  <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Valor</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Data</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let orcamento of listaOrcamentos " class="text-center" (click)="redirecionarOrcamento(orcamento)">
-                    <td>{{orcamento.id}}</td>
-                    <td>{{ orcamento.valor | currency:'BRL' }}</td>
-                    <td>
-                      <span class="badge" [ngClass]="{
-                        'bg-success': orcamento.status === 'Finalizado',
-                        'bg-primary': orcamento.status === 'Aberto',
-                        'bg-danger': orcamento.status === 'Cancelado'
-                      }">{{ orcamento.status }}</span>
-                    </td>
-                    <td>{{ orcamento.created_at | date: 'dd/MM/yyyy'}}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-lg w-100" (click)="fecharModal()">
-          <i class="bi bi-arrow-left"></i> Voltar
-        </button>
-      </div>
-    </div>
-  </div>
-</div> -->
