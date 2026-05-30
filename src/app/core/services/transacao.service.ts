@@ -4,6 +4,8 @@ import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { LoginService } from '@app/core/auth/services/login.service';
 import { supabase } from '@app/core/data/supabase/supabase.client';
 import { CategoriaService } from './categoria.service';
+import { FornecedoresService } from './fornecedores.service';
+import { CartoesService } from './cartao.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,45 +15,60 @@ export class TransacaoService {
   public transacoes$: Observable<Transacao[]> =
     this.transacoesSubject.asObservable();
 
+  private fetchPromise: Promise<void> | null = null;
+
   constructor(
     private loginService: LoginService,
     private categoriaService: CategoriaService,
+    private cartoesService: CartoesService,
+    private fornecedoresService: FornecedoresService,
   ) {}
 
   async carregarTransacoes(): Promise<void> {
     const userId = this.loginService.getUserLogado();
-    if (!userId) {
-      this.transacoesSubject.next([]);
-      return;
-    }
+    if (!userId) return;
 
+    if (this.transacoesSubject.getValue().length > 0) return;
+    if (this.fetchPromise) return this.fetchPromise;
+
+    this.fetchPromise = this._executarCarga(userId);
+    await this.fetchPromise;
+    this.fetchPromise = null;
+  }
+
+  private async _executarCarga(userId: string): Promise<void> {
     const { data, error } = await supabase
       .from('transacao')
       .select('*')
       .eq('idUser', userId)
       .order('data', { ascending: false });
 
-    if (error) {
-      console.error('Erro ao listar transações:', error.message);
-      return;
-    }
-
-    if (!data) {
+    if (error || !data) {
+      console.error('Erro ao listar transações:', error?.message);
       this.transacoesSubject.next([]);
       return;
     }
 
-    await this.categoriaService.carregarCategorias();
-    const categorias = await firstValueFrom(this.categoriaService.categorias$);
+    // Carrega dependências em paralelo para máxima velocidade
+    await Promise.all([
+      this.categoriaService.carregarCategorias(),
+      this.cartoesService.carregarCartoes(),
+      this.fornecedoresService.carregarFornecedores(),
+    ]);
 
-    data.forEach((transacao) => {
-      const categoria = categorias.find(
-        (cat) => cat.id === transacao.categoria,
-      );
-      transacao.cat = categoria ? categoria.nome : 'Categoria não encontrada';
+    const categorias = this.categoriaService.getCategoriasSnapshot();
+    const cartoes = this.cartoesService.getCartoesSnapshot();
+    const fornecedores = this.fornecedoresService.getFornecedoresSnapshot();
+
+    data.forEach((t) => {
+      t.cat =
+        categorias.find((c) => c.id === t.categoria)?.nome || 'Sem Categoria';
+      t.cartao_nome = cartoes.find((c) => c.id === t.cartao_id)?.nome || null;
+      t.fornecedor_nome =
+        fornecedores.find((f) => f.id === t.fornecedor_id)?.nome || null;
     });
 
-    this.transacoesSubject.next(data);
+    this.transacoesSubject.next(data as Transacao[]);
   }
 
   async inserir(transacao: Transacao): Promise<boolean> {
@@ -63,40 +80,18 @@ export class TransacaoService {
         valor: transacao.valor,
         tipo: transacao.tipo,
         categoria: transacao.categoria,
+        cartao_id: transacao.cartao_id || null,
+        fornecedor_id: transacao.fornecedor_id || null,
         idUser: userId,
         data: transacao.data || new Date(),
       },
     ]);
 
-    if (error) {
-      console.error('Erro ao inserir transação:', error.message);
-      return false;
-    } else {
-      await this.carregarTransacoes();
-      return true;
-    }
-  }
+    if (error) return false;
 
-  getTransacoesSnapshot(): Transacao[] {
-    return this.transacoesSubject.getValue();
-  }
-
-  async buscarId(id: number): Promise<Transacao> {
-    const userId = this.loginService.getUserLogado();
-
-    const { data, error } = await supabase
-      .from('transacao')
-      .select('*')
-      .eq('idUser', userId)
-      .eq('id', id)
-      .single();
-
-    if (error) {
-      console.error('Erro ao buscar transação por ID:', error.message);
-      return new Transacao();
-    }
-
-    return data as Transacao;
+    this.transacoesSubject.next([]);
+    await this.carregarTransacoes();
+    return true;
   }
 
   async editar(id: number, transacao: Transacao): Promise<boolean> {
@@ -110,35 +105,40 @@ export class TransacaoService {
           valor: transacao.valor,
           tipo: transacao.tipo,
           categoria: transacao.categoria,
-          idUser: userId,
+          cartao_id: transacao.cartao_id || null,
+          fornecedor_id: transacao.fornecedor_id || null,
           data: transacao.data,
         },
       ])
       .eq('id', id)
       .eq('idUser', userId);
 
-    if (error) {
-      console.error('Erro ao editar transação:', error.message);
-      return false;
-    } else {
-      await this.carregarTransacoes();
-      return true;
-    }
+    if (error) return false;
+
+    this.transacoesSubject.next([]);
+    await this.carregarTransacoes();
+    return true;
   }
 
   async deletar(id: number): Promise<void> {
     const userId = this.loginService.getUserLogado();
+    await supabase.from('transacao').delete().eq('id', id).eq('idUser', userId);
+    this.transacoesSubject.next([]);
+    await this.carregarTransacoes();
+  }
 
-    const { error } = await supabase
+  getTransacoesSnapshot(): Transacao[] {
+    return this.transacoesSubject.getValue();
+  }
+
+  async buscarId(id: number): Promise<Transacao> {
+    const userId = this.loginService.getUserLogado();
+    const { data } = await supabase
       .from('transacao')
-      .delete()
+      .select('*')
       .eq('id', id)
-      .eq('idUser', userId);
-
-    if (error) {
-      console.error('Erro ao deletar transação:', error.message);
-    } else {
-      await this.carregarTransacoes();
-    }
+      .eq('idUser', userId)
+      .single();
+    return (data as Transacao) || new Transacao();
   }
 }

@@ -7,6 +7,12 @@ export class Transacao {
   cat?: string;
   data?: Date | string;
   idUser?: string;
-  cartao_id?: number;
-  fornecedor_id?: number | undefined;
+
+  // Chaves Estrangeiras (IDs no banco)
+  cartao_id?: number | null;
+  fornecedor_id?: number | null;
+
+  // Propriedades visuais para a tabela (Front-end)
+  cartao_nome?: string | null;
+  fornecedor_nome?: string | null;
 }

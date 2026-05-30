@@ -2,7 +2,6 @@
   
   <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
     
-    <!-- Cabeçalho -->
     <div class="bg-primary p-4 text-center text-white position-relative overflow-hidden">
       <div class="position-relative z-1">
         <h3 class="fw-bold mb-1">{{ transacao.id ? 'Editar Transação' : 'Nova Transação' }}</h3>
@@ -14,7 +13,6 @@
     <div class="card-body p-4 p-md-5">
       <form>
         
-        <!-- SELEÇÃO DE TIPO (Visual Moderno) -->
         <div class="mb-4">
           <label class="d-block text-secondary small fw-bold text-uppercase mb-2">Tipo de Operação</label>
           <div class="row g-3">
@@ -39,27 +37,17 @@
           </div>
         </div>
 
-        <!-- Campos de Dados -->
         <div class="row g-3">
           
-          <!-- Valor (Destaque) -->
           <div class="col-12">
             <div class="form-floating">
-              <input 
-                type="text" 
-                class="form-control rounded-3 fs-4 fw-bold" 
-                id="valor" 
-                inputmode="decimal"
-                [value]="valorFormatado" 
-                (input)="mascaraValor($event)" 
-                placeholder="0,00"
-                [ngClass]="{'text-success': transacao.tipo === 'Entrada', 'text-danger': transacao.tipo === 'Saida'}"
-              >
+              <input type="text" class="form-control rounded-3 fs-4 fw-bold" id="valor" inputmode="decimal"
+                [value]="valorFormatado" (input)="mascaraValor($event)" placeholder="0,00"
+                [ngClass]="{'text-success': transacao.tipo === 'Entrada', 'text-danger': transacao.tipo === 'Saida'}">
               <label for="valor">Valor (R$)</label>
             </div>
           </div>
 
-          <!-- Descrição -->
           <div class="col-12">
             <div class="form-floating">
               <input type="text" class="form-control rounded-3" id="descricao" [(ngModel)]="transacao.nome" name="descricao" placeholder="Ex: Conta de Luz">
@@ -67,29 +55,19 @@
             </div>
           </div>
 
-          <!-- Data (com botão Hoje) -->
           <div class="col-12 col-md-6">
             <div class="input-group">
               <div class="form-floating flex-grow-1">
                 <input type="date" class="form-control rounded-start-3 rounded-end-0" id="data" [(ngModel)]="transacao.data" name="data">
                 <label for="data">Data</label>
               </div>
-              <button class="btn btn-outline-secondary px-3" type="button" (click)="transacao.data = getDataHoje()" title="Definir Hoje">
-                Hoje
-              </button>
+              <button class="btn btn-outline-secondary px-3" type="button" (click)="transacao.data = getDataHoje()" title="Definir Hoje">Hoje</button>
             </div>
           </div>
 
-          <!-- Categoria -->
           <div class="col-12 col-md-6">
             <div class="form-floating">
-              <select 
-                class="form-select rounded-3" 
-                id="categoria" 
-                [(ngModel)]="transacao.categoria" 
-                (ngModelChange)="conferirCategoria($event)" 
-                name="categoria"
-              >
+              <select class="form-select rounded-3" id="categoria" [(ngModel)]="transacao.categoria" (ngModelChange)="conferirCategoria($event)" name="categoria">
                 <option [ngValue]="null" disabled selected>Selecione...</option>
                 <option *ngFor="let categoria of listaCategorias" [ngValue]="categoria.id">{{categoria.nome}}</option>
                 <option [ngValue]="'nova'" class="fw-bold text-primary">+ Nova Categoria</option>
@@ -98,14 +76,33 @@
             </div>
           </div>
 
+          <ng-container *ngIf="transacao.tipo === 'Saida'">
+            <div class="col-12 col-md-6 fade-in">
+              <div class="form-floating">
+                <select class="form-select rounded-3" id="fornecedor" [(ngModel)]="transacao.fornecedor_id" name="fornecedor">
+                  <option [ngValue]="null">Nenhum / Não se aplica</option>
+                  <option *ngFor="let forn of listaFornecedores" [ngValue]="forn.id">{{forn.nome}}</option>
+                </select>
+                <label for="fornecedor"><i class="bi bi-shop me-1 text-muted"></i> Fornecedor</label>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6 fade-in">
+              <div class="form-floating">
+                <select class="form-select rounded-3" id="cartao" [(ngModel)]="transacao.cartao_id" name="cartao">
+                  <option [ngValue]="null">Nenhum (Dinheiro / Pix)</option>
+                  <option *ngFor="let cartao of listaCartoes" [ngValue]="cartao.id">{{cartao.nome}}</option>
+                </select>
+                <label for="cartao"><i class="bi bi-credit-card me-1 text-muted"></i> Cartão de Crédito</label>
+              </div>
+            </div>
+          </ng-container>
+
         </div>
 
-        <!-- Botões de Ação -->
         <div class="row g-2 mt-5 pt-2 border-top">
           <div class="col-6">
-            <button type="button" class="btn btn-light btn-lg w-100 fw-medium text-secondary" (click)="voltar()">
-              Voltar
-            </button>
+            <button type="button" class="btn btn-light btn-lg w-100 fw-medium text-secondary" (click)="voltar()">Voltar</button>
           </div>
           <div class="col-6">
             <button type="submit" class="btn btn-success btn-lg w-100 fw-bold shadow-sm" (click)="salvar()">

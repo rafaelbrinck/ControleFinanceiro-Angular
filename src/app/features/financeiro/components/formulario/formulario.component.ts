@@ -9,6 +9,12 @@ import { CategoriaService } from '@app/core/services/categoria.service';
 import { LoginService } from '@app/core/auth/services/login.service';
 import { AlertaService } from '@app/core/services/alerta.service';
 
+// Novos imports
+import { Cartao } from '@app/shared/models/cartao';
+import { Fornecedor } from '@app/shared/models/fornecedor';
+import { FornecedoresService } from '@app/core/services/fornecedores.service';
+import { CartoesService } from '@app/core/services/cartao.service';
+
 @Component({
   selector: 'app-formulario',
   standalone: true,
@@ -21,19 +27,30 @@ export class FormularioComponent implements OnInit {
   transacao = new Transacao();
   id?: number;
   botao = 'Cadastrar';
+
   listaCategorias: Categoria[] = [];
+  listaCartoes: Cartao[] = [];
+  listaFornecedores: Fornecedor[] = [];
 
   constructor(
     private transacaoService: TransacaoService,
     private categoriaService: CategoriaService,
+    private cartoesService: CartoesService,
+    private fornecedoresService: FornecedoresService,
     private route: ActivatedRoute,
     private router: Router,
     private loginService: LoginService,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
   ) {}
 
   async ngOnInit() {
     this.listaCategorias = await this.categoriaService.listar('Transacao');
+
+    await this.cartoesService.carregarCartoes();
+    this.listaCartoes = this.cartoesService.getCartoesSnapshot();
+
+    await this.fornecedoresService.carregarFornecedores();
+    this.listaFornecedores = this.fornecedoresService.getFornecedoresSnapshot();
 
     this.id = +this.route.snapshot.params['id'];
     if (this.id) {
@@ -50,6 +67,13 @@ export class FormularioComponent implements OnInit {
 
   async salvar() {
     if (!this.validarInfos()) return;
+
+    // Regra de Negócio: Limpar IDs secundários se for uma "Entrada"
+    if (this.transacao.tipo === 'Entrada') {
+      this.transacao.cartao_id = null;
+      this.transacao.fornecedor_id = null;
+    }
+
     if (this.id) {
       if (await this.transacaoService.editar(this.id, this.transacao)) {
         this.alertaService.sucesso('Sucesso', 'Transação editada com sucesso!');
@@ -62,7 +86,7 @@ export class FormularioComponent implements OnInit {
       this.transacaoService.inserir(this.transacao);
       this.alertaService.sucesso(
         'Sucesso',
-        'Transação cadastrada com sucesso!'
+        'Transação cadastrada com sucesso!',
       );
       this.transacao = new Transacao();
       this.voltar();
@@ -75,9 +99,7 @@ export class FormularioComponent implements OnInit {
 
   mascaraValor(event: Event) {
     const input = event.target as HTMLInputElement;
-    const valor = input.value;
-
-    const numeros = valor.replace(/\D/g, '');
+    const numeros = input.value.replace(/\D/g, '');
     const somenteNumeros = parseFloat(numeros) / 100;
     this.transacao.valor = somenteNumeros;
     this.valorFormatado = somenteNumeros.toLocaleString('pt-BR', {
@@ -94,39 +116,31 @@ export class FormularioComponent implements OnInit {
     if (valor === 'nova') {
       this.alertaService.confirmar(
         'Nova Categoria',
-        'Você selecionou a opção de nova categoria. Deseja adicionar uma nova categoria?',
-        (resultado) => {
-          if (resultado) {
-            this.router.navigate(['/form-categoria']);
-          }
-        }
+        'Deseja adicionar uma nova categoria?',
+        (res) => {
+          if (res) this.router.navigate(['/form-categoria']);
+        },
       );
     }
   }
 
   validarInfos(): boolean {
-    if (this.transacao.nome == undefined) {
+    if (!this.transacao.nome) {
       this.alertaService.info('Obrigatório', 'Nome obrigatório!');
       return false;
     }
-    if (
-      this.transacao.valor == undefined ||
-      this.transacao.valor == null ||
-      Number.isNaN(this.transacao.valor)
-    ) {
+    if (!this.transacao.valor || Number.isNaN(this.transacao.valor)) {
       this.alertaService.info('Obrigatório', 'Valor obrigatório!');
       return false;
     }
-    if (this.transacao.valor != undefined) {
-      if (!this.validaValor(this.transacao.valor)) {
-        this.alertaService.info(
-          'Obrigatório',
-          'Valor tem que ser maior do que zero'
-        );
-        return false;
-      }
+    if (!this.validaValor(this.transacao.valor)) {
+      this.alertaService.info(
+        'Obrigatório',
+        'Valor tem que ser maior do que zero',
+      );
+      return false;
     }
-    if (this.transacao.tipo == undefined) {
+    if (!this.transacao.tipo) {
       this.alertaService.info('Obrigatório', 'Tipo de transação obrigatório!');
       return false;
     }
