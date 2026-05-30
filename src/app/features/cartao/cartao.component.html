@@ -1,0 +1,117 @@
+<div class="container my-4 pb-5 max-w-700">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+    <div>
+      <h2 class="fw-bold mb-0 text-dark">Meus Cartões</h2>
+      <p class="text-muted small mb-0">Faça a gestão dos seus limites</p>
+    </div>
+    <button class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" (click)="abrirModal()">
+      <i class="bi bi-plus-lg me-1"></i> Adicionar
+    </button>
+  </div>
+
+  <div *ngIf="cartoes.length === 0" class="text-center py-5 mt-4">
+    <div class="icon-circle bg-light text-secondary mx-auto mb-3" style="width: 80px; height: 80px;">
+      <i class="bi bi-credit-card-2-front fs-1"></i>
+    </div>
+    <h5 class="fw-bold text-dark">Nenhum cartão registado</h5>
+    <p class="text-muted small">Adicione o seu primeiro cartão de crédito para começar a controlar os seus limites.</p>
+  </div>
+
+  <div class="row g-4 fade-in-up">
+    <div class="col-md-6 col-lg-6" *ngFor="let cartao of cartoes; let i = index">
+      <div class="card border-0 shadow-sm rounded-4 h-100 bg-white p-3 pb-4">
+        
+        <div class="d-flex justify-content-end mb-2">
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light rounded-circle text-muted" data-bs-toggle="dropdown">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+              <li><a class="dropdown-item fw-medium py-2" (click)="abrirModal(cartao)"><i class="bi bi-pencil me-2 text-primary"></i> Editar</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item fw-medium py-2 text-danger" (click)="excluirCartao(cartao.id!)"><i class="bi bi-trash me-2"></i> Excluir</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="credit-card-ui mb-4" [style.background]="getGradient(i)">
+          <div class="d-flex justify-content-between align-items-start mb-4">
+            <h5 class="fw-bold text-white mb-0 text-uppercase tracking-wider">{{ cartao.nome }}</h5>
+            <i class="bi bi-wifi text-white opacity-50 fs-4" style="transform: rotate(90deg);"></i>
+          </div>
+          
+          <div class="chip-icon mb-3"></div>
+          
+          <div class="d-flex justify-content-between align-items-end mt-4">
+            <div class="text-white">
+              <small class="opacity-75 d-block" style="font-size: 0.65rem;">VENCIMENTO</small>
+              <span class="fw-bold tracking-wider">DIA {{ (cartao.dia_pagamento | number:'2.0') }}</span>
+            </div>
+            <i class="bi bi-cc-mastercard text-white opacity-75" style="font-size: 2.5rem; line-height: 1;"></i>
+          </div>
+        </div>
+
+        <div class="px-2">
+          <div class="d-flex justify-content-between align-items-end mb-2">
+            <div>
+              <small class="text-muted fw-bold d-block" style="font-size: 0.7rem;">FATURA ATUAL</small>
+              <span class="fw-bold text-dark fs-5">{{ cartao.faturaAtual | currency:'BRL' }}</span>
+            </div>
+            <div class="text-end">
+              <small class="text-muted fw-bold d-block" style="font-size: 0.7rem;">LIMITE DISPONÍVEL</small>
+              <span class="fw-bold text-success">{{ cartao.limiteDisponivel | currency:'BRL' }}</span>
+            </div>
+          </div>
+          
+          <div class="progress rounded-pill bg-light" style="height: 8px;">
+            <div class="progress-bar rounded-pill transition-all" 
+                 [ngClass]="{'bg-success': cartao.percentualUso! < 50, 'bg-warning': cartao.percentualUso! >= 50 && cartao.percentualUso! < 85, 'bg-danger': cartao.percentualUso! >= 85}"
+                 [style.width.%]="cartao.percentualUso"></div>
+          </div>
+          <div class="text-end mt-1">
+            <small class="text-muted" style="font-size: 0.7rem;">Limite Total: {{ cartao.limite | currency:'BRL' }}</small>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal fade backdrop-blur" id="modalCartao" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header border-bottom-0 pb-0">
+        <h5 class="modal-title fw-bold">{{ cartaoEmEdicao.id ? 'Editar Cartão' : 'Novo Cartão' }}</h5>
+        <button type="button" class="btn-close" (click)="fecharModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted">Nome do Cartão (ex: Nubank, Itaú)</label>
+          <input type="text" class="form-control form-control-lg rounded-3 bg-light border-0" [(ngModel)]="cartaoEmEdicao.nome" placeholder="Digite o nome">
+        </div>
+
+        <div class="row g-3">
+          <div class="col-7">
+            <label class="form-label small fw-bold text-muted">Limite Total (R$)</label>
+            <input type="number" class="form-control form-control-lg rounded-3 bg-light border-0" [(ngModel)]="cartaoEmEdicao.limite" placeholder="0,00">
+          </div>
+          <div class="col-5">
+            <label class="form-label small fw-bold text-muted">Vencimento</label>
+            <select class="form-select form-select-lg rounded-3 bg-light border-0" [(ngModel)]="cartaoEmEdicao.dia_pagamento">
+              <option *ngFor="let dia of [1,5,10,15,20,25,28]" [value]="dia">Dia {{ dia }}</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+        <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" (click)="fecharModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" (click)="salvarCartao()">Guardar Cartão</button>
+      </div>
+    </div>
+  </div>
+</div>

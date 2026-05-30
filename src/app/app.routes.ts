@@ -13,7 +13,9 @@ export const routes: Routes = [
     path: 'inicio',
     canActivate: [ValidacaoGuard],
     loadComponent: () =>
-      import('./features/dashboard/pages/home/home.component').then((m) => m.HomeComponent),
+      import('./features/dashboard/pages/home/home.component').then(
+        (m) => m.HomeComponent,
+      ),
   },
   {
     path: 'transacoes',
@@ -133,6 +135,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/orcamentos/pages/recibo/recibo.component').then(
         (m) => m.ReciboComponent,
+      ),
+  },
+  {
+    path: 'cartoes',
+    canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./features/cartao/cartao.component').then(
+        (m) => m.CartoesComponent,
       ),
   },
   {

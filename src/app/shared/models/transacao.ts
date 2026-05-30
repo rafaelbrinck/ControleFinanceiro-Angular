@@ -7,4 +7,5 @@ export class Transacao {
   cat?: string;
   data?: Date | string;
   idUser?: string;
+  cartao_id?: number;
 }
