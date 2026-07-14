@@ -30,7 +30,7 @@ export class FormClienteComponent implements OnInit {
     private clienteService: ClientesService,
     private loginService: LoginService,
     private route: ActivatedRoute,
-    private alertaService: AlertaService
+    private alertaService: AlertaService,
   ) {}
 
   async ngOnInit() {
@@ -56,7 +56,7 @@ export class FormClienteComponent implements OnInit {
       if (await this.clienteService.insert(this.cliente)) {
         this.alertaService.sucesso(
           'Sucesso',
-          'Cliente cadastrado com sucesso!'
+          'Cliente cadastrado com sucesso!',
         );
         this.voltar();
       }
@@ -114,8 +114,15 @@ export class FormClienteComponent implements OnInit {
 
   mascaraTelefone(event: Event) {
     const input = event.target as HTMLInputElement;
-    let valor = input.value.replace(/\D/g, '').slice(0, 11);
+    let digitos = input.value.replace(/\D/g, '');
 
+    if (digitos.startsWith('55') && digitos.length > 11) {
+      digitos = digitos.slice(2);
+    }
+
+    digitos = digitos.slice(0, 11);
+
+    let valor = digitos;
     if (valor.length > 0) valor = valor.replace(/^(\d{2})(\d)/g, '($1) $2');
     if (valor.length >= 10) valor = valor.replace(/(\d{5})(\d{4})$/, '$1-$2');
 
