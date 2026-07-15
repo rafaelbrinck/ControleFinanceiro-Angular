@@ -9,28 +9,134 @@
   margin: 0 auto;
 }
 
-/* Card de Transação */
-.transaction-card {
-  border-radius: 16px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  background: #fff;
-
-  /* Hover effect no desktop */
-  @media (min-width: 768px) {
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-
-      /* Mostra botões de ação no hover */
-      .action-buttons {
-        opacity: 1 !important;
-      }
-    }
-  }
+.month-nav {
+  transition: box-shadow 0.2s ease;
 }
 
-.action-buttons {
-  transition: opacity 0.2s;
+.nav-arrow {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  border: none;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.nav-arrow:hover {
+  transform: translateY(-1px);
+  background-color: #f1f5f9 !important;
+  color: var(--primary-color);
+}
+
+.analytics-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.analytics-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
+}
+
+.icon-pill {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+}
+
+.search-box {
+  padding: 0.65rem 0;
+}
+
+.search-box i {
+  font-size: 1.1rem;
+}
+
+.search-box input {
+  padding: 0;
+  font-size: 1rem;
+}
+
+.search-box input:focus {
+  box-shadow: none;
+}
+
+.pill-filter {
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #64748b;
+  background: #f8fafc;
+  border: 2px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.pill-filter:hover {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.pill-filter.active {
+  background: #e0e7ff;
+  color: #4f46e5;
+  border-color: #c7d2fe;
+}
+
+.pill-filter.active-entrada {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.pill-filter.active-saida {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.day-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.day-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.day-line {
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.transaction-card {
+  border-radius: 16px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  background: #fff;
+}
+
+@media (min-width: 768px) {
+  .transaction-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08) !important;
+  }
 }
 
 .transaction-icon {
@@ -43,24 +149,8 @@
   font-size: 1.2rem;
 }
 
-/* Search Box Unificada */
-.search-box {
-  padding: 0.5rem 0;
-
-  i {
-    font-size: 1.1rem;
-  }
-  input {
-    padding: 0;
-    font-size: 1rem;
-    &:focus {
-      box-shadow: none;
-    }
-  }
-}
-
 .fade-in {
-  animation: fadeIn 0.4s ease-out;
+  animation: fadeIn 0.35s ease-out;
 }
 
 @keyframes fadeIn {
