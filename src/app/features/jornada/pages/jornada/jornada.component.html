@@ -1,0 +1,163 @@
+<div class="container py-4 jornada-page">
+  <div class="d-flex flex-column align-items-center mb-4 text-center">
+    <p class="text-uppercase text-secondary fw-semibold small mb-1 letter-space">
+      Controle de Jornada
+    </p>
+    <h2 class="fw-bold text-dark mb-1">Ponto de Trabalho</h2>
+    <p class="text-secondary mb-0">
+      Registre entradas e saídas e acompanhe suas horas em tempo real.
+    </p>
+  </div>
+
+  <div class="d-flex justify-content-center mb-5">
+    <button
+      type="button"
+      class="btn btn-lg rounded-pill shadow px-5 py-3 fs-5 fw-bold text-white border-0"
+      [ngClass]="classeBotao"
+      [disabled]="salvando"
+      (click)="baterPonto()"
+    >
+      <i
+        class="bi me-2"
+        [ngClass]="
+          proximoTipo === 'Entrada'
+            ? 'bi-box-arrow-in-right'
+            : 'bi-box-arrow-right'
+        "
+      ></i>
+      {{ salvando ? 'Registrando...' : labelBotao }}
+    </button>
+  </div>
+
+  <div class="card bg-white shadow-sm rounded-4 border-0 p-4 mb-4">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-8">
+        <div class="form-floating">
+          <input
+            type="date"
+            class="form-control rounded-4"
+            id="dataJornada"
+            name="dataJornada"
+            [(ngModel)]="dataSelecionada"
+            (ngModelChange)="onDataChange()"
+            placeholder="Data"
+          />
+          <label for="dataJornada">Dia para visualizar</label>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <button
+          type="button"
+          class="btn btn-outline-primary rounded-4 w-100 py-3 fw-semibold"
+          [disabled]="isHoje"
+          (click)="irParaHoje()"
+        >
+          <i class="bi bi-calendar-check me-2"></i>
+          Hoje
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div
+        class="card bg-white shadow-sm rounded-4 border-0 p-4 h-100 analytics-card"
+      >
+        <div class="text-secondary small fw-semibold mb-2">Horas do dia</div>
+        <div class="fs-3 fw-bold text-dark">{{ horasDia.label }}</div>
+        <div class="text-secondary small mt-1">
+          {{ formatarDataBR(dataSelecionada) }}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div
+        class="card bg-white shadow-sm rounded-4 border-0 p-4 h-100 analytics-card"
+      >
+        <div class="text-secondary small fw-semibold mb-2">Horas do mês</div>
+        <div class="fs-3 fw-bold text-dark">{{ horasMes.label }}</div>
+        <div class="text-secondary small mt-1">
+          Com base no mês da data selecionada
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div
+        class="card bg-white shadow-sm rounded-4 border-0 p-4 h-100 analytics-card"
+      >
+        <div class="text-secondary small fw-semibold mb-2">Top dia</div>
+        <div class="fs-3 fw-bold text-dark">
+          {{ topDia ? topDia.label : '—' }}
+        </div>
+        <div class="text-secondary small mt-1">
+          {{
+            topDia ? formatarDataBR(topDia.data) : 'Sem dados no mês'
+          }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-white shadow-sm rounded-4 border-0 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold mb-0">Timeline do dia</h5>
+      <span
+        class="badge rounded-pill bg-light text-secondary border px-3 py-2"
+      >
+        {{ registrosDoDia.length }} registro(s)
+      </span>
+    </div>
+
+    <div
+      *ngIf="registrosDoDia.length === 0"
+      class="text-center text-secondary py-5"
+    >
+      <i class="bi bi-clock-history fs-1 d-block mb-2 opacity-50"></i>
+      Nenhum ponto registrado neste dia.
+    </div>
+
+    <ul
+      class="timeline list-unstyled mb-0"
+      *ngIf="registrosDoDia.length > 0"
+    >
+      <li
+        class="timeline-item"
+        *ngFor="let item of registrosDoDia; let last = last"
+        [class.pb-4]="!last"
+      >
+        <div
+          class="timeline-icon"
+          [ngClass]="item.tipo === 'Entrada' ? 'entrada' : 'saida'"
+        >
+          <i
+            class="bi"
+            [ngClass]="
+              item.tipo === 'Entrada'
+                ? 'bi-box-arrow-in-right'
+                : 'bi-box-arrow-right'
+            "
+          ></i>
+        </div>
+        <div class="timeline-content">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="fw-bold text-dark">{{ item.tipo }}</div>
+              <div class="text-secondary small">
+                {{ formatarHora(item.created_at) }}
+              </div>
+            </div>
+            <span
+              class="badge rounded-pill px-3 py-2"
+              [ngClass]="
+                item.tipo === 'Entrada' ? 'badge-entrada' : 'badge-saida'
+              "
+            >
+              {{ item.tipo }}
+            </span>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>

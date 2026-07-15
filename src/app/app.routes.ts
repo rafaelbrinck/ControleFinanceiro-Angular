@@ -146,6 +146,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'jornada',
+    canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./features/jornada/pages/jornada/jornada.component').then(
+        (m) => m.JornadaComponent,
+      ),
+  },
+  {
     path: '**',
     loadComponent: () =>
       import('./features/common/page-not-found/page-not-found.component').then(
