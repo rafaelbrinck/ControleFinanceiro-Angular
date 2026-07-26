@@ -7,6 +7,7 @@ import { AlertaService } from '@app/core/services/alerta.service';
 import { OrcamentoService } from '@app/core/services/orcamento.service';
 import { FamilyService } from '@app/features/contas-casa/services/family.service';
 import { BillsService } from '@app/features/contas-casa/services/bills.service';
+import { VeiculosService } from '@app/features/veiculos/services/veiculos.service';
 
 @Injectable({
   providedIn: 'root',
@@ -147,6 +148,7 @@ export class LoginService {
     this.setUserLogado(data.user.id);
     this.familyService.limparEstado();
     this.billsService.limparEstado();
+    this.veiculosService.limparEstado();
 
     const usuario = await this.buscarUsuarioPorId(data.user.id);
     this.userSubject.next(usuario);
@@ -172,6 +174,7 @@ export class LoginService {
     this.orcamentoService.limparOrcamento();
     this.familyService.limparEstado();
     this.billsService.limparEstado();
+    this.veiculosService.limparEstado();
   }
 
   async insertVendas(id: string) {
@@ -213,6 +216,10 @@ export class LoginService {
 
   private get billsService(): BillsService {
     return this.injector.get(BillsService);
+  }
+
+  private get veiculosService(): VeiculosService {
+    return this.injector.get(VeiculosService);
   }
 
   private async restaurarSessaoInterno(): Promise<void> {

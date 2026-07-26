@@ -178,6 +178,14 @@ export const routes: Routes = [
       ).then((m) => m.MembrosFamiliaComponent),
   },
   {
+    path: 'veiculos',
+    canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./features/veiculos/pages/dashboard/dashboard.component').then(
+        (m) => m.VeiculosDashboardComponent,
+      ),
+  },
+  {
     path: '**',
     loadComponent: () =>
       import('./features/common/page-not-found/page-not-found.component').then(

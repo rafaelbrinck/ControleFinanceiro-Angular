@@ -1,0 +1,371 @@
+<div class="container my-3 my-md-4 max-w-800 veiculos-page">
+  <div class="d-flex justify-content-between align-items-center mb-3 page-header gap-2">
+    <div class="min-w-0 pe-1">
+      <h4 class="fw-bold text-dark mb-0 text-truncate">Meus Veículos</h4>
+      <small class="text-muted d-block text-truncate">Gastos e histórico automotivo</small>
+    </div>
+    <button
+      type="button"
+      class="btn btn-outline-primary rounded-pill flex-shrink-0"
+      style="min-height: 40px"
+      (click)="abrirModalVeiculo()"
+    >
+      <i class="bi bi-plus-lg"></i>
+      <span class="d-none d-sm-inline ms-1">Veículo</span>
+    </button>
+  </div>
+
+  <!-- Seletor de veículo -->
+  <div class="card border-0 shadow-sm rounded-4 mb-3">
+    <div class="card-body p-3">
+      <label class="form-label small fw-bold text-muted mb-1" for="veiculoAtivo">
+        Veículo ativo
+      </label>
+      <select
+        id="veiculoAtivo"
+        class="form-select form-select-lg rounded-4 fw-semibold"
+        [value]="veiculoAtivo()?.id ?? ''"
+        (change)="onTrocarVeiculo($any($event.target).value)"
+      >
+        @if (!veiculos().length) {
+          <option value="">Nenhum veículo cadastrado</option>
+        }
+        @for (v of veiculos(); track v.id) {
+          <option [value]="v.id">
+            {{ v.nome }}
+            @if (v.placa) {
+              · {{ v.placa }}
+            }
+          </option>
+        }
+      </select>
+
+      @if (veiculoAtivo(); as ativo) {
+        <div class="d-flex flex-wrap gap-2 mt-2">
+          <span class="badge bg-light text-secondary border rounded-pill fw-normal">
+            {{ ativo.tipo }}
+          </span>
+          @if (ativo.marca || ativo.modelo) {
+            <span class="badge bg-light text-secondary border rounded-pill fw-normal">
+              {{ ativo.marca }} {{ ativo.modelo }}
+            </span>
+          }
+          <span class="badge bg-primary-subtle text-primary rounded-pill fw-normal">
+            {{ (ativo.odometro_base || 0) | number }} km
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (veiculoAtivo()) {
+    <!-- Navegação do mês -->
+    <div class="card bg-white shadow-sm rounded-4 border-0 mb-3">
+      <div class="card-body py-3 px-3 d-flex align-items-center justify-content-between">
+        <button
+          type="button"
+          class="btn btn-light rounded-circle nav-arrow"
+          (click)="mesAnterior()"
+          aria-label="Mês anterior"
+        >
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <div class="text-center">
+          <div class="fw-bold text-dark mb-0">{{ labelMes() }}</div>
+          <small class="text-muted">Gastos do período</small>
+        </div>
+        <button
+          type="button"
+          class="btn btn-light rounded-circle nav-arrow"
+          (click)="mesSeguinte()"
+          aria-label="Próximo mês"
+        >
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Cards de resumo -->
+    <div class="row g-2 mb-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-primary text-white resumo-hero">
+          <small class="opacity-75">Total no mês</small>
+          <h3 class="fw-bolder mb-0">{{ resumo().total | currency: 'BRL' }}</h3>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="icon-pill bg-primary-subtle text-primary">
+              <i class="bi bi-fuel-pump"></i>
+            </span>
+            <small class="text-muted fw-semibold">Combustível</small>
+          </div>
+          <div class="fw-bold">{{ resumo().abastecimentos | currency: 'BRL' }}</div>
+          <small class="text-muted">
+            {{ resumo().litros | number: '1.0-1' }} L
+            @if (resumo().mediaLitro > 0) {
+              · {{ resumo().mediaLitro | currency: 'BRL' }}/L
+            }
+          </small>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="icon-pill bg-warning-subtle text-warning">
+              <i class="bi bi-tools"></i>
+            </span>
+            <small class="text-muted fw-semibold">Manutenção</small>
+          </div>
+          <div class="fw-bold">{{ resumo().manutencoes | currency: 'BRL' }}</div>
+          <small class="text-muted">Oficina e serviços</small>
+        </div>
+      </div>
+    </div>
+
+    <app-veiculos-relatorio
+      [relatorio]="relatorio()"
+      [carregando]="carregandoRelatorio()"
+      [mes]="mes()"
+      [ano]="ano()"
+      (mesAnoChange)="onTrocarMesAnoRelatorio($event)"
+    />
+
+    <h6 class="fw-bold text-uppercase text-muted small mb-3 tracking-wide px-2">
+      Histórico do mês
+    </h6>
+    <app-veiculos-timeline
+      [eventos]="timeline()"
+      [carregando]="carregando()"
+      (excluir)="confirmarExclusaoEvento($event)"
+    />
+  } @else {
+    <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+      <i class="bi bi-car-front fs-1 text-primary mb-2 d-block"></i>
+      <h5 class="fw-bold">Cadastre seu primeiro veículo</h5>
+      <p class="text-muted small mb-3">
+        Depois registre abastecimentos e manutenções em segundos.
+      </p>
+      <button
+        type="button"
+        class="btn btn-primary rounded-pill px-4"
+        (click)="abrirModalVeiculo()"
+      >
+        Adicionar veículo
+      </button>
+    </div>
+  }
+</div>
+
+<!-- FAB -->
+<button
+  type="button"
+  class="fab-veiculos shadow-lg"
+  (click)="abrirFab()"
+  aria-label="Registrar gasto"
+>
+  <i class="bi bi-plus-lg"></i>
+</button>
+
+<!-- Offcanvas bottom: registrar gasto -->
+@if (painelAberto()) {
+  <div class="offcanvas-backdrop-custom" (click)="fecharPainel()"></div>
+  <div
+    class="offcanvas-bottom-custom bg-white shadow-lg rounded-top-4"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div class="d-flex justify-content-between align-items-center px-3 pt-3 pb-2 border-bottom">
+      <h5 class="fw-bold mb-0">
+        @switch (painelModo()) {
+          @case ('abastecimento') { Abastecimento }
+          @case ('manutencao') { Manutenção }
+          @default { Novo registro }
+        }
+      </h5>
+      <button
+        type="button"
+        class="btn btn-light rounded-circle"
+        (click)="fecharPainel()"
+        aria-label="Fechar"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="p-3 pb-4 offcanvas-body-scroll">
+      @if (painelModo() === 'menu') {
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <button
+              type="button"
+              class="action-tile w-100 text-start rounded-4 border p-3 bg-white"
+              (click)="escolherAbastecimento()"
+            >
+              <div class="d-flex align-items-center gap-3">
+                <div class="icon-pill bg-primary-subtle text-primary fs-5">
+                  <i class="bi bi-fuel-pump-fill"></i>
+                </div>
+                <div>
+                  <div class="fw-bold text-dark">Abastecimento</div>
+                  <small class="text-muted">Litros, valor e posto</small>
+                </div>
+              </div>
+            </button>
+          </div>
+          <div class="col-12 col-md-6">
+            <button
+              type="button"
+              class="action-tile w-100 text-start rounded-4 border p-3 bg-white"
+              (click)="escolherManutencao()"
+            >
+              <div class="d-flex align-items-center gap-3">
+                <div class="icon-pill bg-warning-subtle text-warning fs-5">
+                  <i class="bi bi-tools"></i>
+                </div>
+                <div>
+                  <div class="fw-bold text-dark">Manutenção</div>
+                  <small class="text-muted">Serviços e oficina</small>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (painelModo() === 'abastecimento') {
+        <app-abastecimento-form
+          [veiculo]="veiculoAtivo()"
+          [aberto]="painelModo() === 'abastecimento'"
+          (salvo)="aoSalvarGasto()"
+          (cancelado)="painelModo.set('menu')"
+        />
+      }
+
+      @if (painelModo() === 'manutencao') {
+        <app-manutencao-form
+          [veiculo]="veiculoAtivo()"
+          [aberto]="painelModo() === 'manutencao'"
+          (salvo)="aoSalvarGasto()"
+          (cancelado)="painelModo.set('menu')"
+        />
+      }
+    </div>
+  </div>
+}
+
+<!-- Modal novo veículo -->
+@if (modalVeiculoAberto()) {
+  <div class="modal-backdrop-custom" (click)="fecharModalVeiculo()"></div>
+  <div class="modal-panel card border-0 shadow-lg rounded-4 overflow-hidden">
+    <div class="bg-primary text-white p-3">
+      <h5 class="fw-bold mb-0">Novo veículo</h5>
+    </div>
+    <div class="card-body p-3">
+      <form [formGroup]="formVeiculo" (ngSubmit)="salvarVeiculo()">
+        <div class="row g-3">
+          <div class="col-12">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control rounded-4"
+                id="veiNome"
+                formControlName="nome"
+                placeholder="Nome"
+              />
+              <label for="veiNome">Apelido (ex: Civic)</label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-floating">
+              <select class="form-select rounded-4" id="veiTipo" formControlName="tipo">
+                <option value="carro">Carro</option>
+                <option value="moto">Moto</option>
+                <option value="caminhao">Caminhão</option>
+                <option value="outro">Outro</option>
+              </select>
+              <label for="veiTipo">Tipo</label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-floating">
+              <input
+                type="number"
+                class="form-control rounded-4"
+                id="veiAno"
+                formControlName="ano"
+                placeholder="Ano"
+              />
+              <label for="veiAno">Ano</label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control rounded-4"
+                id="veiMarca"
+                formControlName="marca"
+                placeholder="Marca"
+              />
+              <label for="veiMarca">Marca</label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control rounded-4"
+                id="veiModelo"
+                formControlName="modelo"
+                placeholder="Modelo"
+              />
+              <label for="veiModelo">Modelo</label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control rounded-4"
+                id="veiPlaca"
+                formControlName="placa"
+                placeholder="Placa"
+              />
+              <label for="veiPlaca">Placa</label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-floating">
+              <input
+                type="number"
+                class="form-control rounded-4"
+                id="veiOdo"
+                formControlName="odometro_base"
+                placeholder="0"
+              />
+              <label for="veiOdo">Odômetro atual</label>
+            </div>
+          </div>
+          <div class="col-12 d-flex gap-2">
+            <button
+              type="button"
+              class="btn btn-light rounded-pill flex-fill"
+              (click)="fecharModalVeiculo()"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary rounded-pill flex-fill fw-bold"
+              [disabled]="salvandoVeiculo()"
+            >
+              {{ salvandoVeiculo() ? 'Salvando...' : 'Salvar' }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+}

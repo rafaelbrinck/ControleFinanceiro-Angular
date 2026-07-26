@@ -1,0 +1,54 @@
+.chip-servico {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.65rem 0.95rem;
+  min-height: 40px;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+@media (hover: hover) {
+  .chip-servico:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.chip-servico.ativo {
+  background: #4f46e5;
+  color: #fff;
+}
+
+.servico-linha {
+  flex-wrap: wrap;
+}
+
+.servico-valor {
+  max-width: 140px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 575.98px) {
+  .servico-linha {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .servico-valor {
+    max-width: none;
+    width: 100%;
+  }
+}
+
+.manutencao-form .btn {
+  min-height: 44px;
+}
+
+.manutencao-form .form-control,
+.manutencao-form .form-select {
+  font-size: 16px; /* evita zoom no iOS */
+}

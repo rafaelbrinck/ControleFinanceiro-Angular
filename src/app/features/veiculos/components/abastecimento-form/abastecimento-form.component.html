@@ -1,0 +1,130 @@
+<form class="abastecimento-form" [formGroup]="form" (ngSubmit)="salvar()">
+  <div class="row g-3">
+    <div class="col-12 col-md-6">
+      <div class="form-floating">
+        <input
+          type="date"
+          class="form-control rounded-4"
+          id="absData"
+          formControlName="data"
+        />
+        <label for="absData">Data</label>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="form-floating">
+        <input
+          type="number"
+          class="form-control rounded-4"
+          id="absOdometro"
+          formControlName="odometro"
+          inputmode="numeric"
+          step="1"
+          min="0"
+          placeholder="0"
+        />
+        <label for="absOdometro">Odômetro (km)</label>
+      </div>
+    </div>
+
+    <div class="col-6">
+      <div class="form-floating">
+        <input
+          type="number"
+          class="form-control rounded-4 fw-bold"
+          id="absLitro"
+          formControlName="valor_litro"
+          inputmode="decimal"
+          step="0.001"
+          min="0"
+          placeholder="0"
+        />
+        <label for="absLitro">R$ / litro</label>
+      </div>
+      @if (usandoPrecoAnterior()) {
+        <small class="text-primary px-1">Preço do último abastecimento</small>
+      }
+    </div>
+
+    <div class="col-6">
+      <div class="form-floating">
+        <input
+          type="number"
+          class="form-control rounded-4 fw-bold"
+          id="absTotal"
+          formControlName="valor_total"
+          inputmode="decimal"
+          step="0.01"
+          min="0"
+          placeholder="0"
+        />
+        <label for="absTotal">Valor total (R$)</label>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="form-floating">
+        <input
+          type="number"
+          class="form-control rounded-4 bg-light"
+          id="absLitros"
+          formControlName="litros"
+          step="0.001"
+          readonly
+          placeholder="0"
+        />
+        <label for="absLitros">Litros (automático)</label>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control rounded-4"
+          id="absPosto"
+          formControlName="posto_combustivel"
+          placeholder="Posto"
+        />
+        <label for="absPosto">Posto (opcional)</label>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="form-check form-switch ps-0 d-flex align-items-center gap-2">
+        <input
+          class="form-check-input ms-0"
+          type="checkbox"
+          role="switch"
+          id="absTanque"
+          formControlName="completou_tanque"
+        />
+        <label class="form-check-label fw-semibold" for="absTanque">
+          Completou o tanque
+        </label>
+      </div>
+      <small class="text-muted">
+        Marque para calcular consumo médio com precisão.
+      </small>
+    </div>
+
+    <div class="col-12 d-flex gap-2 pt-2">
+      <button
+        type="button"
+        class="btn btn-light rounded-pill flex-fill"
+        (click)="cancelar()"
+        [disabled]="salvando()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary rounded-pill flex-fill fw-bold"
+        [disabled]="salvando()"
+      >
+        {{ salvando() ? 'Salvando...' : 'Registrar' }}
+      </button>
+    </div>
+  </div>
+</form>

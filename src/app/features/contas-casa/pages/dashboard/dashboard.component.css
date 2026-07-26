@@ -1,10 +1,43 @@
 :host {
   --primary-color: #4f46e5;
+  display: block;
 }
 
-.max-w-800 {
+/* Mobile-first: página encaixa na viewport estreita */
+.contas-casa-page {
   max-width: 800px;
   margin: 0 auto;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 576px) {
+  .contas-casa-page {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .contas-casa-page {
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.page-header {
+  gap: 0.75rem;
+}
+
+.page-header h4 {
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+@media (min-width: 576px) {
+  .page-header h4 {
+    font-size: 1.4rem;
+  }
 }
 
 .month-nav {
@@ -12,33 +45,33 @@
 }
 
 .nav-arrow {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #475569;
   border: none;
-  transition:
-    transform 0.15s ease,
-    background-color 0.15s ease;
+  flex-shrink: 0;
 }
 
-.nav-arrow:hover {
-  transform: translateY(-1px);
-  background-color: #f1f5f9 !important;
-  color: var(--primary-color);
+@media (hover: hover) {
+  .nav-arrow:hover {
+    transform: translateY(-1px);
+    background-color: #f1f5f9 !important;
+    color: var(--primary-color);
+  }
 }
 
 .analytics-card {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 
-.analytics-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
+@media (hover: hover) and (min-width: 768px) {
+  .analytics-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
+  }
 }
 
 .icon-pill {
@@ -49,13 +82,14 @@
   align-items: center;
   justify-content: center;
   font-size: 0.95rem;
+  flex-shrink: 0;
 }
 
 .status-btn {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 0;
   border: 2px solid #cbd5e1;
   color: #94a3b8;
   background: #fff;
@@ -71,6 +105,11 @@
   border-color: #ef4444;
   background: #fef2f2;
   color: #ef4444;
+}
+
+.conta-item {
+  padding-left: 0.85rem !important;
+  padding-right: 0.85rem !important;
 }
 
 .conta-item.conta-vencida {
@@ -95,4 +134,57 @@
 
 .min-w-0 {
   min-width: 0;
+}
+
+.btn-pagar-vencida {
+  width: 100%;
+}
+
+@media (min-width: 576px) {
+  .btn-pagar-vencida {
+    width: auto;
+  }
+}
+
+/* KPI: no mobile, total ocupa linha toda; os outros ficam 50/50 */
+.kpi-total {
+  margin-bottom: 0;
+}
+
+.lista-acoes {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.gestao-links .card-body {
+  padding: 0.85rem !important;
+}
+
+.alerta-vencidas,
+.alerta-importacao {
+  flex-direction: column;
+  align-items: stretch !important;
+  gap: 0.75rem;
+}
+
+.alerta-vencidas .btn,
+.alerta-importacao .btn {
+  width: 100%;
+  min-height: 44px;
+}
+
+@media (min-width: 576px) {
+  .alerta-vencidas,
+  .alerta-importacao {
+    flex-direction: row;
+    align-items: center !important;
+  }
+
+  .alerta-vencidas .btn,
+  .alerta-importacao .btn {
+    width: auto;
+  }
 }

@@ -1,0 +1,221 @@
+<section class="relatorio-veiculo mb-4">
+  <div class="d-flex flex-column flex-sm-row flex-wrap justify-content-between align-items-stretch align-items-sm-center gap-2 mb-3 px-1 px-sm-2">
+    <h6 class="fw-bold text-uppercase text-muted small mb-0 tracking-wide">
+      Relatórios
+    </h6>
+    <div class="d-flex gap-2 align-items-center filtro-mes">
+      <select
+        class="form-select form-select-sm rounded-pill fw-semibold"
+        [ngModel]="mes"
+        (ngModelChange)="onMesChange($event)"
+        aria-label="Mês do relatório"
+      >
+        @for (m of meses; track m.valor) {
+          <option [ngValue]="m.valor">{{ m.label }}</option>
+        }
+      </select>
+      <select
+        class="form-select form-select-sm rounded-pill fw-semibold"
+        [ngModel]="ano"
+        (ngModelChange)="onAnoChange($event)"
+        aria-label="Ano do relatório"
+      >
+        @for (a of anosDisponiveis; track a) {
+          <option [ngValue]="a">{{ a }}</option>
+        }
+      </select>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-primary rounded-pill fw-semibold flex-shrink-0"
+        (click)="selecionarMesAtual()"
+        [disabled]="ehMesAtual"
+        title="Ir para o mês atual"
+      >
+        Atual
+      </button>
+    </div>
+  </div>
+
+  @if (carregando) {
+    <div class="text-center text-muted py-4">
+      <div class="spinner-border spinner-border-sm me-2"></div>
+      Calculando relatório...
+    </div>
+  } @else if (!relatorio) {
+    <div class="card border-0 shadow-sm rounded-4 p-4 text-center text-muted">
+      Sem dados para este mês.
+    </div>
+  } @else {
+    <!-- Combustível -->
+    <div class="card border-0 shadow-sm rounded-4 mb-3 overflow-hidden">
+      <div class="card-header bg-white border-0 pt-3 pb-0 px-3">
+        <div class="d-flex align-items-center gap-2">
+          <span class="icon-pill bg-primary-subtle text-primary">
+            <i class="bi bi-fuel-pump-fill"></i>
+          </span>
+          <div>
+            <h6 class="fw-bold mb-0 text-dark">Combustível</h6>
+            <small class="text-muted">Consumo e custos</small>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-3">
+        <div class="row g-2 mb-3">
+          <div class="col-6 col-md-3">
+            <div class="metric-box rounded-4 p-3 h-100">
+              <small class="text-muted d-block">Consumo médio</small>
+              <div class="fs-5 fw-bolder text-primary">
+                @if (relatorio.combustivel.consumoMedioKmL != null) {
+                  {{ relatorio.combustivel.consumoMedioKmL | number: '1.1-1' }}
+                  <span class="fs-6 fw-semibold">km/L</span>
+                } @else {
+                  <span class="text-muted fs-6 fw-normal">—</span>
+                }
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="metric-box rounded-4 p-3 h-100">
+              <small class="text-muted d-block">Custo / km</small>
+              <div class="fs-5 fw-bolder text-dark">
+                @if (relatorio.combustivel.custoMedioPorKm != null) {
+                  {{ relatorio.combustivel.custoMedioPorKm | currency: 'BRL' }}
+                } @else {
+                  <span class="text-muted fs-6 fw-normal">—</span>
+                }
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="metric-box rounded-4 p-3 h-100">
+              <small class="text-muted d-block">Gasto total</small>
+              <div class="fs-5 fw-bolder text-dark">
+                {{ relatorio.combustivel.totalGasto | currency: 'BRL' }}
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="metric-box rounded-4 p-3 h-100">
+              <small class="text-muted d-block">Litros / média</small>
+              <div class="fw-bold text-dark">
+                {{ relatorio.combustivel.totalLitros | number: '1.0-1' }} L
+              </div>
+              <small class="text-muted">
+                {{ relatorio.combustivel.mediaPrecoLitro | currency: 'BRL' }}/L
+              </small>
+            </div>
+          </div>
+        </div>
+
+        @if (relatorio.combustivel.consumoMedioKmL == null) {
+          <div class="alert alert-light border rounded-4 small mb-0">
+            <i class="bi bi-info-circle me-1 text-primary"></i>
+            Para calcular o consumo médio, registre abastecimentos marcando
+            <strong>Completou o tanque</strong> (são necessários ao menos 2
+            registros).
+          </div>
+        } @else {
+          <div class="row g-2">
+            <div class="col-12 col-md-4">
+              <div class="small text-muted mb-1">Km no período (estimados)</div>
+              <div class="fw-semibold">
+                {{ relatorio.combustivel.kmPercorridosEstimados | number: '1.0-0' }} km
+                · {{ relatorio.combustivel.qtdAbastecimentos }} abastecimento(s)
+              </div>
+            </div>
+            @if (relatorio.combustivel.melhorConsumo; as melhor) {
+              <div class="col-6 col-md-4">
+                <div class="small text-success mb-1">
+                  <i class="bi bi-arrow-up-circle me-1"></i>Melhor trecho
+                </div>
+                <div class="fw-semibold">
+                  {{ melhor.kmPorLitro | number: '1.1-1' }} km/L
+                </div>
+                <small class="text-muted">
+                  {{ formatarDiaMes(melhor.de) }} → {{ formatarDiaMes(melhor.ate) }}
+                </small>
+              </div>
+            }
+            @if (relatorio.combustivel.piorConsumo; as pior) {
+              <div class="col-6 col-md-4">
+                <div class="small text-danger mb-1">
+                  <i class="bi bi-arrow-down-circle me-1"></i>Pior trecho
+                </div>
+                <div class="fw-semibold">
+                  {{ pior.kmPorLitro | number: '1.1-1' }} km/L
+                </div>
+                <small class="text-muted">
+                  {{ formatarDiaMes(pior.de) }} → {{ formatarDiaMes(pior.ate) }}
+                </small>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Manutenção por categoria -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div class="card-header bg-white border-0 pt-3 pb-0 px-3">
+        <div class="d-flex align-items-center justify-content-between gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <span class="icon-pill bg-warning-subtle text-warning">
+              <i class="bi bi-tools"></i>
+            </span>
+            <div>
+              <h6 class="fw-bold mb-0 text-dark">Manutenção</h6>
+              <small class="text-muted">Gastos por categoria</small>
+            </div>
+          </div>
+          <div class="text-end manutencao-header-total">
+            <div class="fw-bold">
+              {{ relatorio.manutencao.totalGasto | currency: 'BRL' }}
+            </div>
+            <small class="text-muted">
+              {{ relatorio.manutencao.qtdManutencoes }} OS ·
+              {{ relatorio.manutencao.qtdServicos }} serviço(s)
+            </small>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-3">
+        @if (!relatorio.manutencao.porCategoria.length) {
+          <div class="text-center text-muted py-3 small">
+            Nenhuma manutenção no período.
+          </div>
+        } @else {
+          <div class="d-flex flex-column gap-3">
+            @for (cat of relatorio.manutencao.porCategoria; track cat.id_tipo_servico) {
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-1 gap-2">
+                  <div class="min-w-0">
+                    <span class="fw-semibold text-dark">{{ cat.nome }}</span>
+                    <small class="text-muted ms-1">
+                      · {{ cat.quantidade }}x
+                    </small>
+                  </div>
+                  <div class="text-end flex-shrink-0">
+                    <span class="fw-bold">{{ cat.total | currency: 'BRL' }}</span>
+                    <small class="text-muted ms-1">
+                      {{ cat.percentual | number: '1.0-0' }}%
+                    </small>
+                  </div>
+                </div>
+                <div class="progress progress-cat rounded-pill">
+                  <div
+                    class="progress-bar rounded-pill"
+                    role="progressbar"
+                    [style.width.%]="cat.percentual"
+                    [attr.aria-valuenow]="cat.percentual"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                  ></div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</section>

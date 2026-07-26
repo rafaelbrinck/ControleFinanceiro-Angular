@@ -1,0 +1,96 @@
+.tracking-wide {
+  letter-spacing: 0.5px;
+}
+
+.filtro-mes {
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.filtro-mes .form-select {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  border: 1px solid #e2e8f0;
+  background-color: #fff;
+  min-height: 36px;
+}
+
+.filtro-mes .form-select:nth-child(1) {
+  flex: 1 1 7rem;
+}
+
+.filtro-mes .form-select:nth-child(2) {
+  flex: 0 1 5.5rem;
+}
+
+.filtro-mes .btn {
+  min-height: 36px;
+}
+
+@media (min-width: 576px) {
+  .filtro-mes {
+    width: auto;
+    flex-wrap: nowrap;
+  }
+
+  .filtro-mes .form-select:nth-child(1) {
+    min-width: 8.5rem;
+    flex: 0 0 auto;
+  }
+
+  .filtro-mes .form-select:nth-child(2) {
+    min-width: 5.5rem;
+    flex: 0 0 auto;
+  }
+}
+
+.icon-pill {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.metric-box {
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+}
+
+.metric-box .fs-5 {
+  font-size: 1.05rem !important;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+@media (min-width: 576px) {
+  .metric-box .fs-5 {
+    font-size: 1.25rem !important;
+  }
+}
+
+.progress-cat {
+  height: 8px;
+  background: #eef2f7;
+}
+
+.progress-cat .progress-bar {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.manutencao-header-total {
+  flex-shrink: 0;
+}
+
+@media (max-width: 575.98px) {
+  .manutencao-header-total small {
+    display: block;
+  }
+}

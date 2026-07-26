@@ -24,7 +24,7 @@
       </li>
 
       <li class="nav-item dropdown ms-2 position-relative">
-        <a class="nav-link-desktop px-3 py-2 rounded-pill fw-medium transition-all dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" [class.active-desktop]="router.url.includes('/produtos') || router.url.includes('/clientes') || router.url.includes('/fornecedores') || router.url.includes('/cartoes') || router.url.includes('/contas-casa')">
+        <a class="nav-link-desktop px-3 py-2 rounded-pill fw-medium transition-all dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" [class.active-desktop]="router.url.includes('/produtos') || router.url.includes('/clientes') || router.url.includes('/fornecedores') || router.url.includes('/cartoes') || router.url.includes('/contas-casa') || router.url.includes('/veiculos')">
           <i class="bi bi-grid-fill text-primary opacity-75"></i> Gestão
         </a>
         
@@ -65,6 +65,11 @@
           <li>
             <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3 fw-medium" routerLink="/contas-casa" routerLinkActive="bg-light text-primary">
               <div class="bg-primary-subtle text-primary rounded-4 p-1 d-flex"><i class="bi bi-house-heart"></i></div> Contas de Casa
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3 fw-medium" routerLink="/veiculos" routerLinkActive="bg-light text-primary">
+              <div class="bg-primary-subtle text-primary rounded-4 p-1 d-flex"><i class="bi bi-car-front"></i></div> Veículos
             </a>
           </li>
         </ul>
@@ -168,6 +173,14 @@
           <i class="bi bi-house-heart fs-5"></i>
         </div>
         <span class="fw-bold text-dark">Contas de Casa</span>
+        <i class="bi bi-chevron-right ms-auto text-muted small"></i>
+      </a>
+
+      <a class="list-group-item list-group-item-action py-3 px-4 d-flex align-items-center gap-3 border-0" routerLink="/veiculos" data-bs-dismiss="offcanvas">
+        <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+          <i class="bi bi-car-front fs-5"></i>
+        </div>
+        <span class="fw-bold text-dark">Veículos</span>
         <i class="bi bi-chevron-right ms-auto text-muted small"></i>
       </a>
 

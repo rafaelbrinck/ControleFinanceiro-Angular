@@ -6,6 +6,30 @@
 .max-w-700 {
   max-width: 700px;
   margin: 0 auto;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 576px) {
+  .max-w-700 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+.page-header {
+  gap: 0.75rem;
+}
+
+.page-header h4 {
+  font-size: 1.15rem;
+}
+
+@media (min-width: 576px) {
+  .page-header h4 {
+    font-size: 1.4rem;
+  }
 }
 
 .tracking-wide {
@@ -16,18 +40,90 @@
   min-width: 0;
 }
 
+.lista-item-membro {
+  flex-wrap: nowrap;
+}
+
+.lista-acoes-membro {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 575.98px) {
+  .lista-item-membro {
+    flex-wrap: wrap;
+  }
+
+  .lista-acoes-membro {
+    width: 100%;
+    margin-top: 0.35rem;
+    padding-left: 3.4rem;
+  }
+
+  .lista-acoes-membro .btn {
+    flex: 1;
+    min-height: 40px;
+  }
+}
+
 .modal-backdrop-custom {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.45);
   z-index: 1040;
+  animation: fade-in 0.2s ease;
 }
 
+/* Mobile-first: bottom sheet */
 .modal-panel {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(420px, calc(100vw - 1.5rem));
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  transform: none;
+  width: 100%;
+  max-height: min(88vh, 100%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   z-index: 1050;
+  border-radius: 1.25rem 1.25rem 0 0 !important;
+  animation: sheet-up 0.25s ease;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 576px) {
+  .modal-panel {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    width: min(420px, calc(100vw - 1.5rem));
+    max-height: calc(100vh - 2rem);
+    border-radius: 1rem !important;
+    animation: fade-in 0.2s ease;
+    padding-bottom: 1.5rem;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

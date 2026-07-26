@@ -1,18 +1,20 @@
-<div class="container my-4 max-w-700 pb-5">
-  <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-    <div>
-      <h4 class="fw-bolder text-dark mb-0">Membros da Família</h4>
-      <small class="text-muted fw-medium">
+<div class="container my-3 my-md-4 max-w-700">
+  <div class="d-flex justify-content-between align-items-center mb-3 mb-md-4 page-header">
+    <div class="min-w-0 pe-2">
+      <h4 class="fw-bolder text-dark mb-0 text-truncate">Membros da Família</h4>
+      <small class="text-muted fw-medium d-block text-truncate">
         @if (familia(); as fam) {
           {{ fam.nome }} · somente administrador
         }
       </small>
     </div>
     <a
-      class="btn btn-light text-secondary rounded-pill shadow-sm fw-bold px-4"
+      class="btn btn-light text-secondary rounded-pill shadow-sm fw-bold px-3 flex-shrink-0"
       routerLink="/contas-casa"
+      aria-label="Voltar"
     >
-      <i class="bi bi-arrow-left me-1"></i> Voltar
+      <i class="bi bi-arrow-left"></i>
+      <span class="d-none d-sm-inline ms-1">Voltar</span>
     </a>
   </div>
 
@@ -23,7 +25,7 @@
     </div>
   } @else {
     <!-- Cadastro -->
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white p-4">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white p-3 p-sm-4">
       <h6 class="text-uppercase text-primary fw-bolder small mb-3 tracking-wide">
         Adicionar membro
       </h6>
@@ -125,7 +127,7 @@
         <div class="list-group list-group-flush">
           @for (membro of membros(); track membro.id) {
             <div
-              class="list-group-item px-3 py-3 d-flex align-items-center gap-3 border-0 border-bottom"
+              class="list-group-item px-3 py-3 d-flex align-items-center gap-3 border-0 border-bottom lista-item-membro"
             >
               @if (membro.usuario?.logo) {
                 <img
@@ -171,7 +173,7 @@
                 </small>
               </div>
 
-              <div class="d-flex gap-1 flex-shrink-0">
+              <div class="lista-acoes-membro">
                 <button
                   type="button"
                   class="btn btn-sm btn-light rounded-pill"
@@ -204,7 +206,7 @@
 
 @if (modalAberto()) {
   <div class="modal-backdrop-custom" (click)="fecharModal()"></div>
-  <div class="modal-panel card border-0 shadow-lg rounded-4 p-4" role="dialog">
+  <div class="modal-panel card border-0 shadow-lg rounded-4 p-3 p-sm-4" role="dialog">
     <h5 class="fw-bold mb-1">Editar membro</h5>
     <p class="text-muted small mb-3">
       {{ membroEditando ? nomeMembro(membroEditando) : '' }}

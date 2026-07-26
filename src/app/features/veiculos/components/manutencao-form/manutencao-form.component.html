@@ -1,0 +1,128 @@
+<form class="manutencao-form" [formGroup]="form" (ngSubmit)="salvar()">
+  <div class="row g-3">
+    <div class="col-12 col-md-6">
+      <div class="form-floating">
+        <input
+          type="date"
+          class="form-control rounded-4"
+          id="manData"
+          formControlName="data"
+        />
+        <label for="manData">Data</label>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="form-floating">
+        <input
+          type="number"
+          class="form-control rounded-4"
+          id="manOdometro"
+          formControlName="odometro"
+          inputmode="numeric"
+          step="1"
+          min="0"
+          placeholder="0"
+        />
+        <label for="manOdometro">Odômetro (km)</label>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control rounded-4"
+          id="manOficina"
+          formControlName="oficina"
+          placeholder="Oficina"
+        />
+        <label for="manOficina">Oficina (opcional)</label>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+        Serviços
+      </label>
+      <div class="d-flex flex-wrap gap-2 mb-2">
+        @for (tipo of tipos(); track tipo.id) {
+          <button
+            type="button"
+            class="badge rounded-pill chip-servico border-0"
+            [class.ativo]="estaSelecionado(tipo)"
+            (click)="toggleServico(tipo)"
+          >
+            {{ tipo.nome }}
+          </button>
+        } @empty {
+          <small class="text-muted">Nenhum tipo de serviço cadastrado.</small>
+        }
+      </div>
+
+      @if (selecionados().length) {
+        <div class="list-group list-group-flush rounded-4 border overflow-hidden">
+          @for (s of selecionados(); track s.id) {
+            <div
+              class="list-group-item d-flex align-items-center justify-content-between gap-2 py-2 servico-linha"
+            >
+              <span class="fw-semibold small">{{ s.nome }}</span>
+              <div class="input-group input-group-sm servico-valor">
+                <span class="input-group-text">R$</span>
+                <input
+                  type="number"
+                  class="form-control"
+                  inputmode="decimal"
+                  step="0.01"
+                  min="0"
+                  [value]="s.valor"
+                  (input)="
+                    atualizarValorServico(
+                      s.id,
+                      +$any($event.target).value
+                    )
+                  "
+                />
+              </div>
+            </div>
+          }
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+          <small class="text-muted">Total dos serviços</small>
+          <strong>{{ totalServicos() | currency: 'BRL' }}</strong>
+        </div>
+      }
+    </div>
+
+    <div class="col-12">
+      <div class="form-floating">
+        <textarea
+          class="form-control rounded-4"
+          id="manObs"
+          formControlName="observacoes"
+          placeholder="Observações"
+          style="height: 90px"
+        ></textarea>
+        <label for="manObs">Observações</label>
+      </div>
+    </div>
+
+    <div class="col-12 d-flex gap-2 pt-2">
+      <button
+        type="button"
+        class="btn btn-light rounded-pill flex-fill"
+        (click)="cancelar()"
+        [disabled]="salvando()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="btn btn-warning rounded-pill flex-fill fw-bold"
+        [disabled]="salvando()"
+      >
+        {{ salvando() ? 'Salvando...' : 'Registrar' }}
+      </button>
+    </div>
+  </div>
+</form>

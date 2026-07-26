@@ -1,8 +1,8 @@
-<div class="container my-4 max-w-800 pb-5 contas-casa-page">
-  <div class="d-flex justify-content-between align-items-center mb-3 px-2">
-    <div>
-      <h4 class="fw-bold text-dark mb-0">Contas de Casa</h4>
-      <small class="text-muted">
+<div class="container my-3 my-md-4 contas-casa-page">
+  <div class="d-flex justify-content-between align-items-center mb-3 page-header">
+    <div class="min-w-0 pe-2">
+      <h4 class="fw-bold text-dark mb-0 text-truncate">Contas de Casa</h4>
+      <small class="text-muted d-block text-truncate">
         @if (familia(); as fam) {
           {{ fam.nome }} · rateio entre {{ membros().length }} membro(s)
         } @else {
@@ -14,11 +14,13 @@
     @if (familia()) {
       <button
         type="button"
-        class="btn btn-primary rounded-pill shadow-sm d-flex align-items-center gap-2"
+        class="btn btn-primary rounded-pill shadow-sm d-flex align-items-center justify-content-center flex-shrink-0"
+        style="min-width: 44px; min-height: 44px"
         (click)="abrirNovaConta()"
+        aria-label="Nova conta"
       >
         <i class="bi bi-plus-lg"></i>
-        <span class="d-none d-sm-inline">Nova Conta</span>
+        <span class="d-none d-sm-inline ms-1">Nova Conta</span>
       </button>
     }
   </div>
@@ -85,8 +87,8 @@
     </div>
 
     <!-- KPIs -->
-    <div class="row g-3 mb-3">
-      <div class="col-md-4">
+    <div class="row g-2 g-md-3 mb-3">
+      <div class="col-12 col-md-4 kpi-total">
         <div class="card bg-white shadow-sm rounded-4 border-0 p-3 h-100 analytics-card">
           <div class="d-flex align-items-center gap-2 mb-2">
             <span class="icon-pill bg-danger-subtle text-danger">
@@ -100,7 +102,7 @@
         </div>
       </div>
 
-      <div class="col-md-4">
+      <div class="col-6 col-md-4">
         <div class="card bg-white shadow-sm rounded-4 border-0 p-3 h-100 analytics-card">
           <div class="d-flex align-items-center gap-2 mb-2">
             <span class="icon-pill bg-success-subtle text-success">
@@ -114,7 +116,7 @@
         </div>
       </div>
 
-      <div class="col-md-4">
+      <div class="col-6 col-md-4">
         <div class="card bg-white shadow-sm rounded-4 border-0 p-3 h-100 analytics-card">
           <div class="d-flex align-items-center gap-2 mb-2">
             <span class="icon-pill bg-primary-subtle text-primary">
@@ -157,7 +159,7 @@
     <!-- Importação de contas fixas -->
     @if (sugerirImportacao()) {
       <div
-        class="alert alert-info border-0 shadow-sm rounded-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2 mb-3"
+        class="alert alert-info border-0 shadow-sm rounded-4 d-flex alerta-importacao mb-3"
       >
         <div>
           <strong>Contas fixas detectadas</strong>
@@ -246,7 +248,7 @@
                   </small>
                 </div>
 
-                <div class="text-end flex-shrink-0">
+                <div class="lista-acoes">
                   <div
                     class="fw-bold"
                     [class.text-success]="conta.pago"
@@ -266,10 +268,10 @@
               </div>
 
               @if (estaVencida(conta)) {
-                <div class="mt-2 ps-5">
+                <div class="mt-2 ps-0 ps-sm-5">
                   <button
                     type="button"
-                    class="btn btn-sm btn-danger rounded-pill px-3 fw-semibold"
+                    class="btn btn-sm btn-danger rounded-pill px-3 fw-semibold btn-pagar-vencida"
                     (click)="confirmarPagamento(conta)"
                   >
                     <i class="bi bi-cash-coin me-1"></i>

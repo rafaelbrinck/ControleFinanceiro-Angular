@@ -10,26 +10,76 @@
   animation: fade-in 0.2s ease;
 }
 
+/* Mobile-first: bottom sheet */
 .modal-panel {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(520px, calc(100vw - 1.5rem));
-  max-height: calc(100vh - 2rem);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  transform: none;
+  width: 100%;
+  max-height: min(92vh, 100%);
   overflow-y: auto;
+  overscroll-behavior: contain;
   z-index: 1050;
-  animation: slide-up 0.25s ease;
+  border-radius: 1.25rem 1.25rem 0 0 !important;
+  animation: sheet-up 0.25s ease;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (min-width: 576px) {
+  .modal-panel {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    width: min(520px, calc(100vw - 1.5rem));
+    max-height: calc(100vh - 2rem);
+    border-radius: 1rem !important;
+    animation: slide-up 0.25s ease;
+    padding-bottom: 0;
+  }
 }
 
 .circle-deco {
   position: absolute;
-  width: 180px;
-  height: 180px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
-  top: -60px;
-  right: -40px;
+  top: -50px;
+  right: -30px;
+}
+
+.modal-titulo {
+  font-size: 1.25rem;
+}
+
+@media (min-width: 576px) {
+  .modal-titulo {
+    font-size: 1.5rem;
+  }
+}
+
+.input-valor {
+  font-size: 1.5rem !important;
+}
+
+@media (min-width: 576px) {
+  .input-valor {
+    font-size: 1.75rem !important;
+  }
+}
+
+.modal-panel .form-control,
+.modal-panel .form-select {
+  font-size: 16px;
+}
+
+.btn-modal-acao {
+  min-height: 44px;
 }
 
 @keyframes fade-in {
@@ -37,6 +87,17 @@
     opacity: 0;
   }
   to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
     opacity: 1;
   }
 }

@@ -1,0 +1,14 @@
+.abastecimento-form .form-check-input {
+  width: 2.5em;
+  height: 1.35em;
+  min-width: 2.5em;
+}
+
+.abastecimento-form .btn {
+  min-height: 44px;
+}
+
+.abastecimento-form .form-control,
+.abastecimento-form .form-select {
+  font-size: 16px; /* evita zoom no iOS */
+}
