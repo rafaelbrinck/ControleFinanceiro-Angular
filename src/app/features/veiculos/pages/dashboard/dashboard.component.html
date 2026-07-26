@@ -138,7 +138,10 @@
     <app-veiculos-timeline
       [eventos]="timeline()"
       [carregando]="carregando()"
+      [temMais]="timelineTemMais()"
+      [carregandoMais]="carregandoMaisTimeline()"
       (excluir)="confirmarExclusaoEvento($event)"
+      (carregarMais)="carregarMaisTimeline()"
     />
   } @else {
     <div class="card border-0 shadow-sm rounded-4 p-4 text-center">

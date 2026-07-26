@@ -204,7 +204,7 @@ export class ContasCasaDashboardComponent implements OnInit {
         `${importadas.length} conta(s) fixa(s) importada(s).`,
       );
       this.sugerirImportacao.set(false);
-      await this.carregarMes();
+      // Importação já mesclou no cache local
     } finally {
       this.importando.set(false);
     }
@@ -243,7 +243,7 @@ export class ContasCasaDashboardComponent implements OnInit {
   }
 
   async aoSalvarConta(): Promise<void> {
-    await this.carregarMes();
+    // Lista já foi atualizada otimisticamente no BillsService
   }
 
   async alternarPago(conta: ContaDetalhada): Promise<void> {
@@ -256,9 +256,7 @@ export class ContasCasaDashboardComponent implements OnInit {
     const ok = await this.billsService.alternarPago(conta.id, false);
     if (!ok) {
       this.alertaService.erro('Erro', 'Não foi possível atualizar o status.');
-      return;
     }
-    await this.carregarMes();
   }
 
   confirmarPagamento(conta: ContaDetalhada): void {
@@ -280,7 +278,6 @@ export class ContasCasaDashboardComponent implements OnInit {
       }
 
       this.alertaService.sucesso('Pago!', `"${conta.descricao}" marcada como paga.`);
-      await this.carregarMes();
     });
   }
 
@@ -321,7 +318,6 @@ export class ContasCasaDashboardComponent implements OnInit {
           return;
         }
         this.alertaService.sucesso('Sucesso', 'Conta excluída.');
-        await this.carregarMes();
       },
     );
   }

@@ -47,6 +47,10 @@ export class FamilyService {
     return membro?.role === 'admin';
   });
 
+  private familiaCachePronto = false;
+  private membrosCacheFamiliaId: number | null = null;
+  private categoriasCacheFamiliaId: number | null = null;
+
   constructor(private loginService: LoginService) {}
 
   getFamiliaSnapshot(): Familia | null {
@@ -64,8 +68,17 @@ export class FamilyService {
   /**
    * Carrega a família do usuário logado (via MembrosFamilia),
    * membros com join em usuarios e categorias da família.
+   * Usa cache em memória; passe `forceRefresh` para forçar nova consulta.
    */
-  async carregarFamiliaDoUsuario(): Promise<Familia | null> {
+  async carregarFamiliaDoUsuario(forceRefresh = false): Promise<Familia | null> {
+    if (
+      !forceRefresh &&
+      this.familiaCachePronto &&
+      this.familiaAtual()
+    ) {
+      return this.familiaAtual();
+    }
+
     const userId = this.loginService.getUserLogado();
     if (!userId) return null;
 
@@ -83,6 +96,7 @@ export class FamilyService {
         console.error('Erro ao buscar vínculo familiar:', erroMembro.message);
         this.atualizarFamilia(null);
         this.membroLogado.set(null);
+        this.familiaCachePronto = false;
         return null;
       }
 
@@ -91,6 +105,7 @@ export class FamilyService {
         this.atualizarMembros([]);
         this.atualizarCategorias([]);
         this.membroLogado.set(null);
+        this.familiaCachePronto = true;
         return null;
       }
 
@@ -102,6 +117,7 @@ export class FamilyService {
       if (!familia?.id) {
         this.atualizarFamilia(null);
         this.membroLogado.set(null);
+        this.familiaCachePronto = false;
         return null;
       }
 
@@ -111,10 +127,11 @@ export class FamilyService {
       );
 
       await Promise.all([
-        this.buscarMembros(familia.id),
-        this.buscarCategorias(familia.id),
+        this.buscarMembros(familia.id, forceRefresh),
+        this.buscarCategorias(familia.id, forceRefresh),
       ]);
 
+      this.familiaCachePronto = true;
       return familia;
     } finally {
       this.carregando.set(false);
@@ -159,13 +176,20 @@ export class FamilyService {
       return null;
     }
 
-    await this.carregarFamiliaDoUsuario();
+    await this.carregarFamiliaDoUsuario(true);
     return familia as Familia;
   }
 
   // ─── Membros ───────────────────────────────────────────────
 
-  async buscarMembros(idFamilia: number): Promise<MembroFamiliaDetalhado[]> {
+  async buscarMembros(
+    idFamilia: number,
+    forceRefresh = false,
+  ): Promise<MembroFamiliaDetalhado[]> {
+    if (!forceRefresh && this.membrosCacheFamiliaId === idFamilia) {
+      return this.membros();
+    }
+
     const { data, error } = await supabase
       .from('MembrosFamilia')
       .select(
@@ -190,6 +214,7 @@ export class FamilyService {
     if (error) {
       console.error('Erro ao buscar membros:', error.message);
       this.atualizarMembros([]);
+      this.membrosCacheFamiliaId = null;
       return [];
     }
 
@@ -197,6 +222,7 @@ export class FamilyService {
       this.normalizarMembro(m as Record<string, unknown>),
     );
     this.atualizarMembros(membros);
+    this.membrosCacheFamiliaId = idFamilia;
 
     const userId = this.loginService.getUserLogado();
     if (userId) {
@@ -248,7 +274,22 @@ export class FamilyService {
     const { data, error } = await supabase
       .from('MembrosFamilia')
       .insert([payload])
-      .select('*')
+      .select(
+        `
+        id,
+        created_at,
+        id_membro,
+        id_familia,
+        role,
+        usuarios (
+          id,
+          nome,
+          qrcode_pix,
+          logo,
+          username
+        )
+      `,
+      )
       .single();
 
     if (error || !data) {
@@ -256,8 +297,10 @@ export class FamilyService {
       return { ok: false, mensagem: 'Não foi possível adicionar o membro.' };
     }
 
-    await this.buscarMembros(payload.id_familia);
-    return { ok: true, membro: data as MembroFamilia };
+    const membro = this.normalizarMembro(data as Record<string, unknown>);
+    this.atualizarMembros([...this.membros(), membro]);
+    this.membrosCacheFamiliaId = payload.id_familia;
+    return { ok: true, membro };
   }
 
   async atualizarMembro(
@@ -310,7 +353,17 @@ export class FamilyService {
       return { ok: false, mensagem: 'Não foi possível atualizar o membro.' };
     }
 
-    await this.buscarMembros(familia.id);
+    this.atualizarMembros(
+      this.membros().map((m) =>
+        m.id === id ? { ...m, ...payload } : m,
+      ),
+    );
+    const userId = this.loginService.getUserLogado();
+    if (userId) {
+      this.membroLogado.set(
+        this.membros().find((m) => m.id_membro === userId) ?? null,
+      );
+    }
     return { ok: true };
   }
 
@@ -353,13 +406,20 @@ export class FamilyService {
       return { ok: false, mensagem: 'Não foi possível remover o membro.' };
     }
 
-    await this.buscarMembros(familia.id);
+    this.atualizarMembros(this.membros().filter((m) => m.id !== id));
     return { ok: true };
   }
 
   // ─── Categorias ────────────────────────────────────────────
 
-  async buscarCategorias(idFamilia: number): Promise<CategoriaFamilia[]> {
+  async buscarCategorias(
+    idFamilia: number,
+    forceRefresh = false,
+  ): Promise<CategoriaFamilia[]> {
+    if (!forceRefresh && this.categoriasCacheFamiliaId === idFamilia) {
+      return this.categorias();
+    }
+
     const { data, error } = await supabase
       .from('CategoriasFamilias')
       .select('*')
@@ -369,11 +429,13 @@ export class FamilyService {
     if (error) {
       console.error('Erro ao buscar categorias:', error.message);
       this.atualizarCategorias([]);
+      this.categoriasCacheFamiliaId = null;
       return [];
     }
 
     const categorias = (data ?? []) as CategoriaFamilia[];
     this.atualizarCategorias(categorias);
+    this.categoriasCacheFamiliaId = idFamilia;
     return categorias;
   }
 
@@ -398,8 +460,14 @@ export class FamilyService {
       return { ok: false, mensagem: 'Não foi possível criar a categoria.' };
     }
 
-    await this.buscarCategorias(payload.id_familia);
-    return { ok: true, categoria: data as CategoriaFamilia };
+    const categoria = data as CategoriaFamilia;
+    this.atualizarCategorias(
+      [...this.categorias(), categoria].sort((a, b) =>
+        a.nome.localeCompare(b.nome),
+      ),
+    );
+    this.categoriasCacheFamiliaId = payload.id_familia;
+    return { ok: true, categoria };
   }
 
   async atualizarCategoria(
@@ -429,7 +497,11 @@ export class FamilyService {
       return { ok: false, mensagem: 'Não foi possível atualizar a categoria.' };
     }
 
-    await this.buscarCategorias(familia.id);
+    this.atualizarCategorias(
+      this.categorias()
+        .map((c) => (c.id === id ? { ...c, ...payload } : c))
+        .sort((a, b) => a.nome.localeCompare(b.nome)),
+    );
     return { ok: true };
   }
 
@@ -463,7 +535,7 @@ export class FamilyService {
       };
     }
 
-    await this.buscarCategorias(familia.id);
+    this.atualizarCategorias(this.categorias().filter((c) => c.id !== id));
     return { ok: true };
   }
 
@@ -503,6 +575,9 @@ export class FamilyService {
 
   /** Limpa cache reativo (ex.: logout / troca de usuário). */
   limparEstado(): void {
+    this.familiaCachePronto = false;
+    this.membrosCacheFamiliaId = null;
+    this.categoriasCacheFamiliaId = null;
     this.atualizarFamilia(null);
     this.atualizarMembros([]);
     this.atualizarCategorias([]);

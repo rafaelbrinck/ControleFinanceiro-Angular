@@ -83,6 +83,7 @@ export class AbastecimentoFormComponent implements OnInit, OnChanges {
         ? Number(this.veiculo.odometro_base)
         : 0;
 
+    // Preferência: cache em memória (sem round-trip se já houver preço)
     let valorLitroAnterior: number | null = null;
     if (this.veiculo?.id) {
       valorLitroAnterior = await this.veiculosService.buscarUltimoValorLitro(
@@ -90,7 +91,9 @@ export class AbastecimentoFormComponent implements OnInit, OnChanges {
       );
     }
 
-    this.usandoPrecoAnterior.set(valorLitroAnterior != null && valorLitroAnterior > 0);
+    this.usandoPrecoAnterior.set(
+      valorLitroAnterior != null && valorLitroAnterior > 0,
+    );
 
     this.form.reset({
       data: this.hojeLocal(),
@@ -137,7 +140,8 @@ export class AbastecimentoFormComponent implements OnInit, OnChanges {
 
     this.salvando.set(true);
     try {
-      const criado = await this.veiculosService.criarAbastecimento({
+      // Optimistic UI: feedback instantâneo; insert no Supabase em background
+      const { ok } = await this.veiculosService.registrarAbastecimentoOtimista({
         id_veiculo: this.veiculo.id,
         data: raw.data,
         odometro,
@@ -148,18 +152,12 @@ export class AbastecimentoFormComponent implements OnInit, OnChanges {
         posto_combustivel: raw.posto_combustivel?.trim() || null,
       });
 
-      if (!criado) {
+      if (!ok) {
         this.alertaService.erro(
           'Erro',
           'Não foi possível salvar o abastecimento.',
         );
         return;
-      }
-
-      if (odometro > odometroBase) {
-        await this.veiculosService.atualizarVeiculo(this.veiculo.id, {
-          odometro_base: odometro,
-        });
       }
 
       this.alertaService.sucesso('Pronto', 'Abastecimento registrado!');

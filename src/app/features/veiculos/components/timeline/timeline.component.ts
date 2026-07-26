@@ -12,7 +12,10 @@ import { EventoTimeline } from '@app/shared/models/veiculo';
 export class TimelineComponent {
   @Input() eventos: EventoTimeline[] = [];
   @Input() carregando = false;
+  @Input() temMais = false;
+  @Input() carregandoMais = false;
   @Output() excluir = new EventEmitter<EventoTimeline>();
+  @Output() carregarMais = new EventEmitter<void>();
 
   formatarDiaMes(data: string): string {
     const v = String(data || '').slice(0, 10);

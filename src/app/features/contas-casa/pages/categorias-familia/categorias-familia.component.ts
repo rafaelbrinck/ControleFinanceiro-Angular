@@ -42,7 +42,7 @@ export class CategoriasFamiliaComponent implements OnInit {
   editando: CategoriaFamilia | null = null;
 
   async ngOnInit(): Promise<void> {
-    // Sempre recarrega para evitar estado stale após troca de usuário.
+    // Cache em memória (forceRefresh só após logout / troca de usuário via limparEstado)
     await this.familyService.carregarFamiliaDoUsuario();
 
     if (!this.familia()) {

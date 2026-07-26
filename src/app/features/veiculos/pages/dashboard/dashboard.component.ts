@@ -49,13 +49,17 @@ export class VeiculosDashboardComponent implements OnInit {
   private readonly alertaService = inject(AlertaService);
   private readonly fb = inject(FormBuilder);
 
+  /** Consome signals do serviço — UI reativa sem cópia local. */
   readonly veiculos = this.veiculosService.veiculos;
   readonly veiculoAtivo = this.veiculosService.veiculoAtivo;
   readonly timeline = this.veiculosService.timeline;
+  readonly timelineTemMais = this.veiculosService.timelineTemMais;
   readonly resumo = this.veiculosService.resumoMes;
   readonly relatorio = this.veiculosService.relatorio;
   readonly carregando = this.veiculosService.carregando;
   readonly carregandoRelatorio = this.veiculosService.carregandoRelatorio;
+  readonly carregandoMaisTimeline =
+    this.veiculosService.carregandoMaisTimeline;
 
   readonly mes = signal(new Date().getMonth() + 1);
   readonly ano = signal(new Date().getFullYear());
@@ -83,6 +87,7 @@ export class VeiculosDashboardComponent implements OnInit {
   });
 
   async ngOnInit(): Promise<void> {
+    // Cache: só bate no Supabase se ainda não houver dados em memória
     await Promise.all([
       this.veiculosService.carregarVeiculos(),
       this.veiculosService.carregarTiposServico(),
@@ -96,7 +101,7 @@ export class VeiculosDashboardComponent implements OnInit {
   async onTrocarVeiculo(id: string): Promise<void> {
     const num = Number(id);
     this.veiculosService.selecionarVeiculo(Number.isNaN(num) ? null : num);
-    await this.recarregarHistorico();
+    await this.recarregarHistorico(true);
   }
 
   async mesAnterior(): Promise<void> {
@@ -106,7 +111,7 @@ export class VeiculosDashboardComponent implements OnInit {
     } else {
       this.mes.update((m) => m - 1);
     }
-    await this.recarregarHistorico();
+    await this.recarregarHistorico(true);
   }
 
   async mesSeguinte(): Promise<void> {
@@ -116,10 +121,10 @@ export class VeiculosDashboardComponent implements OnInit {
     } else {
       this.mes.update((m) => m + 1);
     }
-    await this.recarregarHistorico();
+    await this.recarregarHistorico(true);
   }
 
-  async recarregarHistorico(): Promise<void> {
+  async recarregarHistorico(forceRefresh = false): Promise<void> {
     const veiculo = this.veiculoAtivo();
     if (!veiculo) return;
     await Promise.all([
@@ -127,25 +132,25 @@ export class VeiculosDashboardComponent implements OnInit {
         veiculo.id,
         this.mes(),
         this.ano(),
+        forceRefresh,
       ),
-      this.carregarRelatorio(),
+      this.veiculosService.carregarRelatorio(
+        veiculo.id,
+        this.mes(),
+        this.ano(),
+        forceRefresh,
+      ),
     ]);
   }
 
-  async carregarRelatorio(): Promise<void> {
-    const veiculo = this.veiculoAtivo();
-    if (!veiculo) return;
-    await this.veiculosService.carregarRelatorio(
-      veiculo.id,
-      this.mes(),
-      this.ano(),
-    );
+  carregarMaisTimeline(): void {
+    this.veiculosService.carregarMaisTimeline();
   }
 
   async onTrocarMesAnoRelatorio(selecao: MesAnoSelecionado): Promise<void> {
     this.mes.set(selecao.mes);
     this.ano.set(selecao.ano);
-    await this.recarregarHistorico();
+    await this.recarregarHistorico(true);
   }
 
   abrirFab(): void {
@@ -174,9 +179,21 @@ export class VeiculosDashboardComponent implements OnInit {
     this.painelModo.set('manutencao');
   }
 
+  /**
+   * Após UI otimista: fecha o painel sem reconsultar o banco.
+   * Relatório é invalidado no service e recarregado em background se necessário.
+   */
   async aoSalvarGasto(): Promise<void> {
     this.fecharPainel();
-    await this.recarregarHistorico();
+    const veiculo = this.veiculoAtivo();
+    if (!veiculo) return;
+    // Só refresca relatório (cache invalidado); timeline/resumo já estão locais
+    void this.veiculosService.carregarRelatorio(
+      veiculo.id,
+      this.mes(),
+      this.ano(),
+      true,
+    );
   }
 
   abrirModalVeiculo(): void {
@@ -223,7 +240,7 @@ export class VeiculosDashboardComponent implements OnInit {
 
       this.alertaService.sucesso('Pronto', 'Veículo cadastrado!');
       this.fecharModalVeiculo();
-      await this.recarregarHistorico();
+      await this.recarregarHistorico(true);
     } finally {
       this.salvandoVeiculo.set(false);
     }
@@ -236,6 +253,7 @@ export class VeiculosDashboardComponent implements OnInit {
       `Deseja excluir "${evento.titulo}" de ${dataFmt}?`,
       async (ok) => {
         if (!ok) return;
+        // Optimistic delete + sync no service; sem reload completo
         const sucesso =
           evento.tipo === 'abastecimento'
             ? await this.veiculosService.deletarAbastecimento(evento.refId)
@@ -246,7 +264,15 @@ export class VeiculosDashboardComponent implements OnInit {
           return;
         }
         this.alertaService.sucesso('Excluído', 'Registro removido.');
-        await this.recarregarHistorico();
+        const veiculo = this.veiculoAtivo();
+        if (veiculo) {
+          void this.veiculosService.carregarRelatorio(
+            veiculo.id,
+            this.mes(),
+            this.ano(),
+            true,
+          );
+        }
       },
     );
   }

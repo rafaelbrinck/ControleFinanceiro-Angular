@@ -72,5 +72,21 @@
         </div>
       }
     </div>
+
+    @if (temMais) {
+      <div class="text-center pb-3">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm rounded-pill px-4"
+          [disabled]="carregandoMais"
+          (click)="carregarMais.emit()"
+        >
+          @if (carregandoMais) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+          }
+          Carregar mais
+        </button>
+      </div>
+    }
   }
 </div>

@@ -43,6 +43,7 @@ export class ManutencaoFormComponent implements OnInit, OnChanges {
   private readonly veiculosService = inject(VeiculosService);
   private readonly alertaService = inject(AlertaService);
 
+  /** Dicionário em memória — sem reconsulta se o dashboard já carregou. */
   readonly tipos = this.veiculosService.tiposServico;
   readonly selecionados = signal<ServicoSelecionado[]>([]);
   readonly salvando = signal(false);
@@ -60,9 +61,8 @@ export class ManutencaoFormComponent implements OnInit, OnChanges {
   });
 
   async ngOnInit(): Promise<void> {
-    if (!this.tipos().length) {
-      await this.veiculosService.carregarTiposServico();
-    }
+    // Só consulta Supabase se o cache de tipos estiver vazio
+    await this.veiculosService.carregarTiposServico();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -148,7 +148,7 @@ export class ManutencaoFormComponent implements OnInit, OnChanges {
 
     this.salvando.set(true);
     try {
-      const criada = await this.veiculosService.criarManutencao({
+      const { ok } = await this.veiculosService.registrarManutencaoOtimista({
         id_veiculo: this.veiculo.id,
         data: raw.data,
         odometro,
@@ -161,15 +161,9 @@ export class ManutencaoFormComponent implements OnInit, OnChanges {
         })),
       });
 
-      if (!criada) {
+      if (!ok) {
         this.alertaService.erro('Erro', 'Não foi possível salvar a manutenção.');
         return;
-      }
-
-      if (odometro > odometroBase) {
-        await this.veiculosService.atualizarVeiculo(this.veiculo.id, {
-          odometro_base: odometro,
-        });
       }
 
       this.alertaService.sucesso('Pronto', 'Manutenção registrada!');

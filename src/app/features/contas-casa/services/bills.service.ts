@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { supabase } from '@app/core/data/supabase/supabase.client';
 import {
@@ -7,14 +7,20 @@ import {
   ContaDetalhada,
   ContaUpdate,
 } from '@app/shared/models/conta';
+import { FamilyService } from './family.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BillsService {
+  private readonly familyService = inject(FamilyService);
+
   private contasSubject = new BehaviorSubject<ContaDetalhada[]>([]);
   public contas$: Observable<ContaDetalhada[]> =
     this.contasSubject.asObservable();
+
+  /** Chave do mês em cache: `${idFamilia}-${mes}-${ano}`. */
+  private cacheMesKey: string | null = null;
 
   readonly contas = signal<ContaDetalhada[]>([]);
   readonly carregando = signal(false);
@@ -25,12 +31,19 @@ export class BillsService {
 
   /**
    * Busca contas da família filtrando por mês/ano (data_vencimento).
+   * Cache em memória por mês — use `forceRefresh` ao trocar de mês ou após importação.
    */
   async buscarPorMes(
     idFamilia: number,
     mes: number,
     ano: number,
+    forceRefresh = false,
   ): Promise<ContaDetalhada[]> {
+    const key = this.chaveMes(idFamilia, mes, ano);
+    if (!forceRefresh && this.cacheMesKey === key) {
+      return this.contas();
+    }
+
     this.carregando.set(true);
 
     try {
@@ -58,11 +71,13 @@ export class BillsService {
       if (error) {
         console.error('Erro ao buscar contas do mês:', error.message);
         this.atualizarContas([]);
+        this.cacheMesKey = null;
         return [];
       }
 
       const contas = (data ?? []).map((c) => this.normalizarConta(c));
       this.atualizarContas(contas);
+      this.cacheMesKey = key;
       return contas;
     } finally {
       this.carregando.set(false);
@@ -70,6 +85,9 @@ export class BillsService {
   }
 
   async buscarPorId(id: number): Promise<ContaDetalhada | null> {
+    const local = this.contas().find((c) => c.id === id);
+    if (local) return local;
+
     const { data, error } = await supabase
       .from('Contas')
       .select(
@@ -103,7 +121,16 @@ export class BillsService {
     const { data, error } = await supabase
       .from('Contas')
       .insert([payload])
-      .select('*')
+      .select(
+        `
+        *,
+        categoria:CategoriasFamilias (
+          id,
+          nome,
+          cor
+        )
+      `,
+      )
       .single();
 
     if (error || !data) {
@@ -111,14 +138,30 @@ export class BillsService {
       return null;
     }
 
-    return data as Conta;
+    const criada = this.normalizarConta(data as Record<string, unknown>);
+    this.inserirContaNoCacheSeMesmoMes(criada);
+    return criada;
   }
 
   async atualizar(id: number, conta: ContaUpdate): Promise<boolean> {
+    const anterior = this.contas().find((c) => c.id === id);
+    if (anterior) {
+      const mesclada = this.mesclarContaLocal(anterior, conta);
+      if (this.pertenceAoMesEmCache(mesclada.data_vencimento, mesclada.id_familia)) {
+        this.inserirContaOrdenada(mesclada);
+      } else {
+        // Vencimento saiu do mês exibido — some da lista local
+        this.atualizarContas(this.contas().filter((c) => c.id !== id));
+      }
+    }
+
     const { error } = await supabase.from('Contas').update(conta).eq('id', id);
 
     if (error) {
       console.error('Erro ao atualizar conta:', error.message);
+      if (anterior) {
+        this.inserirContaOrdenada(anterior);
+      }
       return false;
     }
 
@@ -126,16 +169,25 @@ export class BillsService {
   }
 
   async deletar(id: number): Promise<boolean> {
+    const anterior = this.contas().find((c) => c.id === id);
+    if (anterior) {
+      this.atualizarContas(this.contas().filter((c) => c.id !== id));
+    }
+
     const { error } = await supabase.from('Contas').delete().eq('id', id);
 
     if (error) {
       console.error('Erro ao deletar conta:', error.message);
+      if (anterior) {
+        this.inserirContaOrdenada(anterior);
+      }
       return false;
     }
 
     return true;
   }
 
+  /** Toggle otimista: atualiza UI primeiro, sincroniza depois. */
   async alternarPago(id: number, pago: boolean): Promise<boolean> {
     return this.atualizar(id, { pago });
   }
@@ -197,14 +249,40 @@ export class BillsService {
     const { data, error } = await supabase
       .from('Contas')
       .insert(novas)
-      .select('*');
+      .select(
+        `
+        *,
+        categoria:CategoriasFamilias (
+          id,
+          nome,
+          cor
+        )
+      `,
+      );
 
     if (error) {
       console.error('Erro ao importar contas fixas:', error.message);
       return [];
     }
 
-    return (data ?? []) as Conta[];
+    const importadas = (data ?? []).map((c) =>
+      this.normalizarConta(c as Record<string, unknown>),
+    );
+    if (importadas.length) {
+      const mescladas = [...this.contas(), ...importadas].sort((a, b) =>
+        a.data_vencimento.localeCompare(b.data_vencimento),
+      );
+      this.atualizarContas(mescladas);
+      if (importadas[0]) {
+        this.cacheMesKey = this.chaveMes(
+          importadas[0].id_familia,
+          mesDestino,
+          anoDestino,
+        );
+      }
+    }
+
+    return importadas;
   }
 
   /**
@@ -234,6 +312,57 @@ export class BillsService {
     return `${ano}-${m}-${d}`;
   }
 
+  private chaveMes(idFamilia: number, mes: number, ano: number): string {
+    return `${idFamilia}-${mes}-${ano}`;
+  }
+
+  private inserirContaNoCacheSeMesmoMes(conta: ContaDetalhada): void {
+    if (this.pertenceAoMesEmCache(conta.data_vencimento, conta.id_familia)) {
+      this.inserirContaOrdenada(conta);
+      if (!this.cacheMesKey) {
+        const [y, m] = conta.data_vencimento.split('-').map(Number);
+        this.cacheMesKey = this.chaveMes(conta.id_familia, m, y);
+      }
+    }
+  }
+
+  private pertenceAoMesEmCache(
+    dataVencimento: string,
+    idFamilia: number,
+  ): boolean {
+    const [y, m] = String(dataVencimento).slice(0, 10).split('-').map(Number);
+    const keyConta = this.chaveMes(idFamilia, m, y);
+    return !this.cacheMesKey || this.cacheMesKey === keyConta;
+  }
+
+  private mesclarContaLocal(
+    anterior: ContaDetalhada,
+    patch: ContaUpdate,
+  ): ContaDetalhada {
+    const mesclada: ContaDetalhada = { ...anterior, ...patch };
+    if (patch.id_categoria != null) {
+      const cat = this.familyService
+        .categorias()
+        .find((c) => Number(c.id) === Number(patch.id_categoria));
+      if (cat) {
+        mesclada.categoria = {
+          id: Number(cat.id),
+          nome: cat.nome,
+          cor: cat.cor,
+        };
+        mesclada.id_categoria = Number(cat.id);
+      }
+    }
+    return mesclada;
+  }
+
+  private inserirContaOrdenada(conta: ContaDetalhada): void {
+    const lista = [...this.contas().filter((c) => c.id !== conta.id), conta].sort(
+      (a, b) => a.data_vencimento.localeCompare(b.data_vencimento),
+    );
+    this.atualizarContas(lista);
+  }
+
   private normalizarConta(raw: Record<string, unknown>): ContaDetalhada {
     const categoria = raw['categoria'] ?? raw['CategoriasFamilias'];
     return {
@@ -255,6 +384,7 @@ export class BillsService {
 
   /** Limpa cache reativo (ex.: logout / troca de usuário). */
   limparEstado(): void {
+    this.cacheMesKey = null;
     this.atualizarContas([]);
     this.carregando.set(false);
   }
