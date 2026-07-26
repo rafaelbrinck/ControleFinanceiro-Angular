@@ -5,6 +5,8 @@ import { BehaviorSubject } from 'rxjs';
 import { supabase } from '@app/core/data/supabase/supabase.client';
 import { AlertaService } from '@app/core/services/alerta.service';
 import { OrcamentoService } from '@app/core/services/orcamento.service';
+import { FamilyService } from '@app/features/contas-casa/services/family.service';
+import { BillsService } from '@app/features/contas-casa/services/bills.service';
 
 @Injectable({
   providedIn: 'root',
@@ -143,6 +145,8 @@ export class LoginService {
 
     this.validacao.login(data.session?.access_token || 'token');
     this.setUserLogado(data.user.id);
+    this.familyService.limparEstado();
+    this.billsService.limparEstado();
 
     const usuario = await this.buscarUsuarioPorId(data.user.id);
     this.userSubject.next(usuario);
@@ -166,6 +170,8 @@ export class LoginService {
     this.setUserLogado('');
     this.userSubject.next(undefined);
     this.orcamentoService.limparOrcamento();
+    this.familyService.limparEstado();
+    this.billsService.limparEstado();
   }
 
   async insertVendas(id: string) {
@@ -199,6 +205,14 @@ export class LoginService {
 
   private get orcamentoService(): OrcamentoService {
     return this.injector.get(OrcamentoService);
+  }
+
+  private get familyService(): FamilyService {
+    return this.injector.get(FamilyService);
+  }
+
+  private get billsService(): BillsService {
+    return this.injector.get(BillsService);
   }
 
   private async restaurarSessaoInterno(): Promise<void> {

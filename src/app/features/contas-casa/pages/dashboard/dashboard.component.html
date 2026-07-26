@@ -1,0 +1,351 @@
+<div class="container my-4 max-w-800 pb-5 contas-casa-page">
+  <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+    <div>
+      <h4 class="fw-bold text-dark mb-0">Contas de Casa</h4>
+      <small class="text-muted">
+        @if (familia(); as fam) {
+          {{ fam.nome }} · rateio entre {{ membros().length }} membro(s)
+        } @else {
+          Gerencie os gastos mensais da família
+        }
+      </small>
+    </div>
+
+    @if (familia()) {
+      <button
+        type="button"
+        class="btn btn-primary rounded-pill shadow-sm d-flex align-items-center gap-2"
+        (click)="abrirNovaConta()"
+      >
+        <i class="bi bi-plus-lg"></i>
+        <span class="d-none d-sm-inline">Nova Conta</span>
+      </button>
+    }
+  </div>
+
+  @if (carregandoFamilia()) {
+    <div class="text-center py-5 text-muted">
+      <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+      Carregando família...
+    </div>
+  } @else if (!familia()) {
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+      <h5 class="fw-bold mb-2">Crie sua família</h5>
+      <p class="text-muted small mb-3">
+        Você ainda não faz parte de uma família. Crie uma para começar a
+        controlar as contas compartilhadas.
+      </p>
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control rounded-start-pill"
+          placeholder="Nome da família"
+          [ngModel]="nomeFamiliaNova()"
+          (ngModelChange)="nomeFamiliaNova.set($event)"
+        />
+        <button
+          type="button"
+          class="btn btn-primary rounded-end-pill px-4"
+          (click)="criarFamilia()"
+          [disabled]="criandoFamilia()"
+        >
+          {{ criandoFamilia() ? 'Criando...' : 'Criar' }}
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Seletor Mês/Ano -->
+    <div class="card bg-white shadow-sm rounded-4 border-0 mb-3 month-nav">
+      <div
+        class="card-body py-3 px-3 d-flex align-items-center justify-content-between"
+      >
+        <button
+          type="button"
+          class="btn btn-light rounded-circle nav-arrow"
+          (click)="mesAnterior()"
+          aria-label="Mês anterior"
+        >
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <div class="text-center">
+          <div class="fw-bold text-dark fs-5 mb-0">{{ labelMesAno() }}</div>
+          <small class="text-muted">Período selecionado</small>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-light rounded-circle nav-arrow"
+          (click)="mesSeguinte()"
+          aria-label="Próximo mês"
+        >
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <div class="card bg-white shadow-sm rounded-4 border-0 p-3 h-100 analytics-card">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="icon-pill bg-danger-subtle text-danger">
+              <i class="bi bi-receipt"></i>
+            </span>
+            <span class="text-secondary small fw-semibold">Total gasto</span>
+          </div>
+          <div class="fs-5 fw-bold text-dark">
+            {{ totalGasto() | currency: 'BRL' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card bg-white shadow-sm rounded-4 border-0 p-3 h-100 analytics-card">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="icon-pill bg-success-subtle text-success">
+              <i class="bi bi-check2-circle"></i>
+            </span>
+            <span class="text-secondary small fw-semibold">Total pago</span>
+          </div>
+          <div class="fs-5 fw-bold text-success">
+            {{ totalPago() | currency: 'BRL' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card bg-white shadow-sm rounded-4 border-0 p-3 h-100 analytics-card">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="icon-pill bg-primary-subtle text-primary">
+              <i class="bi bi-people"></i>
+            </span>
+            <span class="text-secondary small fw-semibold">Rateio / pessoa</span>
+          </div>
+          <div class="fs-5 fw-bold text-primary">
+            {{ valorRateado() | currency: 'BRL' }}
+          </div>
+          <small class="text-muted">
+            Pendente: {{ totalPendente() | currency: 'BRL' }}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerta de contas vencidas -->
+    @if (contasVencidas().length > 0) {
+      <div
+        class="alert alert-danger border-0 shadow-sm rounded-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2 mb-3"
+      >
+        <div class="d-flex align-items-start gap-2">
+          <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+          <div>
+            <strong>
+              {{ contasVencidas().length }}
+              conta(s) vencida(s)
+            </strong>
+            <div class="small mb-0">
+              Total em atraso:
+              {{ totalVencido() | currency: 'BRL' }}.
+              Confirme o pagamento ao quitar cada uma.
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Importação de contas fixas -->
+    @if (sugerirImportacao()) {
+      <div
+        class="alert alert-info border-0 shadow-sm rounded-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2 mb-3"
+      >
+        <div>
+          <strong>Contas fixas detectadas</strong>
+          <div class="small mb-0">
+            Deseja importar as contas fixas do mês passado?
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-info text-white rounded-pill fw-semibold"
+          (click)="confirmarImportacao()"
+          [disabled]="importando()"
+        >
+          {{ importando() ? 'Importando...' : 'Importar contas fixas' }}
+        </button>
+      </div>
+    }
+
+    <!-- Lista de contas -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+      <div class="px-3 py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold mb-0 text-dark">Contas do mês</h6>
+        @if (carregandoContas()) {
+          <span class="spinner-border spinner-border-sm text-primary"></span>
+        }
+      </div>
+
+      @if (!carregandoContas() && contas().length === 0) {
+        <div class="text-center text-muted py-5 px-3">
+          <i class="bi bi-inbox fs-2 d-block mb-2 opacity-50"></i>
+          Nenhuma conta neste mês.
+        </div>
+      } @else {
+        <div class="list-group list-group-flush">
+          @for (conta of contas(); track conta.id) {
+            <div
+              class="list-group-item px-3 py-3 border-0 border-bottom conta-item"
+              [class.conta-vencida]="estaVencida(conta)"
+            >
+              <div class="d-flex align-items-start gap-3">
+                <button
+                  type="button"
+                  class="btn btn-sm rounded-circle p-0 status-btn"
+                  [class.pago]="conta.pago"
+                  [class.vencida]="estaVencida(conta)"
+                  (click)="alternarPago(conta)"
+                  [attr.aria-label]="conta.pago ? 'Marcar como pendente' : 'Marcar como paga'"
+                >
+                  <i
+                    class="bi"
+                    [class.bi-check-lg]="conta.pago"
+                    [class.bi-exclamation-lg]="estaVencida(conta)"
+                    [class.bi-circle]="!conta.pago && !estaVencida(conta)"
+                  ></i>
+                </button>
+
+                <div class="flex-grow-1 min-w-0" (click)="abrirEdicao(conta)" role="button">
+                  <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                    <span
+                      class="categoria-dot"
+                      [style.background]="conta.categoria?.cor || '#94a3b8'"
+                    ></span>
+                    <h6
+                      class="mb-0 fw-semibold text-dark text-truncate"
+                      [class.text-decoration-line-through]="conta.pago"
+                      [class.text-muted]="conta.pago"
+                    >
+                      {{ conta.descricao }}
+                    </h6>
+                    @if (estaVencida(conta)) {
+                      <span class="badge badge-vencida fw-semibold">
+                        <i class="bi bi-clock-history me-1"></i>Vencida
+                      </span>
+                    }
+                    @if (conta.is_fixa) {
+                      <span class="badge bg-light text-secondary border fw-normal">
+                        Fixa
+                      </span>
+                    }
+                  </div>
+                  <small [class.text-danger]="estaVencida(conta)" [class.text-muted]="!estaVencida(conta)">
+                    {{ conta.categoria?.nome || 'Sem categoria' }}
+                    ·
+                    {{ estaVencida(conta) ? 'venceu' : 'vence' }}
+                    {{ formatarDiaMes(conta.data_vencimento) }}
+                  </small>
+                </div>
+
+                <div class="text-end flex-shrink-0">
+                  <div
+                    class="fw-bold"
+                    [class.text-success]="conta.pago"
+                    [class.text-danger]="estaVencida(conta)"
+                    [class.text-dark]="!conta.pago && !estaVencida(conta)"
+                  >
+                    {{ conta.valor | currency: 'BRL' }}
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-link btn-sm text-danger p-0"
+                    (click)="confirmarExclusao(conta)"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </div>
+
+              @if (estaVencida(conta)) {
+                <div class="mt-2 ps-5">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger rounded-pill px-3 fw-semibold"
+                    (click)="confirmarPagamento(conta)"
+                  >
+                    <i class="bi bi-cash-coin me-1"></i>
+                    Confirmar pagamento
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    @if (ehAdmin()) {
+      <div class="mt-4 pt-2">
+        <h6 class="fw-bold text-uppercase text-muted small mb-3 tracking-wide px-2">
+          Gestão da família
+        </h6>
+        <div class="row g-2">
+          <div class="col-12 col-md-6">
+            <a
+              class="card border-0 shadow-sm rounded-4 bg-white text-decoration-none h-100"
+              routerLink="/contas-casa/categorias"
+            >
+              <div class="card-body d-flex align-items-center justify-content-between p-3">
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                    style="width: 40px; height: 40px"
+                  >
+                    <i class="bi bi-tags-fill"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0 fw-bold text-dark">Categorias</h6>
+                    <small class="text-muted">Criar, editar e excluir</small>
+                  </div>
+                </div>
+                <i class="bi bi-chevron-right text-muted"></i>
+              </div>
+            </a>
+          </div>
+          <div class="col-12 col-md-6">
+            <a
+              class="card border-0 shadow-sm rounded-4 bg-white text-decoration-none h-100"
+              routerLink="/contas-casa/membros"
+            >
+              <div class="card-body d-flex align-items-center justify-content-between p-3">
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center"
+                    style="width: 40px; height: 40px"
+                  >
+                    <i class="bi bi-people-fill"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0 fw-bold text-dark">Membros</h6>
+                    <small class="text-muted">Cadastrar, editar e remover</small>
+                  </div>
+                </div>
+                <i class="bi bi-chevron-right text-muted"></i>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>
+
+<app-form-conta
+  [aberto]="modalAberto()"
+  [conta]="contaEditando()"
+  [idFamilia]="familia()?.id ?? 0"
+  [categorias]="categorias()"
+  [mes]="mes()"
+  [ano]="ano()"
+  (fechado)="fecharModal()"
+  (salvo)="aoSalvarConta()"
+/>

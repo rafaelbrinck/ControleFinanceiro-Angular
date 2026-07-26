@@ -1,0 +1,130 @@
+@if (aberto) {
+  <div class="modal-backdrop-custom" (click)="fechar()"></div>
+
+  <div
+    class="modal-panel card border-0 shadow-lg rounded-4 overflow-hidden"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div class="bg-primary p-4 text-center text-white position-relative overflow-hidden">
+      <div class="position-relative z-1">
+        <h3 class="fw-bolder mb-1">{{ titulo }}</h3>
+        <p class="mb-0 opacity-75 small fw-medium">
+          Contas compartilhadas da família
+        </p>
+      </div>
+      <div class="circle-deco"></div>
+    </div>
+
+    <div class="card-body p-4">
+      <form (ngSubmit)="salvar()">
+        <div class="mb-3">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control rounded-4 fs-3 fw-bold py-3 h-auto"
+              id="valorConta"
+              inputmode="decimal"
+              [value]="valorFormatado"
+              (input)="mascaraValor($event)"
+              placeholder="0,00"
+            />
+            <label for="valorConta">Valor (R$)</label>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control rounded-4"
+              id="descricaoConta"
+              [(ngModel)]="descricao"
+              name="descricao"
+              placeholder="Ex: Conta de luz"
+            />
+            <label for="descricaoConta">Descrição</label>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-6">
+            <div class="form-floating">
+              <input
+                type="date"
+                class="form-control rounded-4"
+                id="vencimentoConta"
+                [(ngModel)]="dataVencimento"
+                name="dataVencimento"
+              />
+              <label for="vencimentoConta">Vencimento</label>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <div class="form-floating">
+              <select
+                class="form-select rounded-4"
+                id="categoriaConta"
+                [(ngModel)]="idCategoria"
+                name="idCategoria"
+              >
+                <option [ngValue]="null" disabled>Selecione...</option>
+                @for (cat of categorias; track cat.id) {
+                  <option [ngValue]="cat.id">{{ cat.nome }}</option>
+                }
+              </select>
+              <label for="categoriaConta">Categoria</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-3 mb-4 px-1">
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="pagoConta"
+              [(ngModel)]="pago"
+              name="pago"
+            />
+            <label class="form-check-label fw-medium" for="pagoConta">
+              Já está paga
+            </label>
+          </div>
+
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="fixaConta"
+              [(ngModel)]="isFixa"
+              name="isFixa"
+            />
+            <label class="form-check-label fw-medium" for="fixaConta">
+              Conta fixa (recorrente)
+            </label>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-light rounded-pill flex-fill"
+            (click)="fechar()"
+            [disabled]="salvando()"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary rounded-pill flex-fill fw-bold"
+            [disabled]="salvando()"
+          >
+            {{ salvando() ? 'Salvando...' : editando ? 'Salvar' : 'Cadastrar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

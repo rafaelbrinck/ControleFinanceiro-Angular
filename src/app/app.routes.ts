@@ -154,6 +154,30 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'contas-casa',
+    canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import('./features/contas-casa/pages/dashboard/dashboard.component').then(
+        (m) => m.ContasCasaDashboardComponent,
+      ),
+  },
+  {
+    path: 'contas-casa/categorias',
+    canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import(
+        './features/contas-casa/pages/categorias-familia/categorias-familia.component'
+      ).then((m) => m.CategoriasFamiliaComponent),
+  },
+  {
+    path: 'contas-casa/membros',
+    canActivate: [ValidacaoGuard],
+    loadComponent: () =>
+      import(
+        './features/contas-casa/pages/membros-familia/membros-familia.component'
+      ).then((m) => m.MembrosFamiliaComponent),
+  },
+  {
     path: '**',
     loadComponent: () =>
       import('./features/common/page-not-found/page-not-found.component').then(

@@ -1,0 +1,245 @@
+<div class="container my-4 max-w-700 pb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+    <div>
+      <h4 class="fw-bolder text-dark mb-0">Membros da Família</h4>
+      <small class="text-muted fw-medium">
+        @if (familia(); as fam) {
+          {{ fam.nome }} · somente administrador
+        }
+      </small>
+    </div>
+    <a
+      class="btn btn-light text-secondary rounded-pill shadow-sm fw-bold px-4"
+      routerLink="/contas-casa"
+    >
+      <i class="bi bi-arrow-left me-1"></i> Voltar
+    </a>
+  </div>
+
+  @if (carregando()) {
+    <div class="text-center py-5 text-muted">
+      <div class="spinner-border spinner-border-sm me-2"></div>
+      Carregando...
+    </div>
+  } @else {
+    <!-- Cadastro -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white p-4">
+      <h6 class="text-uppercase text-primary fw-bolder small mb-3 tracking-wide">
+        Adicionar membro
+      </h6>
+
+      <div class="row g-3">
+        <div class="col-12">
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control rounded-start-pill"
+              placeholder="E-mail / usuário cadastrado"
+              [(ngModel)]="usernameBusca"
+              name="usernameBusca"
+              (keyup.enter)="buscarUsuario()"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-primary rounded-end-pill px-3"
+              (click)="buscarUsuario()"
+              [disabled]="buscando()"
+            >
+              {{ buscando() ? 'Buscando...' : 'Buscar' }}
+            </button>
+          </div>
+        </div>
+
+        @if (usuarioEncontrado) {
+          <div class="col-12">
+            <div
+              class="d-flex align-items-center gap-3 p-3 rounded-4 bg-light border"
+            >
+              @if (usuarioEncontrado.logo) {
+                <img
+                  [src]="usuarioEncontrado.logo"
+                  alt=""
+                  class="rounded-circle"
+                  width="40"
+                  height="40"
+                  style="object-fit: cover"
+                />
+              } @else {
+                <div
+                  class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
+                  style="width: 40px; height: 40px"
+                >
+                  <i class="bi bi-person"></i>
+                </div>
+              }
+              <div class="flex-grow-1 min-w-0">
+                <div class="fw-bold text-dark text-truncate">
+                  {{ usuarioEncontrado.nome || 'Sem nome' }}
+                </div>
+                <small class="text-muted">{{ usuarioEncontrado.username }}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <div class="form-floating">
+              <select
+                class="form-select rounded-4"
+                id="roleNovo"
+                [(ngModel)]="roleNovo"
+                name="roleNovo"
+              >
+                <option value="membro">Membro</option>
+                <option value="admin">Administrador</option>
+              </select>
+              <label for="roleNovo">Papel</label>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6 d-flex align-items-stretch">
+            <button
+              type="button"
+              class="btn btn-primary rounded-pill w-100 fw-bold"
+              (click)="adicionarMembro()"
+              [disabled]="salvando()"
+            >
+              {{ salvando() ? 'Adicionando...' : 'Adicionar à família' }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Lista -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+      <div class="px-3 py-3 border-bottom">
+        <h6 class="fw-bold mb-0 text-dark">Lista ({{ membros().length }})</h6>
+      </div>
+
+      @if (membros().length === 0) {
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-people fs-2 d-block mb-2 opacity-50"></i>
+          Nenhum membro encontrado.
+        </div>
+      } @else {
+        <div class="list-group list-group-flush">
+          @for (membro of membros(); track membro.id) {
+            <div
+              class="list-group-item px-3 py-3 d-flex align-items-center gap-3 border-0 border-bottom"
+            >
+              @if (membro.usuario?.logo) {
+                <img
+                  [src]="membro.usuario?.logo"
+                  alt=""
+                  class="rounded-circle flex-shrink-0"
+                  width="42"
+                  height="42"
+                  style="object-fit: cover"
+                />
+              } @else {
+                <div
+                  class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0"
+                  style="width: 42px; height: 42px"
+                >
+                  <i class="bi bi-person"></i>
+                </div>
+              }
+
+              <div class="flex-grow-1 min-w-0">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <h6 class="mb-0 fw-semibold text-dark text-truncate">
+                    {{ nomeMembro(membro) }}
+                  </h6>
+                  <span
+                    class="badge rounded-pill fw-normal"
+                    [class.bg-primary]="membro.role === 'admin'"
+                    [class.bg-secondary]="membro.role !== 'admin'"
+                  >
+                    {{ labelRole(membro.role) }}
+                  </span>
+                  @if (ehTitular(membro)) {
+                    <span class="badge bg-light text-secondary border fw-normal">
+                      Titular
+                    </span>
+                  }
+                </div>
+                <small class="text-muted text-truncate d-block">
+                  {{ membro.usuario?.username || '—' }}
+                  @if (membro.usuario?.qrcode_pix) {
+                    · PIX cadastrado
+                  }
+                </small>
+              </div>
+
+              <div class="d-flex gap-1 flex-shrink-0">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light rounded-pill"
+                  (click)="abrirEdicao(membro)"
+                  [disabled]="ehTitular(membro)"
+                >
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger rounded-pill"
+                  (click)="confirmarExclusao(membro)"
+                  [disabled]="ehTitular(membro)"
+                  [title]="
+                    ehTitular(membro)
+                      ? 'Não é possível remover o titular'
+                      : 'Remover'
+                  "
+                >
+                  Remover
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (modalAberto()) {
+  <div class="modal-backdrop-custom" (click)="fecharModal()"></div>
+  <div class="modal-panel card border-0 shadow-lg rounded-4 p-4" role="dialog">
+    <h5 class="fw-bold mb-1">Editar membro</h5>
+    <p class="text-muted small mb-3">
+      {{ membroEditando ? nomeMembro(membroEditando) : '' }}
+    </p>
+
+    <div class="form-floating mb-3">
+      <select
+        class="form-select rounded-4"
+        id="roleEdicao"
+        [(ngModel)]="roleEdicao"
+        name="roleEdicao"
+      >
+        <option value="membro">Membro</option>
+        <option value="admin">Administrador</option>
+      </select>
+      <label for="roleEdicao">Papel</label>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button
+        type="button"
+        class="btn btn-light rounded-pill flex-fill"
+        (click)="fecharModal()"
+        [disabled]="salvando()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary rounded-pill flex-fill fw-bold"
+        (click)="salvarEdicao()"
+        [disabled]="salvando()"
+      >
+        {{ salvando() ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </div>
+  </div>
+}

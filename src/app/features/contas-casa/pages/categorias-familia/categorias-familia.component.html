@@ -1,0 +1,144 @@
+<div class="container my-4 max-w-700 pb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+    <div>
+      <h4 class="fw-bolder text-dark mb-0">Categorias da Família</h4>
+      <small class="text-muted fw-medium">
+        @if (familia(); as fam) {
+          {{ fam.nome }} · somente administrador
+        }
+      </small>
+    </div>
+    <a
+      class="btn btn-light text-secondary rounded-pill shadow-sm fw-bold px-4"
+      routerLink="/contas-casa"
+    >
+      <i class="bi bi-arrow-left me-1"></i> Voltar
+    </a>
+  </div>
+
+  @if (carregando()) {
+    <div class="text-center py-5 text-muted">
+      <div class="spinner-border spinner-border-sm me-2"></div>
+      Carregando...
+    </div>
+  } @else {
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white p-4">
+      <h6 class="text-uppercase text-primary fw-bolder small mb-3 tracking-wide">
+        {{ editando ? 'Editar categoria' : 'Nova categoria' }}
+      </h6>
+
+      <form (ngSubmit)="salvar()">
+        <div class="row g-3 align-items-end">
+          <div class="col-12 col-md-6">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control rounded-4"
+                id="nomeCatFamilia"
+                [(ngModel)]="nome"
+                name="nome"
+                placeholder="Ex: Mercado"
+                required
+              />
+              <label for="nomeCatFamilia">Nome</label>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label small fw-bold text-muted mb-2">Cor</label>
+            <div class="d-flex flex-wrap gap-2">
+              @for (c of cores; track c) {
+                <button
+                  type="button"
+                  class="cor-swatch"
+                  [style.background]="c"
+                  [class.selecionada]="cor === c"
+                  (click)="cor = c"
+                  [attr.aria-label]="'Cor ' + c"
+                ></button>
+              }
+              <input
+                type="color"
+                class="form-control form-control-color cor-custom"
+                [(ngModel)]="cor"
+                name="cor"
+                title="Cor personalizada"
+              />
+            </div>
+          </div>
+
+          <div class="col-12 d-flex gap-2">
+            @if (editando) {
+              <button
+                type="button"
+                class="btn btn-light rounded-pill flex-fill"
+                (click)="cancelarEdicao()"
+                [disabled]="salvando()"
+              >
+                Cancelar
+              </button>
+            }
+            <button
+              type="submit"
+              class="btn btn-primary rounded-pill flex-fill fw-bold"
+              [disabled]="salvando()"
+            >
+              {{
+                salvando()
+                  ? 'Salvando...'
+                  : editando
+                    ? 'Salvar alterações'
+                    : 'Criar categoria'
+              }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+      <div class="px-3 py-3 border-bottom">
+        <h6 class="fw-bold mb-0 text-dark">
+          Lista ({{ categorias().length }})
+        </h6>
+      </div>
+
+      @if (categorias().length === 0) {
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-tags fs-2 d-block mb-2 opacity-50"></i>
+          Nenhuma categoria cadastrada.
+        </div>
+      } @else {
+        <div class="list-group list-group-flush">
+          @for (cat of categorias(); track cat.id) {
+            <div
+              class="list-group-item px-3 py-3 d-flex align-items-center gap-3 border-0 border-bottom"
+            >
+              <span
+                class="categoria-dot"
+                [style.background]="cat.cor || '#94a3b8'"
+              ></span>
+              <div class="flex-grow-1">
+                <h6 class="mb-0 fw-semibold text-dark">{{ cat.nome }}</h6>
+              </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-light rounded-pill"
+                (click)="iniciarEdicao(cat)"
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger rounded-pill"
+                (click)="confirmarExclusao(cat)"
+              >
+                Excluir
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
