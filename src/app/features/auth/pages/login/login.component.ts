@@ -58,7 +58,7 @@ export class LoginComponent {
       if (sucesso) {
         this.usuario = new User();
         this.orcamentoService.limparOrcamento();
-        this.router.navigate(['/inicio']);
+        this.router.navigate(['/hub']);
       }
     } finally {
       this.loading = false; // Libera o botão se o login falhar

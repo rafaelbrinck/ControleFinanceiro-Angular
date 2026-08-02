@@ -195,11 +195,11 @@ export class HomeComponent implements OnInit {
   }
 
   navegarParaCategorias() {
-    this.router.navigate(['/form-categoria']);
+    this.router.navigate(['/financeiro/form-categoria']);
   }
 
   navegarParaOrcamentos() {
-    this.router.navigate(['/lista-orcamentos']);
+    this.router.navigate(['/negocios/lista-orcamentos']);
   }
 
   async carregarSistema() {

@@ -7,7 +7,7 @@
         <h4 class="fw-bold text-dark mb-0">Meus Produtos</h4>
         <small class="text-muted">{{ (listaProdutos | buscador:nomePesquisa:['nome']).length }} itens cadastrados</small>
       </div>
-      <button class="btn btn-primary rounded-pill shadow-sm d-flex align-items-center gap-2" routerLink="/form-produto/">
+      <button class="btn btn-primary rounded-pill shadow-sm d-flex align-items-center gap-2" routerLink="/negocios/form-produto/">
         <i class="bi bi-plus-lg"></i> <span class="d-none d-sm-inline">Novo</span>
       </button>
     </div>
@@ -92,7 +92,7 @@
 
           <!-- Botões de Ação -->
           <div class="d-flex gap-2">
-            <a class="btn btn-outline-primary flex-grow-1" routerLink="/form-produto/{{ produto.id }}">
+            <a class="btn btn-outline-primary flex-grow-1" routerLink="/negocios/form-produto/{{ produto.id }}">
               <i class="bi bi-pencil-fill me-2"></i> Editar
             </a>
             <button class="btn btn-outline-danger flex-grow-1" (click)="deletar(produto.id); $event.stopPropagation()">

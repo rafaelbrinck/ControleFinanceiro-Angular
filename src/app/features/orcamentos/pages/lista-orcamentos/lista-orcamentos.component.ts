@@ -184,7 +184,7 @@ export class ListaOrcamentosComponent implements OnInit {
   }
 
   paginaOrcamentos() {
-    this.router.navigate(['/orcamento']);
+    this.router.navigate(['/negocios/orcamento']);
   }
 
   duplicarOrcamento(orcamento: Orcamento) {
@@ -195,7 +195,7 @@ export class ListaOrcamentosComponent implements OnInit {
         if (resposta) {
           this.orcamentoService.duplicarOrcamento(orcamento);
           this.orcamentoSelecionado = undefined;
-          this.router.navigate(['/orcamento']);
+          this.router.navigate(['/negocios/orcamento']);
         }
       },
     );

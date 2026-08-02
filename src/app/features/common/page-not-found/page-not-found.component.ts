@@ -13,7 +13,7 @@ export class PageNotFoundComponent {
 
   async voltar() {
     if (await this.validacao.confirmaAutenticacao()) {
-      this.router.navigate(['/inicio']);
+      this.router.navigate(['/hub']);
     } else {
       this.router.navigate(['/login']);
     }

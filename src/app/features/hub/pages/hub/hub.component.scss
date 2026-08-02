@@ -1,0 +1,107 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at top left, rgba(79, 70, 229, 0.08), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(16, 185, 129, 0.06), transparent 45%),
+    #f8fafc;
+}
+
+.hub-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+.hub-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: #4f46e5;
+}
+
+.hub-title {
+  font-size: clamp(1.35rem, 5vw, 2.1rem);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.hub-subtitle {
+  max-width: 36rem;
+  font-size: 0.95rem;
+}
+
+.hub-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #fff;
+  min-height: 11rem;
+}
+
+/* Área de toque confortável no mobile */
+.hub-card .card-body {
+  min-height: 10.5rem;
+}
+
+@media (hover: hover) {
+  .hub-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1) !important;
+  }
+
+  .hub-card:hover .hub-card-arrow {
+    color: #4f46e5 !important;
+  }
+}
+
+.hub-icon {
+  width: 52px;
+  height: 52px;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .hub-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 1.5rem;
+  }
+}
+
+.hub-icon--negocios {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+.hub-icon--financeiro {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.hub-icon--casa {
+  background: #fce7f3;
+  color: #db2777;
+}
+
+.hub-icon--veiculos {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.hub-icon--jornada {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.hub-resumo {
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+}
+
+.tracking-wide {
+  letter-spacing: 0.06em;
+  font-size: 0.65rem;
+}
+
+.hub-perfil-btn {
+  min-height: 44px;
+}

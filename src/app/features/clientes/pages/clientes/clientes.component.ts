@@ -57,7 +57,7 @@ export class ClientesComponent implements OnInit {
   redirecionarOrcamento(orcamento: Orcamento) {
     orcamento.cliente = this.clienteSelecionado;
     this.orcamentoService.addOrcamentoSelecionado(orcamento);
-    this.router.navigate(['/lista-orcamentos']);
+    this.router.navigate(['/negocios/lista-orcamentos']);
   }
 
   async abrirModal(cliente: Cliente) {

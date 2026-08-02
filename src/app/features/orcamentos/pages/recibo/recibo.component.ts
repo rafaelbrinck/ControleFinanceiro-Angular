@@ -61,6 +61,6 @@ export class ReciboComponent implements OnInit {
   // Este evento escuta quando a janela de impressão do Windows é fechada (seja imprimindo ou cancelando)
   @HostListener('window:afterprint')
   onafterprint() {
-    this.router.navigate(['/lista-orcamentos']);
+    this.router.navigate(['/negocios/lista-orcamentos']);
   }
 }

@@ -1,0 +1,72 @@
+<div class="module-shell">
+  <nav
+    class="navbar navbar-light bg-white border-bottom shadow-sm sticky-top module-navbar"
+  >
+    <div class="container-fluid px-2 px-md-3">
+      <span class="navbar-brand fw-bolder text-dark mb-0 fs-6">
+        {{ tituloModulo }}
+      </span>
+      <button
+        class="navbar-toggler border-0 shadow-none module-toggler"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#jornadaOffcanvas"
+        aria-controls="jornadaOffcanvas"
+        aria-label="Abrir menu do módulo"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+  </nav>
+
+  <div
+    class="offcanvas offcanvas-start"
+    tabindex="-1"
+    id="jornadaOffcanvas"
+    aria-labelledby="jornadaOffcanvasLabel"
+  >
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title fw-bold" id="jornadaOffcanvasLabel">
+        {{ tituloModulo }}
+      </h5>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="offcanvas"
+        aria-label="Fechar"
+      ></button>
+    </div>
+
+    <div class="offcanvas-body d-flex flex-column p-0">
+      <nav class="list-group list-group-flush flex-grow-1 py-2">
+        @for (link of links; track link.path) {
+          <a
+            class="list-group-item list-group-item-action border-0 module-offcanvas-link d-flex align-items-center gap-3"
+            [routerLink]="link.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: !!link.exact }"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi" [ngClass]="link.icon" aria-hidden="true"></i>
+            <span class="fw-semibold">{{ link.label }}</span>
+          </a>
+        }
+      </nav>
+
+      <div class="p-3 border-top mt-auto">
+        <a
+          class="btn btn-primary w-100 rounded-pill fw-bold module-hub-btn"
+          routerLink="/hub"
+          data-bs-dismiss="offcanvas"
+        >
+          <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+          Voltar ao Hub
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid px-2 px-md-4 py-3 module-content">
+    <router-outlet />
+  </div>
+</div>

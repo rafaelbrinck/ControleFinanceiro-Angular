@@ -1,0 +1,60 @@
+<div class="hub-page">
+  <div class="container-fluid px-3 px-md-4 py-3 py-md-5">
+    <header class="hub-header mb-3 mb-md-4">
+      <p class="hub-eyebrow text-uppercase fw-bold mb-1 mb-md-2">Super App</p>
+      <h1 class="hub-title fw-bolder text-dark mb-2">{{ saudacao() }}</h1>
+      <p class="text-muted mb-0 hub-subtitle">
+        Escolha um módulo para continuar. Cada área tem navegação própria.
+      </p>
+    </header>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+      @for (widget of widgets; track widget.rota) {
+        <div class="col">
+          <a
+            class="hub-card card border-0 shadow-sm rounded-4 h-100 text-decoration-none"
+            [routerLink]="widget.rota"
+            [attr.aria-label]="'Abrir módulo ' + widget.titulo"
+          >
+            <div class="card-body p-3 p-md-4 d-flex flex-column">
+              <div class="d-flex align-items-start justify-content-between mb-3">
+                <div
+                  class="hub-icon rounded-4 d-flex align-items-center justify-content-center"
+                  [ngClass]="'hub-icon--' + widget.cor"
+                >
+                  <i class="bi" [ngClass]="widget.icone" aria-hidden="true"></i>
+                </div>
+                <i
+                  class="bi bi-arrow-right-circle fs-4 text-muted hub-card-arrow"
+                  aria-hidden="true"
+                ></i>
+              </div>
+
+              <h2 class="h5 fw-bold text-dark mb-1">{{ widget.titulo }}</h2>
+              <p class="text-muted small mb-3">{{ widget.descricao }}</p>
+
+              <div class="hub-resumo mt-auto rounded-3 px-3 py-2">
+                <small
+                  class="text-muted d-block fw-semibold text-uppercase tracking-wide"
+                >
+                  Resumo
+                </small>
+                <span class="fw-medium text-dark">{{ widget.resumo }}</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      }
+    </div>
+
+    <div class="mt-4 d-flex flex-wrap gap-2">
+      <a
+        class="btn btn-light rounded-pill px-4 py-2 fw-semibold hub-perfil-btn"
+        routerLink="/perfil"
+      >
+        <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
+        Meu perfil
+      </a>
+    </div>
+  </div>
+</div>

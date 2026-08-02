@@ -100,7 +100,7 @@ export class RelatorioComponent implements OnInit {
   }
 
   navegarParaCategorias() {
-    this.router.navigate(['/form-categoria']);
+    this.router.navigate(['/financeiro/form-categoria']);
   }
 
   mostrar() {

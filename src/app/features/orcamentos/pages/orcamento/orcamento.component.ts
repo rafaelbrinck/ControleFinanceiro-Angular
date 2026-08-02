@@ -324,7 +324,7 @@ export class OrcamentoComponent {
   }
 
   paginaOrcamentos() {
-    this.router.navigate(['/lista-orcamentos']);
+    this.router.navigate(['/negocios/lista-orcamentos']);
   }
 
   // NOVA ABORDAGEM: Reativa 100% com o Angular

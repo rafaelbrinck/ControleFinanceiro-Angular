@@ -7,8 +7,24 @@ body {
   -webkit-tap-highlight-color: transparent; /* remove highlight no toque */
 }
 
+/**
+ * Diretriz Super App (Mobile First):
+ * tabelas devem rolar horizontalmente em viewports estreitos.
+ * Prefira envolver com <div class="table-responsive">; esta regra reforça o comportamento.
+ */
+.table-responsive {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/*
+ * Removido min-width: 95vw — causava overflow horizontal dentro dos
+ * layouts de módulo (container aninhado em container-fluid).
+ */
 .container {
-  min-width: 95vw;
+  min-width: 0;
 }
 
 .combo-box {

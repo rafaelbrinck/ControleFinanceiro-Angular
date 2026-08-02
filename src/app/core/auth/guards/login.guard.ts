@@ -13,7 +13,7 @@ export class LoginGuard implements CanActivate {
 
     // Se a sessão está ativa, redireciona para /inicio
     if (hasSession) {
-      return this.router.parseUrl('/inicio');
+      return this.router.parseUrl('/hub');
     }
 
     return true; // Sessão inexistente, permite acessar /login

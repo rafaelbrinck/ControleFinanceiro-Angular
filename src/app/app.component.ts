@@ -97,9 +97,27 @@ export class AppComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((event) => {
         if (event instanceof NavigationEnd) {
-          this.validaNavBar = !event.urlAfterRedirects.includes('login');
+          const url = event.urlAfterRedirects.split('?')[0] ?? '';
+          this.validaNavBar = this.deveExibirNavGlobal(url);
         }
       });
+  }
+
+  /** Navbar global só em telas avulsas (ex.: perfil). Hub e módulos usam shell próprio. */
+  private deveExibirNavGlobal(url: string): boolean {
+    if (url.includes('login') || url === '/hub' || url.startsWith('/hub/')) {
+      return false;
+    }
+    const modulos = [
+      '/negocios',
+      '/financeiro',
+      '/contas-casa',
+      '/veiculos',
+      '/jornada',
+    ];
+    return !modulos.some(
+      (prefix) => url === prefix || url.startsWith(`${prefix}/`),
+    );
   }
 
   async logout() {

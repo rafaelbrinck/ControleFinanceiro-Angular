@@ -118,7 +118,7 @@ export class FormCategoriaComponent implements OnInit {
   }
 
   voltarInicio() {
-    this.router.navigate(['/inicio']);
+    this.router.navigate(['/financeiro']);
   }
 
   getNomeCategoriaMae(): string {

@@ -6,7 +6,7 @@
       <h4 class="fw-bold text-dark mb-0">Clientes</h4>
       <small class="text-muted">Gerencie sua carteira</small>
     </div>
-    <a class="btn btn-primary rounded-pill shadow-sm d-flex align-items-center gap-2" routerLink="/form-cliente/">
+    <a class="btn btn-primary rounded-pill shadow-sm d-flex align-items-center gap-2" routerLink="/negocios/form-cliente/">
       <i class="bi bi-person-plus-fill"></i> <span class="d-none d-sm-inline">Novo Cliente</span>
     </a>
   </div>
@@ -58,7 +58,7 @@
           <div class="d-flex gap-2 pt-2 border-top">
             <a 
               class="btn btn-sm btn-light flex-grow-1 text-primary fw-medium" 
-              routerLink="/form-cliente/{{ cliente.id }}" 
+              routerLink="/negocios/form-cliente/{{ cliente.id }}"
               (click)="$event.stopPropagation()"
             >
               <i class="bi bi-pencil-fill me-1"></i> Editar
