@@ -84,6 +84,71 @@ export class BillsService {
     }
   }
 
+  /**
+   * Busca contas brutas em um intervalo de datas (data_vencimento).
+   * Não altera o cache do mês exibido no dashboard.
+   */
+  async buscarPorPeriodo(
+    idFamilia: number,
+    dataInicio: string,
+    dataFim: string,
+  ): Promise<ContaDetalhada[]> {
+    const { data, error } = await supabase
+      .from('Contas')
+      .select(
+        `
+        *,
+        categoria:CategoriasFamilias (
+          id,
+          nome,
+          cor
+        )
+      `,
+      )
+      .eq('id_familia', idFamilia)
+      .gte('data_vencimento', dataInicio)
+      .lte('data_vencimento', dataFim)
+      .order('data_vencimento', { ascending: true });
+
+    if (error) {
+      console.error('Erro ao buscar contas do período:', error.message);
+      return [];
+    }
+
+    return (data ?? []).map((c) => this.normalizarConta(c));
+  }
+
+  /**
+   * Retorna início/fim do intervalo dos últimos `qtdMeses` meses
+   * terminando no mês/ano de referência (incluso).
+   */
+  intervaloUltimosMeses(
+    mes: number,
+    ano: number,
+    qtdMeses = 6,
+  ): { dataInicio: string; dataFim: string; meses: { mes: number; ano: number }[] } {
+    const meses: { mes: number; ano: number }[] = [];
+    let m = mes;
+    let a = ano;
+
+    for (let i = 0; i < qtdMeses; i++) {
+      meses.unshift({ mes: m, ano: a });
+      const ant = this.mesAnterior(m, a);
+      m = ant.mes;
+      a = ant.ano;
+    }
+
+    const primeiro = meses[0]!;
+    const ultimo = meses[meses.length - 1]!;
+    const ultimoDia = new Date(ultimo.ano, ultimo.mes, 0).getDate();
+
+    return {
+      dataInicio: this.formatarData(primeiro.ano, primeiro.mes, 1),
+      dataFim: this.formatarData(ultimo.ano, ultimo.mes, ultimoDia),
+      meses,
+    };
+  }
+
   async buscarPorId(id: number): Promise<ContaDetalhada | null> {
     const local = this.contas().find((c) => c.id === id);
     if (local) return local;
@@ -112,10 +177,12 @@ export class BillsService {
   }
 
   async criar(conta: ContaCreate): Promise<Conta | null> {
+    const pago = conta.pago ?? false;
     const payload = {
       ...conta,
-      pago: conta.pago ?? false,
+      pago,
       is_fixa: conta.is_fixa ?? false,
+      pago_por: pago ? (conta.pago_por ?? null) : null,
     };
 
     const { data, error } = await supabase
@@ -376,6 +443,8 @@ export class BillsService {
       id_categoria: Number(raw['id_categoria']),
       pago: Boolean(raw['pago']),
       is_fixa: Boolean(raw['is_fixa']),
+      pago_por:
+        raw['pago_por'] != null ? Number(raw['pago_por']) : null,
       categoria: (Array.isArray(categoria) ? categoria[0] : categoria) as
         | ContaDetalhada['categoria']
         | undefined,

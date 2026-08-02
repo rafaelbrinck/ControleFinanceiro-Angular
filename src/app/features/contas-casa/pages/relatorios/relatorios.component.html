@@ -1,0 +1,210 @@
+<div class="container my-3 my-md-4 relatorios-page">
+  <div class="d-flex justify-content-between align-items-center mb-3 page-header">
+    <div class="min-w-0 pe-2">
+      <h4 class="fw-bolder text-dark mb-0 text-truncate">Relatórios</h4>
+      <small class="text-muted fw-medium d-block text-truncate">
+        @if (familia(); as fam) {
+          {{ fam.nome }} · análise de gastos da família
+        } @else {
+          Dashboard analítico das contas de casa
+        }
+      </small>
+    </div>
+    <a
+      class="btn btn-light text-secondary rounded-pill shadow-sm fw-bold px-3 flex-shrink-0"
+      routerLink="/contas-casa"
+      aria-label="Voltar"
+    >
+      <i class="bi bi-arrow-left"></i>
+      <span class="d-none d-sm-inline ms-1">Voltar</span>
+    </a>
+  </div>
+
+  @if (carregandoFamilia()) {
+    <div class="text-center py-5 text-muted">
+      <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+      Carregando família...
+    </div>
+  } @else if (!familia()) {
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+      <h5 class="fw-bold mb-2">Nenhuma família encontrada</h5>
+      <p class="text-muted small mb-0">
+        Crie ou entre em uma família no dashboard de Contas de Casa para ver
+        os relatórios.
+      </p>
+      <a class="btn btn-primary rounded-pill mt-3 align-self-start" routerLink="/contas-casa">
+        Ir para Contas de Casa
+      </a>
+    </div>
+  } @else {
+    <!-- Seletor Mês/Ano -->
+    <div class="card bg-white shadow-sm rounded-4 border-0 mb-3 month-nav">
+      <div class="card-body py-3 px-3 d-flex align-items-center justify-content-between">
+        <button
+          type="button"
+          class="btn btn-light rounded-circle nav-arrow"
+          (click)="mesAnterior()"
+          [disabled]="carregando()"
+          aria-label="Mês anterior"
+        >
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <div class="text-center">
+          <div class="fw-bold text-dark fs-5 mb-0">{{ labelMesAno() }}</div>
+          <small class="text-muted">Mês de referência</small>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-light rounded-circle nav-arrow"
+          (click)="mesSeguinte()"
+          [disabled]="carregando()"
+          aria-label="Próximo mês"
+        >
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    @if (carregando()) {
+      <div class="text-center py-5 text-muted">
+        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+        Processando dados...
+      </div>
+    } @else {
+      <!-- KPIs -->
+      <div class="row g-2 g-md-3 mb-3">
+        <div class="col-12 col-md-6">
+          <div class="card bg-white shadow-sm rounded-4 border-0 p-3 h-100 analytics-card">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="icon-pill bg-danger-subtle text-danger">
+                <i class="bi bi-cash-stack"></i>
+              </span>
+              <span class="text-secondary small fw-semibold">Total de gastos no mês</span>
+            </div>
+            <div class="fs-4 fw-bold text-dark">
+              {{ totalGastosMes() | currency: 'BRL' }}
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="card bg-white shadow-sm rounded-4 border-0 p-3 h-100 analytics-card">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="icon-pill bg-primary-subtle text-primary">
+                <i class="bi bi-people"></i>
+              </span>
+              <span class="text-secondary small fw-semibold">Cota ideal por membro</span>
+            </div>
+            <div class="fs-4 fw-bold text-primary">
+              {{ cotaIdealPorMembro() | currency: 'BRL' }}
+            </div>
+            <small class="text-muted">
+              {{ membros().length }} membro(s) · rateio igualitário
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm rounded-4 bg-white h-100">
+            <div class="card-body">
+              <h6 class="fw-bold text-dark mb-1">Gastos por categoria</h6>
+              <small class="text-muted d-block mb-3">Distribuição do mês selecionado</small>
+              @if (gastosPorCategoria().length === 0) {
+                <div class="text-center text-muted py-5 small">Sem gastos neste mês</div>
+              } @else {
+                <div class="chart-wrap">
+                  <canvas
+                    baseChart
+                    [data]="chartCategoriasData()"
+                    [options]="doughnutOptions"
+                    chartType="doughnut"
+                  ></canvas>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm rounded-4 bg-white h-100">
+            <div class="card-body">
+              <h6 class="fw-bold text-dark mb-1">Acerto de contas</h6>
+              <small class="text-muted d-block mb-3">
+                Quanto cada membro desembolsou (pago_por)
+              </small>
+              @if (membros().length === 0) {
+                <div class="text-center text-muted py-5 small">Nenhum membro cadastrado</div>
+              } @else {
+                <div class="chart-wrap">
+                  <canvas
+                    baseChart
+                    [data]="chartAcertoData()"
+                    [options]="barOptions"
+                    chartType="bar"
+                  ></canvas>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card border-0 shadow-sm rounded-4 bg-white">
+            <div class="card-body">
+              <h6 class="fw-bold text-dark mb-1">Evolução semestral</h6>
+              <small class="text-muted d-block mb-3">
+                Total gasto nos últimos 6 meses
+              </small>
+              <div class="chart-wrap chart-wrap-wide">
+                <canvas
+                  baseChart
+                  [data]="chartEvolucaoData()"
+                  [options]="barOptions"
+                  chartType="bar"
+                ></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top 5 -->
+      <div class="card border-0 shadow-sm rounded-4 bg-white mb-3">
+        <div class="card-body">
+          <h6 class="fw-bold text-dark mb-1">Top 5 maiores despesas</h6>
+          <small class="text-muted d-block mb-3">{{ labelMesAno() }}</small>
+
+          @if (top5Despesas().length === 0) {
+            <div class="text-center text-muted py-4 small">
+              Nenhuma despesa neste mês
+            </div>
+          } @else {
+            <ul class="list-group list-group-flush top-list">
+              @for (conta of top5Despesas(); track conta.id; let i = $index) {
+                <li class="list-group-item px-0 d-flex align-items-center gap-3">
+                  <span class="rank-badge">{{ i + 1 }}</span>
+                  <div class="flex-grow-1 min-w-0">
+                    <div class="fw-semibold text-dark text-truncate">
+                      {{ conta.descricao }}
+                    </div>
+                    <small class="text-muted">
+                      {{ conta.categoria?.nome || 'Sem categoria' }}
+                      · {{ conta.data_vencimento | date: 'dd/MM' }}
+                    </small>
+                  </div>
+                  <div class="fw-bold text-dark text-nowrap">
+                    {{ conta.valor | currency: 'BRL' }}
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

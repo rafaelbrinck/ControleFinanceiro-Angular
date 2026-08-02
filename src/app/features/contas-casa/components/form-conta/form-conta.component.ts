@@ -6,12 +6,16 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
+  inject,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AlertaService } from '@app/core/services/alerta.service';
 import { ContaCreate, ContaDetalhada } from '@app/shared/models/conta';
-import { CategoriaFamilia } from '@app/shared/models/familia';
+import {
+  CategoriaFamilia,
+  MembroFamiliaDetalhado,
+} from '@app/shared/models/familia';
 import { BillsService } from '../../services/bills.service';
 import { FamilyService } from '../../services/family.service';
 
@@ -23,6 +27,10 @@ import { FamilyService } from '../../services/family.service';
   styleUrl: './form-conta.component.css',
 })
 export class FormContaComponent implements OnChanges {
+  private readonly billsService = inject(BillsService);
+  private readonly familyService = inject(FamilyService);
+  private readonly alertaService = inject(AlertaService);
+
   @Input() aberto = false;
   @Input() conta: ContaDetalhada | null = null;
   @Input() idFamilia!: number;
@@ -40,8 +48,11 @@ export class FormContaComponent implements OnChanges {
   dataVencimento = '';
   idCategoria: number | null = null;
   pago = false;
+  pagoPor: number | null = null;
   isFixa = false;
   salvando = signal(false);
+
+  readonly membros = this.familyService.membros;
 
   get editando(): boolean {
     return !!this.conta?.id;
@@ -50,12 +61,6 @@ export class FormContaComponent implements OnChanges {
   get titulo(): string {
     return this.editando ? 'Editar Conta' : 'Nova Conta';
   }
-
-  constructor(
-    private billsService: BillsService,
-    private familyService: FamilyService,
-    private alertaService: AlertaService,
-  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (
@@ -74,6 +79,8 @@ export class FormContaComponent implements OnChanges {
       this.dataVencimento = String(this.conta.data_vencimento).slice(0, 10);
       this.idCategoria = Number(this.conta.id_categoria) || null;
       this.pago = !!this.conta.pago;
+      this.pagoPor =
+        this.conta.pago_por != null ? Number(this.conta.pago_por) : null;
       this.isFixa = !!this.conta.is_fixa;
       return;
     }
@@ -86,7 +93,22 @@ export class FormContaComponent implements OnChanges {
       ? Number(this.categorias[0].id)
       : null;
     this.pago = false;
+    this.pagoPor = null;
     this.isFixa = false;
+  }
+
+  aoAlterarPago(): void {
+    if (!this.pago) {
+      this.pagoPor = null;
+    }
+  }
+
+  nomeMembro(membro: MembroFamiliaDetalhado): string {
+    return (
+      membro.usuario?.nome ||
+      membro.usuario?.username ||
+      'Usuário sem nome'
+    );
   }
 
   fechar(): void {
@@ -115,6 +137,8 @@ export class FormContaComponent implements OnChanges {
     this.salvando.set(true);
 
     try {
+      const pagoPor = this.pago ? this.pagoPor : null;
+
       if (this.editando && this.conta?.id) {
         const ok = await this.billsService.atualizar(this.conta.id, {
           descricao: this.descricao.trim(),
@@ -122,6 +146,7 @@ export class FormContaComponent implements OnChanges {
           data_vencimento: this.dataVencimento,
           id_categoria: Number(this.idCategoria),
           pago: this.pago,
+          pago_por: pagoPor,
           is_fixa: this.isFixa,
         });
 
@@ -149,6 +174,7 @@ export class FormContaComponent implements OnChanges {
           data_vencimento: this.dataVencimento,
           id_categoria: Number(this.idCategoria),
           pago: this.pago,
+          pago_por: pagoPor,
           is_fixa: this.isFixa,
         };
 
@@ -186,6 +212,13 @@ export class FormContaComponent implements OnChanges {
     }
     if (!this.idCategoria) {
       this.alertaService.info('Obrigatório', 'Selecione uma categoria.');
+      return false;
+    }
+    if (this.pago && !this.pagoPor) {
+      this.alertaService.info(
+        'Obrigatório',
+        'Selecione quem pagou a conta.',
+      );
       return false;
     }
     return true;
