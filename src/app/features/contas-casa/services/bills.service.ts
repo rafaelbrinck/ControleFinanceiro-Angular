@@ -176,18 +176,24 @@ export class BillsService {
     return this.normalizarConta(data);
   }
 
-  async criar(conta: ContaCreate): Promise<Conta | null> {
-    const pago = conta.pago ?? false;
-    const payload = {
-      ...conta,
-      pago,
-      is_fixa: conta.is_fixa ?? false,
-      pago_por: pago ? (conta.pago_por ?? null) : null,
-    };
+  async criar(contas: ContaCreate | ContaCreate[]): Promise<ContaDetalhada[]> {
+    const lista = Array.isArray(contas) ? contas : [contas];
+    if (lista.length === 0) return [];
+
+    const payloads = lista.map((conta) => {
+      const pago = conta.pago ?? false;
+      return {
+        ...conta,
+        pago,
+        is_fixa: conta.is_fixa ?? false,
+        pago_por: pago ? (conta.pago_por ?? null) : null,
+        id_grupo_parcelamento: conta.id_grupo_parcelamento ?? null,
+      };
+    });
 
     const { data, error } = await supabase
       .from('Contas')
-      .insert([payload])
+      .insert(payloads)
       .select(
         `
         *,
@@ -197,17 +203,20 @@ export class BillsService {
           cor
         )
       `,
-      )
-      .single();
+      );
 
     if (error || !data) {
-      console.error('Erro ao criar conta:', error?.message);
-      return null;
+      console.error('Erro ao criar conta(s):', error?.message);
+      return [];
     }
 
-    const criada = this.normalizarConta(data as Record<string, unknown>);
-    this.inserirContaNoCacheSeMesmoMes(criada);
-    return criada;
+    const criadas = data.map((row) =>
+      this.normalizarConta(row as Record<string, unknown>),
+    );
+    for (const criada of criadas) {
+      this.inserirContaNoCacheSeMesmoMes(criada);
+    }
+    return criadas;
   }
 
   async atualizar(id: number, conta: ContaUpdate): Promise<boolean> {
@@ -259,18 +268,25 @@ export class BillsService {
     return this.atualizar(id, { pago });
   }
 
+  /** Chave estável para deduplicar contas fixas entre meses. */
+  chaveContaFixa(conta: {
+    id_categoria: number;
+    descricao: string;
+  }): string {
+    return `${Number(conta.id_categoria)}|${String(conta.descricao).trim().toLowerCase()}`;
+  }
+
   /**
-   * Busca contas fixas (`is_fixa = true`) do mês imediatamente anterior.
+   * Busca contas fixas (`is_fixa = true`) em um mês/ano específico.
    */
-  async buscarContasFixasMesAnterior(
+  async buscarContasFixasNoMes(
     idFamilia: number,
     mes: number,
     ano: number,
   ): Promise<Conta[]> {
-    const { mes: mesAnt, ano: anoAnt } = this.mesAnterior(mes, ano);
-    const inicio = this.formatarData(anoAnt, mesAnt, 1);
-    const ultimoDia = new Date(anoAnt, mesAnt, 0).getDate();
-    const fim = this.formatarData(anoAnt, mesAnt, ultimoDia);
+    const inicio = this.formatarData(ano, mes, 1);
+    const ultimoDia = new Date(ano, mes, 0).getDate();
+    const fim = this.formatarData(ano, mes, ultimoDia);
 
     const { data, error } = await supabase
       .from('Contas')
@@ -285,7 +301,89 @@ export class BillsService {
       return [];
     }
 
-    return (data ?? []) as Conta[];
+    return (data ?? []).map((c) =>
+      this.normalizarConta(c as Record<string, unknown>),
+    );
+  }
+
+  /**
+   * Busca contas fixas (`is_fixa = true`) do mês imediatamente anterior.
+   */
+  async buscarContasFixasMesAnterior(
+    idFamilia: number,
+    mes: number,
+    ano: number,
+  ): Promise<Conta[]> {
+    const { mes: mesAnt, ano: anoAnt } = this.mesAnterior(mes, ano);
+    return this.buscarContasFixasNoMes(idFamilia, mesAnt, anoAnt);
+  }
+
+  /**
+   * Templates de contas fixas para o mês alvo: varre até `mesesRetroativos`
+   * meses anteriores e mantém a ocorrência mais recente de cada chave.
+   */
+  async buscarTemplatesContasFixas(
+    idFamilia: number,
+    mes: number,
+    ano: number,
+    mesesRetroativos = 6,
+  ): Promise<Conta[]> {
+    const porChave = new Map<string, Conta>();
+    let m = mes;
+    let a = ano;
+
+    for (let i = 0; i < mesesRetroativos; i++) {
+      const ant = this.mesAnterior(m, a);
+      m = ant.mes;
+      a = ant.ano;
+      const fixas = await this.buscarContasFixasNoMes(idFamilia, m, a);
+      for (const fixa of fixas) {
+        const chave = this.chaveContaFixa(fixa);
+        if (!porChave.has(chave)) {
+          porChave.set(chave, fixa);
+        }
+      }
+    }
+
+    return Array.from(porChave.values());
+  }
+
+  /**
+   * Retorna templates de fixas que ainda não existem no mês corrente
+   * (compara por categoria + descrição, independente do flag is_fixa atual).
+   */
+  filtrarFixasPendentes(
+    templates: Conta[],
+    contasDoMes: ContaDetalhada[],
+  ): Conta[] {
+    const existentes = new Set(
+      contasDoMes.map((c) => this.chaveContaFixa(c)),
+    );
+    return templates.filter((t) => !existentes.has(this.chaveContaFixa(t)));
+  }
+
+  /**
+   * Replica automaticamente para o mês/ano vigente as contas fixas
+   * que ainda não foram lançadas (com dedupe).
+   */
+  async sincronizarContasFixasDoMes(
+    idFamilia: number,
+    mes: number,
+    ano: number,
+    contasDoMes?: ContaDetalhada[],
+  ): Promise<ContaDetalhada[]> {
+    const atuais =
+      contasDoMes ?? (await this.buscarPorMes(idFamilia, mes, ano));
+    const templates = await this.buscarTemplatesContasFixas(
+      idFamilia,
+      mes,
+      ano,
+    );
+    const pendentes = this.filtrarFixasPendentes(templates, atuais);
+
+    if (!pendentes.length) return [];
+
+    return this.importarContasFixas(pendentes, mes, ano);
   }
 
   /**
@@ -295,7 +393,7 @@ export class BillsService {
     contasFixas: Conta[],
     mesDestino: number,
     anoDestino: number,
-  ): Promise<Conta[]> {
+  ): Promise<ContaDetalhada[]> {
     if (!contasFixas.length) return [];
 
     const novas: ContaCreate[] = contasFixas.map((c) => ({
@@ -306,6 +404,8 @@ export class BillsService {
       id_categoria: c.id_categoria,
       pago: false,
       is_fixa: true,
+      pago_por: null,
+      id_grupo_parcelamento: null,
       data_vencimento: this.ajustarDataParaMes(
         c.data_vencimento,
         mesDestino,
@@ -445,6 +545,10 @@ export class BillsService {
       is_fixa: Boolean(raw['is_fixa']),
       pago_por:
         raw['pago_por'] != null ? Number(raw['pago_por']) : null,
+      id_grupo_parcelamento:
+        raw['id_grupo_parcelamento'] != null
+          ? String(raw['id_grupo_parcelamento'])
+          : null,
       categoria: (Array.isArray(categoria) ? categoria[0] : categoria) as
         | ContaDetalhada['categoria']
         | undefined,

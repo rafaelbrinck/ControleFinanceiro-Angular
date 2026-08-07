@@ -50,6 +50,8 @@ export class FormContaComponent implements OnChanges {
   pago = false;
   pagoPor: number | null = null;
   isFixa = false;
+  parcelado = false;
+  quantidadeParcelas = 2;
   salvando = signal(false);
 
   readonly membros = this.familyService.membros;
@@ -60,6 +62,12 @@ export class FormContaComponent implements OnChanges {
 
   get titulo(): string {
     return this.editando ? 'Editar Conta' : 'Nova Conta';
+  }
+
+  get labelValor(): string {
+    return this.parcelado && !this.editando
+      ? 'Valor da parcela (R$)'
+      : 'Valor (R$)';
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -82,6 +90,8 @@ export class FormContaComponent implements OnChanges {
       this.pagoPor =
         this.conta.pago_por != null ? Number(this.conta.pago_por) : null;
       this.isFixa = !!this.conta.is_fixa;
+      this.parcelado = false;
+      this.quantidadeParcelas = 2;
       return;
     }
 
@@ -95,11 +105,25 @@ export class FormContaComponent implements OnChanges {
     this.pago = false;
     this.pagoPor = null;
     this.isFixa = false;
+    this.parcelado = false;
+    this.quantidadeParcelas = 2;
   }
 
   aoAlterarPago(): void {
     if (!this.pago) {
       this.pagoPor = null;
+    }
+  }
+
+  aoAlterarParcelado(): void {
+    if (!this.parcelado) {
+      this.quantidadeParcelas = 2;
+      return;
+    }
+    // Parcelamento e conta fixa são mutuamente exclusivos na criação
+    this.isFixa = false;
+    if (!this.quantidadeParcelas || this.quantidadeParcelas < 2) {
+      this.quantidadeParcelas = 2;
     }
   }
 
@@ -166,25 +190,18 @@ export class FormContaComponent implements OnChanges {
           return;
         }
 
-        const payload: ContaCreate = {
-          id_familia: this.idFamilia,
-          id_criador: membro.id,
-          descricao: this.descricao.trim(),
-          valor: this.valor,
-          data_vencimento: this.dataVencimento,
-          id_categoria: Number(this.idCategoria),
-          pago: this.pago,
-          pago_por: pagoPor,
-          is_fixa: this.isFixa,
-        };
-
-        const criada = await this.billsService.criar(payload);
-        if (!criada) {
+        const payloads = this.montarPayloadsCriacao(membro.id, pagoPor);
+        const criadas = await this.billsService.criar(payloads);
+        if (!criadas.length) {
           this.alertaService.erro('Erro', 'Não foi possível criar a conta.');
           return;
         }
 
-        this.alertaService.sucesso('Sucesso', 'Conta cadastrada com sucesso!');
+        const msg =
+          criadas.length > 1
+            ? `${criadas.length} parcelas cadastradas com sucesso!`
+            : 'Conta cadastrada com sucesso!';
+        this.alertaService.sucesso('Sucesso', msg);
       }
 
       this.salvo.emit();
@@ -192,6 +209,83 @@ export class FormContaComponent implements OnChanges {
     } finally {
       this.salvando.set(false);
     }
+  }
+
+  /**
+   * Monta o array para bulk insert.
+   * - Sem parcelamento: 1 item com id_grupo_parcelamento = null.
+   * - Com parcelamento: N itens com o mesmo UUID de grupo e vencimentos mensais.
+   * O `valor` do formulário é o valor de cada parcela.
+   */
+  private montarPayloadsCriacao(
+    idCriador: number,
+    pagoPor: number | null,
+  ): ContaCreate[] {
+    const descricaoBase = this.descricao.trim();
+    const idCategoria = Number(this.idCategoria);
+    const base: Omit<ContaCreate, 'descricao' | 'data_vencimento' | 'pago' | 'pago_por' | 'id_grupo_parcelamento'> =
+      {
+        id_familia: this.idFamilia,
+        id_criador: idCriador,
+        valor: this.valor,
+        id_categoria: idCategoria,
+        is_fixa: this.parcelado ? false : this.isFixa,
+      };
+
+    if (!this.parcelado) {
+      return [
+        {
+          ...base,
+          descricao: descricaoBase,
+          data_vencimento: this.dataVencimento,
+          pago: this.pago,
+          pago_por: pagoPor,
+          id_grupo_parcelamento: null,
+        },
+      ];
+    }
+
+    const qtd = Math.floor(Number(this.quantidadeParcelas));
+    const grupoId = crypto.randomUUID();
+    const parcelas: ContaCreate[] = [];
+
+    for (let i = 1; i <= qtd; i++) {
+      const ehPrimeira = i === 1;
+      parcelas.push({
+        ...base,
+        descricao: `${descricaoBase} (${i}/${qtd})`,
+        data_vencimento: this.adicionarMeses(this.dataVencimento, i - 1),
+        // Apenas a 1ª parcela herda o status "já paga" do formulário
+        pago: ehPrimeira ? this.pago : false,
+        pago_por: ehPrimeira ? pagoPor : null,
+        id_grupo_parcelamento: grupoId,
+      });
+    }
+
+    return parcelas;
+  }
+
+  /**
+   * Soma meses a uma data ISO (YYYY-MM-DD) preservando o dia quando possível.
+   * Em viradas (ex.: 31/jan → fev), usa o último dia do mês de destino.
+   */
+  adicionarMeses(dataIso: string, meses: number): string {
+    const [anoStr, mesStr, diaStr] = String(dataIso).slice(0, 10).split('-');
+    const ano = Number(anoStr);
+    const mes = Number(mesStr); // 1–12
+    const dia = Number(diaStr);
+
+    if (!ano || !mes || !dia) {
+      return dataIso;
+    }
+
+    const mesIndexDestino = mes - 1 + meses;
+    const anoDestino = ano + Math.floor(mesIndexDestino / 12);
+    const mesDestino = ((mesIndexDestino % 12) + 12) % 12; // 0–11
+    const ultimoDia = new Date(anoDestino, mesDestino + 1, 0).getDate();
+    const diaDestino = Math.min(dia, ultimoDia);
+
+    return `${anoDestino}-${String(mesDestino + 1).padStart(2, '0')}-${String(diaDestino).padStart(2, '0')}`;
   }
 
   private validar(): boolean {
@@ -202,7 +296,9 @@ export class FormContaComponent implements OnChanges {
     if (!this.valor || Number.isNaN(this.valor) || this.valor <= 0) {
       this.alertaService.info(
         'Obrigatório',
-        'Informe um valor maior que zero.',
+        this.parcelado
+          ? 'Informe o valor de cada parcela (maior que zero).'
+          : 'Informe um valor maior que zero.',
       );
       return false;
     }
@@ -218,6 +314,19 @@ export class FormContaComponent implements OnChanges {
       this.alertaService.info(
         'Obrigatório',
         'Selecione quem pagou a conta.',
+      );
+      return false;
+    }
+    if (
+      !this.editando &&
+      this.parcelado &&
+      (!this.quantidadeParcelas ||
+        Number.isNaN(Number(this.quantidadeParcelas)) ||
+        Number(this.quantidadeParcelas) < 2)
+    ) {
+      this.alertaService.info(
+        'Obrigatório',
+        'Informe a quantidade de parcelas (mínimo 2).',
       );
       return false;
     }

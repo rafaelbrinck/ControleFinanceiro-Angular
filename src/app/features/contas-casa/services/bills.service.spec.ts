@@ -1,3 +1,4 @@
+import { ContaDetalhada } from '@app/shared/models/conta';
 import { BillsService } from './bills.service';
 
 describe('BillsService – lógica de datas (QA)', () => {
@@ -25,5 +26,58 @@ describe('BillsService – lógica de datas (QA)', () => {
     expect(service.ajustarDataParaMes('2024-01-31', 2, 2024)).toBe(
       '2024-02-29',
     );
+  });
+
+  it('deve gerar chave estável de conta fixa', () => {
+    expect(
+      service.chaveContaFixa({
+        id_categoria: 1,
+        descricao: '  Aluguel  ',
+      }),
+    ).toBe('1|aluguel');
+  });
+
+  it('deve filtrar apenas fixas ainda não lançadas no mês', () => {
+    const templates = [
+      {
+        id: 1,
+        id_familia: 1,
+        id_criador: 1,
+        valor: 100,
+        data_vencimento: '2026-01-10',
+        descricao: 'Aluguel',
+        id_categoria: 2,
+        pago: false,
+        is_fixa: true,
+      },
+      {
+        id: 2,
+        id_familia: 1,
+        id_criador: 1,
+        valor: 50,
+        data_vencimento: '2026-01-05',
+        descricao: 'Internet',
+        id_categoria: 3,
+        pago: false,
+        is_fixa: true,
+      },
+    ];
+    const doMes = [
+      {
+        id: 10,
+        id_familia: 1,
+        id_criador: 1,
+        valor: 100,
+        data_vencimento: '2026-02-10',
+        descricao: 'Aluguel',
+        id_categoria: 2,
+        pago: false,
+        is_fixa: true,
+      },
+    ] as ContaDetalhada[];
+
+    const pendentes = service.filtrarFixasPendentes(templates, doMes);
+    expect(pendentes).toHaveLength(1);
+    expect(pendentes[0]?.descricao).toBe('Internet');
   });
 });

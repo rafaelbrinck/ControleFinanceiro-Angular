@@ -143,6 +143,24 @@ export class ContasCasaDashboardComponent implements OnInit {
       this.ano(),
     );
 
+    // Replica automaticamente as contas fixas ainda não lançadas neste mês
+    const importadas = await this.billsService.sincronizarContasFixasDoMes(
+      familia.id,
+      this.mes(),
+      this.ano(),
+      contas,
+    );
+
+    if (importadas.length > 0) {
+      this.alertaService.sucesso(
+        'Contas fixas',
+        `${importadas.length} conta(s) fixa(s) replicada(s) para este mês.`,
+      );
+      return;
+    }
+
+    // Fallback: se não sincronizou nada, ainda permite importação manual
+    // quando o mês está vazio e há templates pendentes.
     if (contas.length === 0) {
       await this.verificarContasFixas();
     }
@@ -152,19 +170,23 @@ export class ContasCasaDashboardComponent implements OnInit {
     const familia = this.familia();
     if (!familia) return;
 
-    const fixas = await this.billsService.buscarContasFixasMesAnterior(
+    const templates = await this.billsService.buscarTemplatesContasFixas(
       familia.id,
       this.mes(),
       this.ano(),
     );
+    const pendentes = this.billsService.filtrarFixasPendentes(
+      templates,
+      this.contas(),
+    );
 
-    this.sugerirImportacao.set(fixas.length > 0);
+    this.sugerirImportacao.set(pendentes.length > 0);
   }
 
   confirmarImportacao(): void {
     this.alertaService.confirmar(
       'Importar contas fixas',
-      'Deseja importar as contas fixas do mês passado?',
+      'Deseja importar as contas fixas pendentes para este mês?',
       async (confirmado) => {
         if (confirmado) {
           await this.importarContasFixas();
@@ -179,23 +201,19 @@ export class ContasCasaDashboardComponent implements OnInit {
 
     this.importando.set(true);
     try {
-      const fixas = await this.billsService.buscarContasFixasMesAnterior(
+      const importadas = await this.billsService.sincronizarContasFixasDoMes(
         familia.id,
         this.mes(),
         this.ano(),
-      );
-
-      const importadas = await this.billsService.importarContasFixas(
-        fixas,
-        this.mes(),
-        this.ano(),
+        this.contas(),
       );
 
       if (!importadas.length) {
-        this.alertaService.erro(
-          'Erro',
-          'Não foi possível importar as contas fixas.',
+        this.alertaService.info(
+          'Contas fixas',
+          'Não há contas fixas pendentes para importar neste mês.',
         );
+        this.sugerirImportacao.set(false);
         return;
       }
 
@@ -204,7 +222,6 @@ export class ContasCasaDashboardComponent implements OnInit {
         `${importadas.length} conta(s) fixa(s) importada(s).`,
       );
       this.sugerirImportacao.set(false);
-      // Importação já mesclou no cache local
     } finally {
       this.importando.set(false);
     }

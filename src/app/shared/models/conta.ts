@@ -12,6 +12,7 @@ export interface Conta {
   pago: boolean;
   is_fixa: boolean;
   pago_por?: number | null;
+  id_grupo_parcelamento?: string | null;
 }
 
 /** Conta enriquecida com dados de categoria para exibição. */
@@ -29,6 +30,7 @@ export interface ContaCreate {
   pago?: boolean;
   is_fixa?: boolean;
   pago_por?: number | null;
+  id_grupo_parcelamento?: string | null;
 }
 
 export type ContaUpdate = Partial<
@@ -37,4 +39,5 @@ export type ContaUpdate = Partial<
   pago?: boolean;
   is_fixa?: boolean;
   pago_por?: number | null;
+  id_grupo_parcelamento?: string | null;
 };
