@@ -264,8 +264,15 @@ export class BillsService {
   }
 
   /** Toggle otimista: atualiza UI primeiro, sincroniza depois. */
-  async alternarPago(id: number, pago: boolean): Promise<boolean> {
-    return this.atualizar(id, { pago });
+  async alternarPago(
+    id: number,
+    pago: boolean,
+    pagoPor: number | null = null,
+  ): Promise<boolean> {
+    return this.atualizar(id, {
+      pago,
+      pago_por: pago ? pagoPor : null,
+    });
   }
 
   /** Chave estável para deduplicar contas fixas entre meses. */

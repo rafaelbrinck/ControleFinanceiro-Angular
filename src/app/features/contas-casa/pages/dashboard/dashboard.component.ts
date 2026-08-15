@@ -12,6 +12,7 @@ import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertaService } from '@app/core/services/alerta.service';
 import { ContaDetalhada } from '@app/shared/models/conta';
+import { MembroFamiliaDetalhado } from '@app/shared/models/familia';
 import { FormContaComponent } from '../../components/form-conta/form-conta.component';
 import { BillsService } from '../../services/bills.service';
 import { FamilyService } from '../../services/family.service';
@@ -60,6 +61,12 @@ export class ContasCasaDashboardComponent implements OnInit {
   readonly importando = signal(false);
   readonly nomeFamiliaNova = signal('');
   readonly criandoFamilia = signal(false);
+
+  /** Modal flutuante para selecionar quem pagou. */
+  readonly modalPagamentoAberto = signal(false);
+  readonly contaPagamento = signal<ContaDetalhada | null>(null);
+  readonly pagoPorSelecionado = signal<number | null>(null);
+  readonly confirmandoPagamento = signal(false);
 
   readonly familia = this.familyService.familiaAtual;
   readonly membros = this.familyService.membros;
@@ -143,7 +150,6 @@ export class ContasCasaDashboardComponent implements OnInit {
       this.ano(),
     );
 
-    // Replica automaticamente as contas fixas ainda não lançadas neste mês
     const importadas = await this.billsService.sincronizarContasFixasDoMes(
       familia.id,
       this.mes(),
@@ -159,8 +165,6 @@ export class ContasCasaDashboardComponent implements OnInit {
       return;
     }
 
-    // Fallback: se não sincronizou nada, ainda permite importação manual
-    // quando o mês está vazio e há templates pendentes.
     if (contas.length === 0) {
       await this.verificarContasFixas();
     }
@@ -264,38 +268,80 @@ export class ContasCasaDashboardComponent implements OnInit {
   }
 
   async alternarPago(conta: ContaDetalhada): Promise<void> {
-    // Ao marcar como paga (principalmente se vencida), pede confirmação.
     if (!conta.pago) {
-      this.confirmarPagamento(conta);
+      this.abrirModalPagamento(conta);
       return;
     }
 
-    const ok = await this.billsService.alternarPago(conta.id, false);
+    const ok = await this.billsService.alternarPago(conta.id, false, null);
     if (!ok) {
       this.alertaService.erro('Erro', 'Não foi possível atualizar o status.');
     }
   }
 
-  confirmarPagamento(conta: ContaDetalhada): void {
+  /** Abre o modal flutuante para escolher quem pagou. */
+  abrirModalPagamento(conta: ContaDetalhada): void {
     if (conta.pago) return;
+    this.contaPagamento.set(conta);
+    this.pagoPorSelecionado.set(null);
+    this.modalPagamentoAberto.set(true);
+  }
 
-    const vencida = this.estaVencida(conta);
-    const titulo = vencida ? 'Confirmar pagamento (vencida)' : 'Confirmar pagamento';
-    const mensagem = vencida
-      ? `"${conta.descricao}" está vencida desde ${this.formatarDiaMes(conta.data_vencimento)}. Confirma que o pagamento foi efetuado?`
-      : `Confirma que o pagamento de "${conta.descricao}" (${this.formatarMoeda(conta.valor)}) foi efetuado?`;
+  fecharModalPagamento(): void {
+    if (this.confirmandoPagamento()) return;
+    this.modalPagamentoAberto.set(false);
+    this.contaPagamento.set(null);
+    this.pagoPorSelecionado.set(null);
+  }
 
-    this.alertaService.confirmar(titulo, mensagem, async (confirmado) => {
-      if (!confirmado) return;
+  async confirmarPagamentoComPagador(): Promise<void> {
+    const conta = this.contaPagamento();
+    const pagoPor = this.pagoPorSelecionado();
 
-      const ok = await this.billsService.alternarPago(conta.id, true);
+    if (!conta) return;
+
+    if (!pagoPor) {
+      this.alertaService.info(
+        'Obrigatório',
+        'Selecione quem efetuou o pagamento.',
+      );
+      return;
+    }
+
+    this.confirmandoPagamento.set(true);
+    try {
+      const ok = await this.billsService.alternarPago(conta.id, true, pagoPor);
       if (!ok) {
-        this.alertaService.erro('Erro', 'Não foi possível confirmar o pagamento.');
+        this.alertaService.erro(
+          'Erro',
+          'Não foi possível confirmar o pagamento.',
+        );
         return;
       }
 
-      this.alertaService.sucesso('Pago!', `"${conta.descricao}" marcada como paga.`);
-    });
+      this.alertaService.sucesso(
+        'Pago!',
+        `"${conta.descricao}" marcada como paga.`,
+      );
+      this.modalPagamentoAberto.set(false);
+      this.contaPagamento.set(null);
+      this.pagoPorSelecionado.set(null);
+    } finally {
+      this.confirmandoPagamento.set(false);
+    }
+  }
+
+  /** Alias dos botões que abriam o fluxo antigo de confirmação. */
+  confirmarPagamento(conta: ContaDetalhada): void {
+    this.abrirModalPagamento(conta);
+  }
+
+  nomeMembro(membro: MembroFamiliaDetalhado): string {
+    return (
+      membro.usuario?.nome ||
+      membro.usuario?.username ||
+      'Usuário sem nome'
+    );
   }
 
   /**
@@ -314,13 +360,6 @@ export class ContasCasaDashboardComponent implements OnInit {
     const m = String(hoje.getMonth() + 1).padStart(2, '0');
     const d = String(hoje.getDate()).padStart(2, '0');
     return `${hoje.getFullYear()}-${m}-${d}`;
-  }
-
-  private formatarMoeda(valor: number): string {
-    return (valor || 0).toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
   }
 
   confirmarExclusao(conta: ContaDetalhada): void {

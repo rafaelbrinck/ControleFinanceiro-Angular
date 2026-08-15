@@ -375,3 +375,76 @@
   (fechado)="fecharModal()"
   (salvo)="aoSalvarConta()"
 />
+
+@if (modalPagamentoAberto() && contaPagamento(); as contaPg) {
+  <div class="modal-pagamento-backdrop" (click)="fecharModalPagamento()"></div>
+
+  <div
+    class="modal-pagamento-panel card border-0 shadow-lg rounded-4 overflow-hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="tituloModalPagamento"
+  >
+    <div class="bg-success p-3 p-sm-4 text-center text-white position-relative overflow-hidden">
+      <div class="position-relative z-1">
+        <h3 class="fw-bolder mb-1 fs-5" id="tituloModalPagamento">
+          Confirmar pagamento
+        </h3>
+        <p class="mb-0 opacity-75 small fw-medium text-truncate px-2">
+          {{ contaPg.descricao }}
+          ·
+          {{ contaPg.valor | currency: 'BRL' }}
+        </p>
+      </div>
+      <div class="modal-pagamento-deco"></div>
+    </div>
+
+    <div class="card-body p-3 p-sm-4">
+      @if (estaVencida(contaPg)) {
+        <div class="alert alert-warning border-0 rounded-4 small mb-3 py-2">
+          Conta vencida desde {{ formatarDiaMes(contaPg.data_vencimento) }}.
+        </div>
+      }
+
+      <div class="mb-4">
+        <div class="form-floating">
+          <select
+            class="form-select rounded-4"
+            id="pagoPorModal"
+            [ngModel]="pagoPorSelecionado()"
+            (ngModelChange)="pagoPorSelecionado.set($event)"
+            name="pagoPorModal"
+          >
+            <option [ngValue]="null" disabled>Quem pagou?</option>
+            @for (membro of membros(); track membro.id) {
+              <option [ngValue]="membro.id">{{ nomeMembro(membro) }}</option>
+            }
+          </select>
+          <label for="pagoPorModal">Pago por</label>
+        </div>
+        <small class="text-muted px-1">
+          Obrigatório para registrar o acerto de contas.
+        </small>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button
+          type="button"
+          class="btn btn-light rounded-pill flex-fill"
+          (click)="fecharModalPagamento()"
+          [disabled]="confirmandoPagamento()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-success rounded-pill flex-fill fw-bold"
+          (click)="confirmarPagamentoComPagador()"
+          [disabled]="confirmandoPagamento() || !pagoPorSelecionado()"
+        >
+          {{ confirmandoPagamento() ? 'Confirmando...' : 'Confirmar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
