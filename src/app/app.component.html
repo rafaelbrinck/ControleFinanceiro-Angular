@@ -13,18 +13,13 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link-desktop px-3 py-2 rounded-pill fw-medium transition-all" routerLink="/financeiro" routerLinkActive="active-desktop">
-          <i class="bi bi-wallet2 me-1"></i> Financeiro
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link-desktop px-3 py-2 rounded-pill fw-medium transition-all" routerLink="/negocios/orcamento" routerLinkActive="active-desktop">
+        <a class="nav-link-desktop px-3 py-2 rounded-pill fw-medium transition-all" routerLink="/negocios" routerLinkActive="active-desktop">
           <i class="bi bi-briefcase me-1"></i> Negócios
         </a>
       </li>
 
       <li class="nav-item dropdown ms-2 position-relative">
-        <a class="nav-link-desktop px-3 py-2 rounded-pill fw-medium transition-all dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" [class.active-desktop]="router.url.includes('/negocios') || router.url.includes('/contas-casa') || router.url.includes('/veiculos') || router.url.includes('/financeiro')">
+        <a class="nav-link-desktop px-3 py-2 rounded-pill fw-medium transition-all dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" [class.active-desktop]="router.url.includes('/negocios') || router.url.includes('/contas-casa') || router.url.includes('/veiculos') || router.url.includes('/jornada')">
           <i class="bi bi-grid-fill text-primary opacity-75"></i> Módulos
         </a>
         
@@ -32,11 +27,6 @@
           <li>
             <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3 fw-medium mb-1" routerLink="/negocios" routerLinkActive="bg-light text-primary">
               <div class="bg-primary-subtle text-primary rounded-4 p-1 d-flex"><i class="bi bi-briefcase"></i></div> Negócios
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3 fw-medium mb-1" routerLink="/financeiro" routerLinkActive="bg-light text-primary">
-              <div class="bg-success-subtle text-success rounded-4 p-1 d-flex"><i class="bi bi-wallet2"></i></div> Financeiro
             </a>
           </li>
           <li>
@@ -86,11 +76,6 @@
       <span>Hub</span>
     </a>
     
-    <a class="nav-item-mobile" routerLink="/financeiro" routerLinkActive="active">
-      <i class="bi bi-wallet2"></i>
-      <span>Financeiro</span>
-    </a>
-
     <a class="nav-item-mobile" routerLink="/negocios" routerLinkActive="active">
       <i class="bi bi-briefcase"></i>
       <span>Negócios</span>
@@ -99,6 +84,11 @@
     <a class="nav-item-mobile" routerLink="/contas-casa" routerLinkActive="active">
       <i class="bi bi-house-heart"></i>
       <span>Casa</span>
+    </a>
+
+    <a class="nav-item-mobile" routerLink="/veiculos" routerLinkActive="active">
+      <i class="bi bi-car-front"></i>
+      <span>Veículos</span>
     </a>
 
     <a class="nav-item-mobile text-secondary" data-bs-toggle="offcanvas" data-bs-target="#menuMaisMobile" role="button" style="cursor: pointer;">
@@ -126,7 +116,7 @@
         <i class="bi bi-chevron-right ms-auto text-muted small"></i>
       </a>
 
-      <a class="list-group-item list-group-item-action py-3 px-4 d-flex align-items-center gap-3 border-0" routerLink="/financeiro/cartoes" data-bs-dismiss="offcanvas">
+      <a class="list-group-item list-group-item-action py-3 px-4 d-flex align-items-center gap-3 border-0" routerLink="/negocios/cartoes" data-bs-dismiss="offcanvas">
         <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
           <i class="bi bi-credit-card fs-5"></i>
         </div>

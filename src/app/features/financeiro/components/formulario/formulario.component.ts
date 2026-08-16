@@ -109,7 +109,7 @@ export class FormularioComponent implements OnInit {
   }
 
   voltar() {
-    this.router.navigate(['/financeiro/transacoes']);
+    this.router.navigate(['/negocios/transacoes']);
   }
 
   conferirCategoria(valor: string) {
@@ -118,7 +118,7 @@ export class FormularioComponent implements OnInit {
         'Nova Categoria',
         'Deseja adicionar uma nova categoria?',
         (res) => {
-          if (res) this.router.navigate(['/financeiro/form-categoria']);
+          if (res) this.router.navigate(['/negocios/form-categoria']);
         },
       );
     }

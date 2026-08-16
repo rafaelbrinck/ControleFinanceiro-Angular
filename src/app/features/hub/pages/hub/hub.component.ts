@@ -32,19 +32,11 @@ export class HubComponent implements OnInit {
   readonly widgets: HubWidget[] = [
     {
       titulo: 'Negócios',
-      descricao: 'Produtos, clientes, orçamentos e fornecedores',
+      descricao: 'Financeiro PJ, produtos, clientes, orçamentos e fornecedores',
       icone: 'bi-briefcase-fill',
       rota: '/negocios',
       cor: 'negocios',
-      resumo: '3 orçamentos pendentes',
-    },
-    {
-      titulo: 'Financeiro',
-      descricao: 'Transações, cartões e categorias',
-      icone: 'bi-wallet2',
-      rota: '/financeiro',
-      cor: 'financeiro',
-      resumo: 'Saldo do mês disponível em breve',
+      resumo: 'Operação comercial e caixa do negócio',
     },
     {
       titulo: 'Casa',

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ModuleSidebarService } from '@app/shared/services/module-sidebar.service';
 
 interface ModuleNavLink {
   label: string;
@@ -17,6 +18,7 @@ interface ModuleNavLink {
   styleUrl: './veiculos-layout.component.scss',
 })
 export class VeiculosLayoutComponent {
+  readonly sidebar = inject(ModuleSidebarService);
   readonly tituloModulo = 'Veículos';
 
   readonly links: ModuleNavLink[] = [

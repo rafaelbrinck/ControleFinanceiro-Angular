@@ -23,7 +23,7 @@ export const routes: Routes = [
       ),
   },
 
-  // --- Negócios ---
+  // --- Negócios (PJ: comercial + financeiro do negócio) ---
   {
     path: 'negocios',
     canActivate: [ValidacaoGuard],
@@ -32,7 +32,13 @@ export const routes: Routes = [
         (m) => m.NegociosLayoutComponent,
       ),
     children: [
-      { path: '', redirectTo: 'produtos', pathMatch: 'full' },
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/dashboard/pages/home/home.component').then(
+            (m) => m.HomeComponent,
+          ),
+      },
       {
         path: 'produtos',
         loadComponent: () =>
@@ -102,25 +108,6 @@ export const routes: Routes = [
           import(
             './features/fornecedores/pages/fornecedores/fornecedores.component'
           ).then((m) => m.FornecedoresComponent),
-      },
-    ],
-  },
-
-  // --- Financeiro ---
-  {
-    path: 'financeiro',
-    canActivate: [ValidacaoGuard],
-    loadComponent: () =>
-      import('./features/financeiro/layouts/financeiro-layout.component').then(
-        (m) => m.FinanceiroLayoutComponent,
-      ),
-    children: [
-      {
-        path: '',
-        loadComponent: () =>
-          import('./features/dashboard/pages/home/home.component').then(
-            (m) => m.HomeComponent,
-          ),
       },
       {
         path: 'transacoes',
@@ -230,7 +217,6 @@ export const routes: Routes = [
             (m) => m.VeiculosDashboardComponent,
           ),
       },
-      // Compat: jornada saiu deste módulo — redireciona para o layout isolado
       { path: 'jornada', redirectTo: '/jornada', pathMatch: 'full' },
     ],
   },
@@ -255,16 +241,34 @@ export const routes: Routes = [
   },
 
   // --- Compatibilidade com URLs antigas ---
-  { path: 'inicio', redirectTo: 'financeiro', pathMatch: 'full' },
-  { path: 'transacoes', redirectTo: 'financeiro/transacoes', pathMatch: 'full' },
-  { path: 'novo', redirectTo: 'financeiro/novo', pathMatch: 'full' },
-  { path: 'edit/:id', redirectTo: 'financeiro/edit/:id' },
+  { path: 'inicio', redirectTo: 'negocios', pathMatch: 'full' },
+  { path: 'financeiro', redirectTo: 'negocios', pathMatch: 'full' },
   {
-    path: 'form-categoria',
-    redirectTo: 'financeiro/form-categoria',
+    path: 'financeiro/transacoes',
+    redirectTo: 'negocios/transacoes',
     pathMatch: 'full',
   },
-  { path: 'cartoes', redirectTo: 'financeiro/cartoes', pathMatch: 'full' },
+  { path: 'financeiro/novo', redirectTo: 'negocios/novo', pathMatch: 'full' },
+  { path: 'financeiro/edit/:id', redirectTo: 'negocios/edit/:id' },
+  {
+    path: 'financeiro/form-categoria',
+    redirectTo: 'negocios/form-categoria',
+    pathMatch: 'full',
+  },
+  {
+    path: 'financeiro/cartoes',
+    redirectTo: 'negocios/cartoes',
+    pathMatch: 'full',
+  },
+  { path: 'transacoes', redirectTo: 'negocios/transacoes', pathMatch: 'full' },
+  { path: 'novo', redirectTo: 'negocios/novo', pathMatch: 'full' },
+  { path: 'edit/:id', redirectTo: 'negocios/edit/:id' },
+  {
+    path: 'form-categoria',
+    redirectTo: 'negocios/form-categoria',
+    pathMatch: 'full',
+  },
+  { path: 'cartoes', redirectTo: 'negocios/cartoes', pathMatch: 'full' },
   { path: 'produtos', redirectTo: 'negocios/produtos', pathMatch: 'full' },
   {
     path: 'form-produto',

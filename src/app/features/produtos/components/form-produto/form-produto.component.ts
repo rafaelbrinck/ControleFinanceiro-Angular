@@ -219,7 +219,7 @@ export class FormProdutoComponent implements OnInit {
         'Deseja ir para a tela de cadastro de categorias?',
         (resultado) => {
           if (resultado) {
-            this.router.navigate(['/financeiro/form-categoria']);
+            this.router.navigate(['/negocios/form-categoria']);
           } else {
             this.produto.categoria = undefined; // Reseta seleção
           }

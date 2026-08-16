@@ -110,7 +110,6 @@ export class AppComponent implements OnInit {
     }
     const modulos = [
       '/negocios',
-      '/financeiro',
       '/contas-casa',
       '/veiculos',
       '/jornada',

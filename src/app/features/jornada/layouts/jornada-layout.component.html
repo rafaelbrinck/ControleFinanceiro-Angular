@@ -1,6 +1,9 @@
-<div class="module-shell">
+<div
+  class="module-shell"
+  [class.sidebar-collapsed]="sidebar.collapsed()"
+>
   <nav
-    class="navbar navbar-light bg-white border-bottom shadow-sm sticky-top module-navbar"
+    class="navbar navbar-light bg-white border-bottom shadow-sm sticky-top module-navbar d-lg-none"
   >
     <div class="container-fluid px-2 px-md-3">
       <span class="navbar-brand fw-bolder text-dark mb-0 fs-6">
@@ -41,14 +44,14 @@
       <nav class="list-group list-group-flush flex-grow-1 py-2">
         @for (link of links; track link.path) {
           <a
-            class="list-group-item list-group-item-action border-0 module-offcanvas-link d-flex align-items-center gap-3"
+            class="list-group-item list-group-item-action border-0 module-nav-link d-flex align-items-center gap-3"
             [routerLink]="link.path"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: !!link.exact }"
             data-bs-dismiss="offcanvas"
           >
             <i class="bi" [ngClass]="link.icon" aria-hidden="true"></i>
-            <span class="fw-semibold">{{ link.label }}</span>
+            <span class="fw-semibold module-nav-label">{{ link.label }}</span>
           </a>
         }
       </nav>
@@ -59,14 +62,67 @@
           routerLink="/hub"
           data-bs-dismiss="offcanvas"
         >
-          <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
-          Voltar ao Hub
+          <i class="bi bi-arrow-left me-1 module-hub-icon" aria-hidden="true"></i>
+          <span class="module-hub-label">Voltar ao Hub</span>
         </a>
       </div>
     </div>
   </div>
 
-  <div class="container-fluid px-2 px-md-4 py-3 module-content">
-    <router-outlet />
+  <div class="module-body">
+    <aside class="module-sidebar d-none d-lg-flex flex-column">
+      <div class="module-sidebar-brand">
+        <h5 class="module-sidebar-title text-truncate">{{ tituloModulo }}</h5>
+        <button
+          type="button"
+          class="btn btn-light border-0 module-collapse-btn"
+          (click)="sidebar.toggle()"
+          [attr.aria-label]="
+            sidebar.collapsed() ? 'Expandir menu' : 'Recolher menu'
+          "
+          [attr.title]="
+            sidebar.collapsed() ? 'Expandir menu' : 'Recolher menu'
+          "
+        >
+          <i
+            class="bi"
+            [ngClass]="
+              sidebar.collapsed() ? 'bi-chevron-right' : 'bi-chevron-left'
+            "
+            aria-hidden="true"
+          ></i>
+        </button>
+      </div>
+
+      <nav class="list-group list-group-flush flex-grow-1 py-2">
+        @for (link of links; track link.path) {
+          <a
+            class="list-group-item list-group-item-action border-0 module-nav-link d-flex align-items-center gap-3"
+            [routerLink]="link.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: !!link.exact }"
+            [attr.title]="link.label"
+          >
+            <i class="bi" [ngClass]="link.icon" aria-hidden="true"></i>
+            <span class="fw-semibold module-nav-label">{{ link.label }}</span>
+          </a>
+        }
+      </nav>
+
+      <div class="p-3 border-top mt-auto module-sidebar-footer">
+        <a
+          class="btn btn-primary w-100 rounded-pill fw-bold module-hub-btn d-flex align-items-center justify-content-center gap-1"
+          routerLink="/hub"
+          title="Voltar ao Hub"
+        >
+          <i class="bi bi-arrow-left module-hub-icon" aria-hidden="true"></i>
+          <span class="module-hub-label">Voltar ao Hub</span>
+        </a>
+      </div>
+    </aside>
+
+    <div class="container-fluid px-2 px-md-4 py-3 module-content">
+      <router-outlet />
+    </div>
   </div>
 </div>

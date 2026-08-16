@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ModuleSidebarService } from '@app/shared/services/module-sidebar.service';
 
 interface ModuleNavLink {
   label: string;
@@ -17,6 +18,7 @@ interface ModuleNavLink {
   styleUrl: './jornada-layout.component.scss',
 })
 export class JornadaLayoutComponent {
+  readonly sidebar = inject(ModuleSidebarService);
   readonly tituloModulo = 'Controle de Jornada';
 
   readonly links: ModuleNavLink[] = [
