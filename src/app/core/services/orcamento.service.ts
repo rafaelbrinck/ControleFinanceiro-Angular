@@ -219,28 +219,27 @@ export class OrcamentoService {
     let mensagem = '';
     if (orcamento.desconto != 0) {
       mensagem = `
-${cabecalho}
-*Resumo da sua compra*
 
-*Produtos:*
+*🐭✨ Resumo da sua compra: ✨🐭*
+  
+*🛍️ Produtos:*
 ${produtos}
-
+  
 📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
-💝 *Desconto:* R$ ${
-        orcamento.desconto?.toFixed(2).replace('.', ',') || '0,00'
-      }
+💝 *Descontinho:* R$ ${
+  orcamento.desconto?.toFixed(2).replace('.', ',') || '0,00'
+}
 
 💳 *Total no pix:* R$ ${total}
 💳 *Total parcelado:* R$ ${valorCredito}
 
-Qual a forma de pagamento?
-`;
-    } else {
-      mensagem = `
-${cabecalho}
-*Resumo da sua compra*
+Qual a forma de pagamento? 💰🫶🏻
+        `;
+          } else {
+            mensagem = `
+*🐭✨ Resumo da sua compra: ✨🐭*
 
-*Produtos:*
+*🛍️ Produtos:*
 ${produtos}
 
 📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
@@ -248,7 +247,7 @@ ${produtos}
 💳 *Total no pix:* R$ ${total}
 💳 *Total parcelado:* R$ ${valorCredito}
 
-Qual a forma de pagamento?
+Qual a forma de pagamento? 💰🫶🏻
 `;
     }
 
