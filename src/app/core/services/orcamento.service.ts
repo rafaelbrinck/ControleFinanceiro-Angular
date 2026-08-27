@@ -8,6 +8,7 @@ import { AlertaService } from '@app/core/services/alerta.service';
 import { Produto, ProdutoOrcamento } from '@app/shared/models/produto';
 import { Cliente } from '@app/shared/models/cliente';
 import { GraficosDataService } from './grafico.service';
+import { DadosEmpresaService } from './dados-empresa.service';
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +31,7 @@ export class OrcamentoService {
     private clienteService: ClientesService,
     private alertaService: AlertaService,
     private graficoService: GraficosDataService,
+    private dadosEmpresaService: DadosEmpresaService,
   ) {}
 
   duplicarOrcamento(orcamento: Orcamento) {
@@ -195,6 +197,7 @@ export class OrcamentoService {
 
   enviarOrcamentoWhatsApp(orcamento: Orcamento) {
     const cliente = orcamento.cliente;
+    const empresa = this.dadosEmpresaService.getSnapshot();
     const produtos = orcamento
       .produtos!.map(
         (p) =>
@@ -209,41 +212,47 @@ export class OrcamentoService {
       .toFixed(2)
       .replace('.', ',');
 
-    var mensagem = '';
+    const cabecalho = empresa?.nome
+      ? `*${empresa.nome}*${empresa.telefone_contato ? `\n${empresa.telefone_contato}` : ''}${empresa.email_contato ? `\n${empresa.email_contato}` : ''}\n`
+      : '';
+
+    let mensagem = '';
     if (orcamento.desconto != 0) {
       mensagem = `
-  *🐭✨ Resumo da sua compra: ✨🐭*
-  
-  *🛍️ Produtos:*
-  ${produtos}
-  
-  📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
-  💝 *Descontinho:* R$ ${
-    orcamento.desconto?.toFixed(2).replace('.', ',') || '0,00'
-  }
-  
-  💳 *Total no pix:* R$ ${total}
-  💳 *Total parcelado:* R$ ${valorCredito}
-  
-  Qual a forma de pagamento? 💰🫶🏻
-  `;
+${cabecalho}
+*Resumo da sua compra*
+
+*Produtos:*
+${produtos}
+
+📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
+💝 *Desconto:* R$ ${
+        orcamento.desconto?.toFixed(2).replace('.', ',') || '0,00'
+      }
+
+💳 *Total no pix:* R$ ${total}
+💳 *Total parcelado:* R$ ${valorCredito}
+
+Qual a forma de pagamento?
+`;
     } else {
       mensagem = `
-  *🐭✨ Resumo da sua compra: ✨🐭*
-  
-  *🛍️ Produtos:*
-  ${produtos}
-  
-  📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
-  
-  💳 *Total no pix:* R$ ${total}
-  💳 *Total parcelado:* R$ ${valorCredito}
-  
-  Qual a forma de pagamento? 💰🫶🏻
-  `;
+${cabecalho}
+*Resumo da sua compra*
+
+*Produtos:*
+${produtos}
+
+📦 *Frete:* R$ ${orcamento.frete?.toFixed(2).replace('.', ',') || '0,00'}
+
+💳 *Total no pix:* R$ ${total}
+💳 *Total parcelado:* R$ ${valorCredito}
+
+Qual a forma de pagamento?
+`;
     }
 
-    const telefone = cliente?.telefone!.replace(/\D/g, ''); // remove símbolos
+    const telefone = cliente?.telefone!.replace(/\D/g, '');
     const url = `https://api.whatsapp.com/send?phone=55${telefone}&text=${encodeURIComponent(
       mensagem,
     )}`;

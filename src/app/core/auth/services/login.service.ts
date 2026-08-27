@@ -8,6 +8,7 @@ import { OrcamentoService } from '@app/core/services/orcamento.service';
 import { FamilyService } from '@app/features/contas-casa/services/family.service';
 import { BillsService } from '@app/features/contas-casa/services/bills.service';
 import { VeiculosService } from '@app/features/veiculos/services/veiculos.service';
+import { DadosEmpresaService } from '@app/core/services/dados-empresa.service';
 
 @Injectable({
   providedIn: 'root',
@@ -149,8 +150,12 @@ export class LoginService {
     this.familyService.limparEstado();
     this.billsService.limparEstado();
     this.veiculosService.limparEstado();
+    this.dadosEmpresaService.limparEstado();
 
-    const usuario = await this.buscarUsuarioPorId(data.user.id);
+    const [usuario] = await Promise.all([
+      this.buscarUsuarioPorId(data.user.id),
+      this.dadosEmpresaService.carregar(),
+    ]);
     this.userSubject.next(usuario);
     this.orcamentoService.limparOrcamento();
     return true;
@@ -175,6 +180,7 @@ export class LoginService {
     this.familyService.limparEstado();
     this.billsService.limparEstado();
     this.veiculosService.limparEstado();
+    this.dadosEmpresaService.limparEstado();
   }
 
   async insertVendas(id: string) {
@@ -222,6 +228,10 @@ export class LoginService {
     return this.injector.get(VeiculosService);
   }
 
+  private get dadosEmpresaService(): DadosEmpresaService {
+    return this.injector.get(DadosEmpresaService);
+  }
+
   private async restaurarSessaoInterno(): Promise<void> {
     try {
       const { data, error } = await supabase.auth.getSession();
@@ -229,6 +239,7 @@ export class LoginService {
         console.error('Erro ao restaurar sessão:', error.message);
         this.userSubject.next(undefined);
         this.setUserLogado('');
+        this.dadosEmpresaService.limparEstado();
         return;
       }
 
@@ -237,16 +248,21 @@ export class LoginService {
       if (!session?.user) {
         this.userSubject.next(undefined);
         this.setUserLogado('');
+        this.dadosEmpresaService.limparEstado();
         return;
       }
 
       this.setUserLogado(session.user.id);
-      const usuario = await this.buscarUsuarioPorId(session.user.id);
+      const [usuario] = await Promise.all([
+        this.buscarUsuarioPorId(session.user.id),
+        this.dadosEmpresaService.carregar(),
+      ]);
       this.userSubject.next(usuario);
     } catch (error) {
       console.error('Erro inesperado ao restaurar sessão:', error);
       this.userSubject.next(undefined);
       this.setUserLogado('');
+      this.dadosEmpresaService.limparEstado();
     }
   }
 

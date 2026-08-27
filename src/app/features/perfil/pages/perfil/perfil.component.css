@@ -3,6 +3,10 @@
   --secondary-color: #818cf8;
 }
 
+.profile-card {
+  max-width: 860px;
+}
+
 /* 1. Capa com Gradiente */
 .profile-cover {
   height: 140px;
@@ -103,4 +107,22 @@
 /* Placeholder image fix (opcional) */
 img[src=""] {
   display: none;
+}
+
+.profile-tabs .nav-link {
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.profile-tabs .nav-link.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+}
+
+.empresa-endereco {
+  min-height: 96px;
 }

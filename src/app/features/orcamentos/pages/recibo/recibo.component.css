@@ -1,3 +1,8 @@
+.recibo-page {
+  background: #f8fafc;
+  min-height: 100%;
+}
+
 /* --- UTILITÁRIOS DE TIPOGRAFIA --- */
 .fw-black {
   font-weight: 900;
@@ -40,6 +45,14 @@
    REGRAS DE IMPRESSÃO (A MÁGICA DA FOLHA A4)
    ========================================= */
 @media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .recibo-page {
+    background: white !important;
+  }
+
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;

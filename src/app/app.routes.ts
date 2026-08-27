@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/pages/login/login.component';
 import { ValidacaoGuard } from '@app/core/auth/guards/validacao.guard';
 import { LoginGuard } from '@app/core/auth/guards/login.guard';
+import { EmpresaGuard } from '@app/core/auth/guards/empresa.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'hub', pathMatch: 'full' },
@@ -26,7 +27,7 @@ export const routes: Routes = [
   // --- Negócios (PJ: comercial + financeiro do negócio) ---
   {
     path: 'negocios',
-    canActivate: [ValidacaoGuard],
+    canActivate: [ValidacaoGuard, EmpresaGuard],
     loadComponent: () =>
       import('./features/negocios/layouts/negocios-layout.component').then(
         (m) => m.NegociosLayoutComponent,
