@@ -235,9 +235,13 @@
           </button>
         </div>
         <button class="btn btn-success w-100 text-white" (click)="finalizarOrcamento(orcamentoSelecionado)" *ngIf="orcamentoSelecionado.status === 'Aguardando Pagamento'">Finalizar Pagamento</button>
-        <a class="btn btn-outline-primary w-100" [routerLink]="['/negocios/recibo', orcamentoSelecionado.id]">
+        <button
+          type="button"
+          class="btn btn-outline-primary w-100"
+          (click)="irParaRecibo(orcamentoSelecionado.id)"
+        >
           <i class="bi bi-file-earmark-pdf"></i> Ver Recibo / PDF
-        </a>
+        </button>
       </div>
     </div>
   </div>

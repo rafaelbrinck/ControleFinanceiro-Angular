@@ -1,4 +1,4 @@
-import { Component, DestroyRef } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit } from '@angular/core';
 import { Produto, ProdutoOrcamento } from '@app/shared/models/produto';
 import { ProdutosService } from '@app/core/services/produtos.service';
 import { CommonModule } from '@angular/common';
@@ -15,6 +15,9 @@ import { AlertaService } from '@app/core/services/alerta.service';
 import { Variacao } from '@app/shared/models/variacoes';
 import { firstValueFrom } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { unlockUi } from '@app/shared/utils/ui-lock';
+
+declare var bootstrap: { Modal?: { getInstance: (el: Element) => { hide: () => void } | null } };
 
 @Component({
   selector: 'app-orcamento',
@@ -22,7 +25,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   templateUrl: './orcamento.component.html',
   styleUrl: './orcamento.component.css',
 })
-export class OrcamentoComponent {
+export class OrcamentoComponent implements OnInit, OnDestroy {
   freteFormatado: string = '';
   frete: number = 0;
 
@@ -42,6 +45,7 @@ export class OrcamentoComponent {
   mostrarDetalhes = false;
   mostrarClientes = false;
   expandedRow: number | null = null;
+  salvando = false;
 
   constructor(
     private loginService: LoginService,
@@ -82,6 +86,10 @@ export class OrcamentoComponent {
       .subscribe((cliente) => {
         this.clienteSelecionado = cliente;
       });
+  }
+
+  ngOnDestroy(): void {
+    this.liberarScroll();
   }
 
   limparCarrinho() {
@@ -234,7 +242,7 @@ export class OrcamentoComponent {
   }
 
   async finalizarOrcamento() {
-    if (!this.validarOrcamento()) return;
+    if (this.salvando || !this.validarOrcamento()) return;
 
     const orcamento: Orcamento = {
       cliente: this.clienteSelecionado,
@@ -247,7 +255,9 @@ export class OrcamentoComponent {
       desconto: this.valorDescontoCalculado, // Salva o valor real em reais no banco
     };
 
-    await this.orcamentoService.inserir(orcamento).then((success) => {
+    this.salvando = true;
+    try {
+      const success = await this.orcamentoService.inserir(orcamento);
       if (success) {
         this.orcamentoService.limparOrcamento();
         this.produtosOrcamento = [];
@@ -255,6 +265,8 @@ export class OrcamentoComponent {
         this.mostrarDetalhes = false;
         this.mostrarClientes = false;
         this.resetarDescontoEFrete();
+        this.fecharModalClientes();
+        this.liberarScroll();
 
         this.alertaService.sucesso(
           'Orçamento Finalizado',
@@ -267,7 +279,6 @@ export class OrcamentoComponent {
             (resultado) => {
               if (resultado) {
                 this.enviarOrcamentoWhatsApp(orcamento);
-                this.paginaOrcamentos();
               }
               this.paginaOrcamentos();
             },
@@ -279,7 +290,9 @@ export class OrcamentoComponent {
           'Ocorreu um erro ao finalizar o orçamento. Tente novamente.',
         );
       }
-    });
+    } finally {
+      this.salvando = false;
+    }
   }
 
   validarOrcamento(): boolean {
@@ -324,6 +337,8 @@ export class OrcamentoComponent {
   }
 
   paginaOrcamentos() {
+    this.liberarScroll();
+    this.fecharModalClientes();
     this.router.navigate(['/negocios/lista-orcamentos']);
   }
 
@@ -375,7 +390,19 @@ export class OrcamentoComponent {
     if (this.mostrarDetalhes) {
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = '';
+      this.liberarScroll();
     }
+  }
+
+  private liberarScroll(): void {
+    unlockUi();
+  }
+
+  private fecharModalClientes(): void {
+    const el = document.getElementById('modalClientes');
+    if (!el) {
+      return;
+    }
+    bootstrap.Modal?.getInstance(el)?.hide();
   }
 }

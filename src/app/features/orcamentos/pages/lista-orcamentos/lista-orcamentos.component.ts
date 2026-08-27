@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BuscadorPipe } from '@app/shared/pipes/buscador.pipe';
 import { CpfPipe } from '@app/shared/pipes/cpf.pipe';
 import { OrcamentoService } from '@app/core/services/orcamento.service';
 import { Orcamento } from '@app/shared/models/orcamento';
 import { TelefonePipe } from '@app/shared/pipes/telefone.pipe';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { TransacaoService } from '@app/core/services/transacao.service';
 import { Transacao } from '@app/shared/models/transacao';
 import { AlertaService } from '@app/core/services/alerta.service';
@@ -22,12 +22,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     FormsModule,
     CpfPipe,
     TelefonePipe,
-    RouterLink,
   ],
   templateUrl: './lista-orcamentos.component.html',
   styleUrl: './lista-orcamentos.component.css',
 })
-export class ListaOrcamentosComponent implements OnInit {
+export class ListaOrcamentosComponent implements OnInit, OnDestroy {
   campoPesquisa: string = 'nomeCliente';
   nomePesquisa?: string;
   listaOrcamentos: Orcamento[] = [];
@@ -109,6 +108,18 @@ export class ListaOrcamentosComponent implements OnInit {
   fecharModal() {
     this.orcamentoService.limparOrcamentoSelecionado();
     this.orcamentoSelecionado = undefined;
+  }
+
+  ngOnDestroy(): void {
+    this.orcamentoService.limparOrcamentoSelecionado();
+  }
+
+  irParaRecibo(id?: number): void {
+    this.fecharModal();
+    if (id == null) {
+      return;
+    }
+    void this.router.navigate(['/negocios/recibo', id]);
   }
 
   getNomesProdutos(orcamento: Orcamento): string {

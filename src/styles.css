@@ -7,6 +7,13 @@ body {
   -webkit-tap-highlight-color: transparent; /* remove highlight no toque */
 }
 
+input,
+textarea,
+[contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 /**
  * Diretriz Super App (Mobile First):
  * tabelas devem rolar horizontalmente em viewports estreitos.

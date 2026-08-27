@@ -1,7 +1,6 @@
 import {
   Component,
   DestroyRef,
-  HostListener,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -19,10 +18,9 @@ import { AlertaService } from '@app/core/services/alerta.service';
 import { OrcamentoService } from '@app/core/services/orcamento.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-// 1. Importações do PWA adicionadas aqui
-
 import { filter } from 'rxjs/operators';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
+import { unlockUi } from '@app/shared/utils/ui-lock';
 
 declare var bootstrap: any;
 
@@ -40,13 +38,6 @@ export class AppComponent implements OnInit {
 
   @ViewChild('alertaGlobal', { static: false })
   alertaGlobal!: AlertaComponent;
-
-  // Captura qualquer dblclick no app inteiro
-  @HostListener('document:dblclick', ['$event'])
-  blockDoubleClick(event: Event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
 
   constructor(
     public router: Router,
@@ -99,6 +90,7 @@ export class AppComponent implements OnInit {
         if (event instanceof NavigationEnd) {
           const url = event.urlAfterRedirects.split('?')[0] ?? '';
           this.validaNavBar = this.deveExibirNavGlobal(url);
+          unlockUi();
         }
       });
   }

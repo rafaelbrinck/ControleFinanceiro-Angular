@@ -8,13 +8,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none; /* Evita que interfira com o clique, a não ser que esteja visível */
+  pointer-events: none;
 }
 
-.alerta-overlay {
-  background: rgba(0, 0, 0, 0.4);
-  width: 100%;
-  height: 100%;
+:host .modal {
   pointer-events: auto;
 }
 

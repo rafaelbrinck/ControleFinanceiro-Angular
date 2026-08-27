@@ -90,7 +90,7 @@ export class ReciboComponent implements OnInit {
     this.gerandoPdf.set(true);
     try {
       const canvas = await html2canvas(area, {
-        scale: 2,
+        scale: window.innerWidth < 768 ? 1.25 : 2,
         useCORS: true,
         backgroundColor: '#ffffff',
       });

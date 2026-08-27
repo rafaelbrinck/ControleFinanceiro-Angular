@@ -218,8 +218,13 @@
       </div>
 
       <div class="d-grid gap-2">
-        <button class="btn btn-success btn-lg shadow fw-bold" (click)="finalizarOrcamento()">
-          <i class="bi bi-whatsapp me-2"></i> Finalizar e Enviar
+        <button
+          class="btn btn-success btn-lg shadow fw-bold"
+          (click)="finalizarOrcamento()"
+          [disabled]="salvando"
+        >
+          <i class="bi bi-whatsapp me-2"></i>
+          {{ salvando ? 'Salvando...' : 'Finalizar e Enviar' }}
         </button>
         <button class="btn btn-link text-danger text-decoration-none btn-sm" (click)="limparCarrinho()">
           Esvaziar Carrinho
