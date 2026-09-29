@@ -9,4 +9,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    // Evita conflito do Navigator LockManager com zone.js (Angular).
+    // O erro no console é cosmético; auth continua ok sem o lock nativo.
+    lock: async (_name, _acquireTimeout, fn) => fn(),
+  },
+});
