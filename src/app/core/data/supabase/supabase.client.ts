@@ -1,6 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
-export const supabase = createClient(
-  'https://gybxgmbctvccqmuqidta.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5YnhnbWJjdHZjY3FtdXFpZHRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkxNjk3OTEsImV4cCI6MjA2NDc0NTc5MX0.r5m8x0zDcfUD-FwNDwpPMctnaU_DSJxYAzH7wAPqxLM'
-);
+const supabaseUrl = import.meta.env.NG_APP_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.NG_APP_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    'Variáveis NG_APP_SUPABASE_URL e NG_APP_SUPABASE_ANON_KEY não definidas. Copie .env.example para .env e preencha os valores.'
+  );
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
